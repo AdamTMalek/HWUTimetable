@@ -42,6 +42,7 @@ class Scraper {
         formData["bGuestLogin"] = "Guest"
 
         val con = Jsoup.connect(login_url).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
+        response = con.parse()
         return con.statusCode()
     }
 }
