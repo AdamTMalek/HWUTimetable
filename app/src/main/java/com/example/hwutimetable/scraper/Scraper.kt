@@ -34,16 +34,33 @@ class Scraper {
      * @return status code after POST
      */
     fun login() : Int {
-        val connection = Jsoup.connect(login_url).execute()
+        var connection = Jsoup.connect(login_url).execute()
         cookies.putAll(connection.cookies())
         response = connection.parse()
 
         val formData = getRequiredFormData()
         formData["bGuestLogin"] = "Guest"
 
-        val con = Jsoup.connect(login_url).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
-        response = con.parse()
-        return con.statusCode()
+        connection = Jsoup.connect(login_url).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
+        response = connection.parse()
+        cookies.putAll(connection.cookies())
+        return connection.statusCode()
+    }
+
+    fun goToProgrammesTimetables() : Int {
+        val formData = getRequiredFormData()
+        formData["tLinkType"] = "information"
+        formData["__EVENTARGUMENT"] = ""
+        formData["__EVENTTARGET"] = "LinkBtn_studentsets"
+
+        val connection = Jsoup.connect(default_url)
+            .data(formData)
+            .cookies(cookies)
+            .method(Connection.Method.POST)
+            .execute()
+        response = connection.parse()
+        cookies.putAll(connection.cookies())
+        return connection.statusCode()
     }
 }
 
@@ -54,6 +71,7 @@ class Scraper {
 fun main() {
     val scraper = Scraper()
     println(scraper.login())
+    println(scraper.goToProgrammesTimetables())
 //    println(scraper.getTitle())
 //    println(scraper.getRequiredFormData())
 }
