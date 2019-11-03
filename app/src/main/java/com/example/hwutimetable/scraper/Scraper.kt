@@ -47,6 +47,10 @@ class Scraper {
         return connection.statusCode()
     }
 
+    /**
+     * Go to the Student Group Timetables (equivalent of clicking Student Groups link)
+     * @return status code after transition
+     */
     fun goToProgrammesTimetables() : Int {
         val formData = getRequiredFormData()
         formData["tLinkType"] = "information"
