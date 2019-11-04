@@ -7,8 +7,9 @@ class Scraper {
     private val loginUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
     private val defaultUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
 
+    private var cookies: MutableMap<String, String> = mutableMapOf()
     private var response: Document? = null
-    private var cookies : MutableMap<String, String> = mutableMapOf()
+    private var timetable: Document? = null
 
     /**
      * Searches for the input with the given [id] in the response document and returns its value
@@ -167,29 +168,24 @@ class Scraper {
         options?.forEach{ option -> groups[option.`val`()] = option.text()}
         return HashMap<String, String>(groups)
     }
-}
 
-/**
- * The following main function is used for development purposes only
- * TODO: Delete the function below after finishing writing the module
- */
-fun main() {
-    val scraper = Scraper()
-    println(scraper.login())
-    println(scraper.goToProgrammesTimetables())
-    val departments = scraper.getDepartments()
-    departments.forEach {
-        println("${it.key}: ${it.value}")
-    }
-    scraper.getLevels().forEach {
-        println("${it.key}: ${it.value}")
-    }
+    fun getTimetable(department: String, level : String, group: String) : Document {
+        val formData = getTimetableFormData().apply {
+            putAll(mapOf(
+                "__EVENTARGUMENT" to "",
+                "__EVENTTARGET" to "",
+                "dlFilter2" to department,
+                "dlFilter" to level,
+                "dlObject" to group,
+                "bGetTimetable" to "View Timetable"
+            ))
+        }
 
-    val department = "FC60807364F1D08D810E00FDA8C9D9FE"
-    val level = "Undergraduate Level 3"
-    scraper.getGroups(department, level).forEach {
-        println("${it.key}: ${it.value}")
+        val connection = Jsoup.connect(defaultUrl)
+            .data(formData)
+            .cookies(cookies)
+            .method(Connection.Method.POST)
+            .execute()
+        return connection.parse()
     }
-//    println(scraper.getTitle())
-//    println(scraper.getRequiredFormData())
 }
