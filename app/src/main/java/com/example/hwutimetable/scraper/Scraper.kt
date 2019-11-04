@@ -2,14 +2,36 @@ package com.example.hwutimetable.scraper
 
 import org.jsoup.*
 import org.jsoup.nodes.Document
+import java.lang.IllegalStateException
+
+/**
+ * ScraperState represents different state that the Scraper can be in
+ */
+enum class ScraperState {
+    OnLoginSite,
+    LoggedIn,
+    OnTimetablesSite,
+    Filtered, // Department and/or level filter has been applied
+    Finished  // Finished scraping
+}
 
 class Scraper {
     private val loginUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
     private val defaultUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
 
+    private var state = ScraperState.OnLoginSite
     private var cookies: MutableMap<String, String> = mutableMapOf()
     private var response: Document? = null
-    private var timetable: Document? = null
+
+    private var department = ""
+    private var level = ""
+
+    init {
+        // Call the following function after the constructing the object
+        login()
+        goToProgrammesTimetables()
+        // At this point we should be at OnTimetablesSite state
+    }
 
     /**
      * Searches for the input with the given [id] in the response document and returns its value
@@ -33,7 +55,7 @@ class Scraper {
      * Login in to the main (default) timetables website as a guest
      * @return status code after POST
      */
-    fun login(): Int {
+    private fun login(): Int {
         var connection = Jsoup.connect(loginUrl).execute()
         cookies.putAll(connection.cookies())
         response = connection.parse()
@@ -44,6 +66,10 @@ class Scraper {
         connection = Jsoup.connect(loginUrl).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
         response = connection.parse()
         cookies.putAll(connection.cookies())
+
+        if (connection.statusCode() == 200)
+            state = ScraperState.LoggedIn
+
         return connection.statusCode()
     }
 
@@ -52,6 +78,10 @@ class Scraper {
      * @return status code after transition
      */
     fun goToProgrammesTimetables(): Int {
+        check(state == ScraperState.LoggedIn) {
+            throw IllegalStateException("Cannot perform this action when not logged in")
+        }
+
         val formData = getRequiredFormData()
         formData["tLinkType"] = "information"
         formData["__EVENTARGUMENT"] = ""
@@ -64,6 +94,10 @@ class Scraper {
             .execute()
         response = connection.parse()
         cookies.putAll(connection.cookies())
+
+        if (connection.statusCode() == 200)
+            state = ScraperState.OnTimetablesSite
+
         return connection.statusCode()
     }
 
@@ -115,14 +149,13 @@ class Scraper {
     }
 
     /**
-     * Scrapes groups from the Student Group Timetable site
+     * Filter by department and then by level
      * @param department department option's value (not text)
      * @param level level option's value (not text)
-     * @return List of group options
+     * @return HTTP status code
      */
-    fun getGroups(department: String, level: String): List<Option>? {
-        // Define filter methods. Both of them return HTTP status code
-        fun filterByDepartment(): Int {
+    private fun filter(department: String, level: String): Int {
+        fun filterByDepartment(department: String): Int {
             val formData = getTimetableFormData().apply {
                 putAll(
                     mapOf(
@@ -144,31 +177,51 @@ class Scraper {
             return connection.statusCode()
         }
 
-        fun filterByLevel(): Int {
-            val formData = getTimetableFormData().apply {
-                putAll(
-                    mapOf(
-                        "__EVENTARGUMENT" to "",
-                        "__EVENTTARGET" to "dlFilter",
-                        "dlFilter2" to department,
-                        "dlFilter" to level
-                    )
-                )
-            }
+        val deptStatusCode = filterByDepartment(department)
+        check(deptStatusCode == 200) { return deptStatusCode }
 
-            val connection = Jsoup.connect(defaultUrl)
-                .data(formData)
-                .cookies(cookies)
-                .method(Connection.Method.POST)
-                .execute()
-            response = connection.parse()
-            cookies.putAll(connection.cookies())
-            return connection.statusCode()
+        val formData = getTimetableFormData().apply {
+            putAll(
+                mapOf(
+                    "__EVENTARGUMENT" to "",
+                    "__EVENTTARGET" to "dlFilter",
+                    "dlFilter2" to department,
+                    "dlFilter" to level
+                )
+            )
         }
 
-        filterByDepartment()
-        filterByLevel()
+        val connection = Jsoup.connect(defaultUrl)
+            .data(formData)
+            .cookies(cookies)
+            .method(Connection.Method.POST)
+            .execute()
+        response = connection.parse()
+        cookies.putAll(connection.cookies())
 
+        if (connection.statusCode() == 200)
+            state = ScraperState.Filtered
+
+        return connection.statusCode()
+    }
+
+    /**
+     * Scrapes groups from the Student Group Timetable site
+     * @param department department option's value (not text)
+     * @param level level option's value (not text)
+     * @return List of group options
+     */
+    fun getGroups(department: String, level: String): List<Option>? {
+        check(state == ScraperState.OnTimetablesSite) {
+            throw IllegalStateException("To get the groups, the Scraper must be on the Student Groups Timetables site")
+        }
+
+        // Apply the filter
+        if (filter(department, level) == 200) {
+            state = ScraperState.Filtered
+            this.department = department
+            this.level = level
+        }
         return response?.selectFirst("#dlObject")
             ?.select("option")
             ?.map {
@@ -176,7 +229,28 @@ class Scraper {
             }
     }
 
-    fun getTimetable(department: String, level: String, group: String, semester: Int): Document {
+    /**
+     * Get the timetable document from the website with the given [group] id (option value)
+     * and the semester.
+     * @param group group Option value
+     * @param semester Integer 1 or 2
+     * @return HTML document with the timetable
+     */
+    fun getTimetable(group: String, semester: Int): Document {
+        if (state == ScraperState.Finished)
+            return response as Document  // We have finished scraping - result is the timetable
+
+        // We have to apply filters even though we know the group option value
+        // Otherwise we will get an error "No items have been selected for your request"
+        if (state != ScraperState.Filtered) {
+            filter("", "")
+            return getTimetable(group, semester)
+        }
+
+        check(state == ScraperState.Filtered) {
+            throw IllegalStateException("getTimetable can only be accessed on \"$state\" state")
+        }
+
         val formData = getTimetableFormData(semester).apply {
             putAll(
                 mapOf(
@@ -195,6 +269,11 @@ class Scraper {
             .cookies(cookies)
             .method(Connection.Method.POST)
             .execute()
-        return connection.parse()
+
+        if (connection.statusCode() == 200)
+            state = ScraperState.Finished
+
+        response = connection.parse()
+        return response as Document
     }
 }
