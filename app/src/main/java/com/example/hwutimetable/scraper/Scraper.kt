@@ -97,12 +97,18 @@ class Scraper {
      * along with the 3 fields from [getRequiredFormData]
      * @return Mutable map with the required data
      */
-    private fun getTimetableFormData() : MutableMap<String, String> {
+    private fun getTimetableFormData(semester : Int = 1) : MutableMap<String, String> {
+        val weeks = when (semester) {
+            1 -> "1;2;3;4;5;6;7;8;9;10;11;12"
+            2 -> "18;19;20;21;22;23;24;25;26;27;28;29"
+            else -> throw IllegalArgumentException("semester must be either 1 or 2")
+        }
+
         val data = getRequiredFormData()
         data.putAll(mapOf(
             "tLinkType" to "studentsets",
             "tWildcard" to "",
-            "lbWeeks" to "1;2;3;4;5;6;7;8;9;10;11;12",
+            "lbWeeks" to weeks,
             "lbDays" to "1-5",
             "dlPeriod" to "6-41",
             "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
@@ -169,8 +175,8 @@ class Scraper {
         return HashMap<String, String>(groups)
     }
 
-    fun getTimetable(department: String, level : String, group: String) : Document {
-        val formData = getTimetableFormData().apply {
+    fun getTimetable(department: String, level : String, group: String, semester: Int) : Document {
+        val formData = getTimetableFormData(semester).apply {
             putAll(mapOf(
                 "__EVENTARGUMENT" to "",
                 "__EVENTTARGET" to "",
