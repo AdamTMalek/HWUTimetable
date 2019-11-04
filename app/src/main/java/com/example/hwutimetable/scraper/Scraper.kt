@@ -4,11 +4,10 @@ import org.jsoup.*
 import org.jsoup.nodes.Document
 
 class Scraper {
-    private val login_url = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
-    private val default_url = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
+    private val loginUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
+    private val defaultUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
 
     private var response: Document? = null
-    private var timetable: Document? = null
     private var cookies : MutableMap<String, String> = mutableMapOf()
 
     /**
@@ -34,14 +33,14 @@ class Scraper {
      * @return status code after POST
      */
     fun login() : Int {
-        var connection = Jsoup.connect(login_url).execute()
+        var connection = Jsoup.connect(loginUrl).execute()
         cookies.putAll(connection.cookies())
         response = connection.parse()
 
         val formData = getRequiredFormData()
         formData["bGuestLogin"] = "Guest"
 
-        connection = Jsoup.connect(login_url).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
+        connection = Jsoup.connect(loginUrl).data(formData).cookies(cookies).method(Connection.Method.POST).execute()
         response = connection.parse()
         cookies.putAll(connection.cookies())
         return connection.statusCode()
@@ -57,7 +56,7 @@ class Scraper {
         formData["__EVENTARGUMENT"] = ""
         formData["__EVENTTARGET"] = "LinkBtn_studentsets"
 
-        val connection = Jsoup.connect(default_url)
+        val connection = Jsoup.connect(defaultUrl)
             .data(formData)
             .cookies(cookies)
             .method(Connection.Method.POST)
@@ -128,7 +127,7 @@ class Scraper {
                 ))
             }
 
-            val connection = Jsoup.connect(default_url)
+            val connection = Jsoup.connect(defaultUrl)
                 .data(formData)
                 .cookies(cookies)
                 .method(Connection.Method.POST)
@@ -148,7 +147,7 @@ class Scraper {
                 ))
             }
 
-            val connection = Jsoup.connect(default_url)
+            val connection = Jsoup.connect(defaultUrl)
                 .data(formData)
                 .cookies(cookies)
                 .method(Connection.Method.POST)
