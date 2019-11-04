@@ -16,7 +16,7 @@ class Scraper {
      * @param id input id
      * @return value as String, empty String if the input has no value
      */
-    private fun getInputValue(id : String) = response?.selectFirst("#$id")?.`val`() ?: ""
+    private fun getInputValue(id: String) = response?.selectFirst("#$id")?.`val`() ?: ""
 
     /**
      * Every form data must have __VIEWSTATE __VIEWSTATEGENERATOR and __EVENTVALIDATION fields
@@ -33,7 +33,7 @@ class Scraper {
      * Login in to the main (default) timetables website as a guest
      * @return status code after POST
      */
-    fun login() : Int {
+    fun login(): Int {
         var connection = Jsoup.connect(loginUrl).execute()
         cookies.putAll(connection.cookies())
         response = connection.parse()
@@ -51,7 +51,7 @@ class Scraper {
      * Go to the Student Group Timetables (equivalent of clicking Student Groups link)
      * @return status code after transition
      */
-    fun goToProgrammesTimetables() : Int {
+    fun goToProgrammesTimetables(): Int {
         val formData = getRequiredFormData()
         formData["tLinkType"] = "information"
         formData["__EVENTARGUMENT"] = ""
@@ -68,28 +68,24 @@ class Scraper {
     }
 
     /**
-     * Get a map of the departments from the Student Group Timetables site
-     * @return Map where a key is option's value and value is option's text
+     * Get a list of the departments from the Student Group Timetables site
+     * @return List of department options
      */
-    fun getDepartments() : Map<String, String> {
-        val options = response?.selectFirst("#dlFilter2")
-            ?.select("option")
-        val departments : MutableMap<String, String> =  mutableMapOf()
-        options?.forEach { option -> departments[option.`val`()] = option.text()}
-        return HashMap<String, String>(departments)
-    }
+    fun getDepartments() = response?.selectFirst("#dlFilter2")
+        ?.select("option")
+        ?.map {
+            Option(it.`val`(), it.text())
+        }
 
     /**
-     * Get a map of the levels from the Student Group Timetables site
-     * @return Map where a key is option's value and value is option's text
+     * Get a list of the levels from the Student Group Timetables site
+     * @return List of level options
      */
-    fun getLevels() : Map<String, String> {
-        val options = response?.selectFirst("#dlFilter")
-            ?.select("option")
-        val levels : MutableMap<String, String> = mutableMapOf()
-        options?.forEach { option -> levels[option.`val`()] = option.text()}
-        return HashMap<String, String>(levels)
-    }
+    fun getLevels() = response?.selectFirst("#dlFilter")
+        ?.select("option")
+        ?.map {
+            Option(it.`val`(), it.text())
+        }
 
     /**
      * The Student Group Timetables POST requests require some additional form data
@@ -97,7 +93,7 @@ class Scraper {
      * along with the 3 fields from [getRequiredFormData]
      * @return Mutable map with the required data
      */
-    private fun getTimetableFormData(semester : Int = 1) : MutableMap<String, String> {
+    private fun getTimetableFormData(semester: Int = 1): MutableMap<String, String> {
         val weeks = when (semester) {
             1 -> "1;2;3;4;5;6;7;8;9;10;11;12"
             2 -> "18;19;20;21;22;23;24;25;26;27;28;29"
@@ -105,14 +101,16 @@ class Scraper {
         }
 
         val data = getRequiredFormData()
-        data.putAll(mapOf(
-            "tLinkType" to "studentsets",
-            "tWildcard" to "",
-            "lbWeeks" to weeks,
-            "lbDays" to "1-5",
-            "dlPeriod" to "6-41",
-            "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
-        ))
+        data.putAll(
+            mapOf(
+                "tLinkType" to "studentsets",
+                "tWildcard" to "",
+                "lbWeeks" to weeks,
+                "lbDays" to "1-5",
+                "dlPeriod" to "6-41",
+                "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
+            )
+        )
         return data
     }
 
@@ -120,18 +118,20 @@ class Scraper {
      * Scrapes groups from the Student Group Timetable site
      * @param department department option's value (not text)
      * @param level level option's value (not text)
-     * @return Map where a key is the option's value and value is the option's text
+     * @return List of group options
      */
-    fun getGroups(department : String, level : String) : Map<String, String> {
+    fun getGroups(department: String, level: String): List<Option>? {
         // Define filter methods. Both of them return HTTP status code
-        fun filterByDepartment() : Int {
+        fun filterByDepartment(): Int {
             val formData = getTimetableFormData().apply {
-                putAll(mapOf(
-                    "__EVENTARGUMENT" to "",
-                    "__EVENTTARGET" to "dlFilter2",
-                    "dlFilter2" to department,
-                    "dlFilter" to ""
-                ))
+                putAll(
+                    mapOf(
+                        "__EVENTARGUMENT" to "",
+                        "__EVENTTARGET" to "dlFilter2",
+                        "dlFilter2" to department,
+                        "dlFilter" to ""
+                    )
+                )
             }
 
             val connection = Jsoup.connect(defaultUrl)
@@ -144,14 +144,16 @@ class Scraper {
             return connection.statusCode()
         }
 
-        fun filterByLevel() : Int {
+        fun filterByLevel(): Int {
             val formData = getTimetableFormData().apply {
-                putAll(mapOf(
-                    "__EVENTARGUMENT" to "",
-                    "__EVENTTARGET" to "dlFilter",
-                    "dlFilter2" to department,
-                    "dlFilter" to level
-                ))
+                putAll(
+                    mapOf(
+                        "__EVENTARGUMENT" to "",
+                        "__EVENTTARGET" to "dlFilter",
+                        "dlFilter2" to department,
+                        "dlFilter" to level
+                    )
+                )
             }
 
             val connection = Jsoup.connect(defaultUrl)
@@ -167,24 +169,25 @@ class Scraper {
         filterByDepartment()
         filterByLevel()
 
-        // We can now construct the map
-        val groups : MutableMap<String, String> = mutableMapOf()
-        val options = response?.selectFirst("#dlObject")
+        return response?.selectFirst("#dlObject")
             ?.select("option")
-        options?.forEach{ option -> groups[option.`val`()] = option.text()}
-        return HashMap<String, String>(groups)
+            ?.map {
+                Option(it.`val`(), it.text())
+            }
     }
 
-    fun getTimetable(department: String, level : String, group: String, semester: Int) : Document {
+    fun getTimetable(department: String, level: String, group: String, semester: Int): Document {
         val formData = getTimetableFormData(semester).apply {
-            putAll(mapOf(
-                "__EVENTARGUMENT" to "",
-                "__EVENTTARGET" to "",
-                "dlFilter2" to department,
-                "dlFilter" to level,
-                "dlObject" to group,
-                "bGetTimetable" to "View Timetable"
-            ))
+            putAll(
+                mapOf(
+                    "__EVENTARGUMENT" to "",
+                    "__EVENTTARGET" to "",
+                    "dlFilter2" to department,
+                    "dlFilter" to level,
+                    "dlObject" to group,
+                    "bGetTimetable" to "View Timetable"
+                )
+            )
         }
 
         val connection = Jsoup.connect(defaultUrl)
