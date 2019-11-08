@@ -57,6 +57,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun groupsCallback(options: List<Option>?) {
         if (options != null) {
             applyAdapterFromList(groups_spinner, options.map { it.text })
+            submit_button.isEnabled = true
         }
     }
 
