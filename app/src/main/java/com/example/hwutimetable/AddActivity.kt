@@ -30,6 +30,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setButtonClickListener()
 
         asyncScraper.initialise(::scraperInitCallback)
+        changeProgressBarVisibility(true)
     }
 
     /**
@@ -42,6 +43,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun setButtonClickListener() {
         submit_button.setOnClickListener {
+            changeProgressBarVisibility(true)
             val groupOption = groups?.find {
                 it.text == groups_spinner.selectedItem.toString()
             }
@@ -58,6 +60,8 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * Initialisation callback for AsyncScraper initialisation
      */
     private fun scraperInitCallback(scraper: Scraper?) {
+        changeProgressBarVisibility(false)
+
         scraper ?: return
         departments = scraper.getDepartments()
         levels = scraper.getLevels()
@@ -71,6 +75,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * getGroups callback for AsyncScraper
      */
     private fun groupsCallback(options: List<Option>?) {
+        changeProgressBarVisibility(false)
         groups = options
 
         if (options != null) {
@@ -108,6 +113,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             return // We require both filters
 
         // Both filters applied - get the groups
+        changeProgressBarVisibility(true)
         asyncScraper.filter(selectedDepartment!!.optionValue, selectedLevel!!.optionValue, ::groupsCallback)
     }
 
@@ -119,5 +125,14 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
         val timetableInfo = TimetableInfo(requestedGroup!!.optionValue, requestedGroup!!.text)
         DocumentHandler.save(this.applicationContext, document, timetableInfo)
+
+        changeProgressBarVisibility(false)
+    }
+
+    private fun changeProgressBarVisibility(visible: Boolean) {
+        when (visible) {
+            true -> progress_bar.visibility = View.VISIBLE
+            false -> progress_bar.visibility = View.INVISIBLE
+        }
     }
 }
