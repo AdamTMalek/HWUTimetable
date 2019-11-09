@@ -25,7 +25,7 @@ class ParserTest {
 
     @Test
     fun testNumberOfLectures() {
-        // There are 15 lectures in tt1.html
-        assertEquals(15, parser.lectures.size)
+        // There are 15 timetable items in tt1.html
+        assertEquals(15, parser.timetableItems.size)
     }
 }
