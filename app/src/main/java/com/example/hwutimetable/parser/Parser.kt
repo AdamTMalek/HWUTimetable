@@ -6,11 +6,11 @@ import org.joda.time.LocalTime
 
 
 /**
- * This class is used to parse the given (time)[table] and store the results as a list of lectures
+ * This class is used to parse the given (time)[table] and store the results as a list of timetable items
  * @param table: Jsoup document with a Jsoup parser
  */
 class Parser(private val table: Document) {
-    val lectures : MutableList<Lecture> = mutableListOf()
+    val timetableItems : MutableList<TimetableItem> = mutableListOf()
 
     /**
      * Finds the rows of the day and returns the list of them
@@ -71,24 +71,24 @@ class Parser(private val table: Document) {
     }
 
     /**
-     * Parse the [td] with a table as a Lecture object
-     * @param td: td with a lecture
-     * @param tdCounter: td index at which the lecture appears
-     * @return Colspan width of the lecture
+     * Parse the [td] with a table as a TimetableItem object
+     * @param td: td with an item
+     * @param tdCounter: td index at which the item appears
+     * @return Colspan width of the item
      */
     private fun getLecture(td: Element, tdCounter: Int) : Int {
         val colspan = td.attr("colspan").toInt()  // Colspan tells us the duration of the lecture
         val startTime = getTime(tdCounter)
         val endTime = getTime(tdCounter + colspan)
 
-        val tables = td.select("table")  // There are 3 tables per lecture cell
+        val tables = td.select("table")  // There are 3 tables for each item cell
 
         val orgInfo = tables[0]  // First table has the code, weeks and room
         val code = orgInfo.selectFirst("td[align=left]").text()
         val weeks = orgInfo.selectFirst("td[align=center]").text()
         val room = orgInfo.selectFirst("td[align=right]").text()
 
-        // Currently, we are only interested in the lecture name
+        // Currently, we are only interested in the item name
         val name = tables[1].selectFirst("td[align=center]").text()
 
         // The last table has the lecturer(s) name(s) and the type
@@ -96,7 +96,7 @@ class Parser(private val table: Document) {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        lectures.add(Lecture(
+        timetableItems.add(TimetableItem(
             name = name,
             code = code,
             room = room,
@@ -111,7 +111,7 @@ class Parser(private val table: Document) {
     }
 
     /**
-     * With the given list of rows - finds all lectures that are in them and adds them to the lectures list.
+     * With the given list of rows - finds all timetable items that are in them and adds them to the timetableItems list.
      * @param rows: List of rows
      */
     private fun addLecturesFromRows(rows: List<Element>) {
@@ -132,7 +132,7 @@ class Parser(private val table: Document) {
                 if (column.hasClass("cell-border"))
                     return@forEach  // No lecture
 
-                // Get lecture and its width (colspan)
+                // Get the item and its width (colspan)
                 val colspan = getLecture(column, tdCounter)
                 tdCounter = tdCounter + colspan - 1  // There would be a double incrementation so takeaway 1
             }
@@ -146,10 +146,10 @@ class Parser(private val table: Document) {
     private fun documentHasParser() = this.table.parser() != null
 
     /**
-     * Parses the timetable and return the lectures
-     * @return List of lectures
+     * Parses the timetable and return the timetable items
+     * @return List of timetable items
      */
-    fun parse() : List<Lecture> {
+    fun parse() : List<TimetableItem> {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
@@ -158,6 +158,6 @@ class Parser(private val table: Document) {
             addLecturesFromRows(rows)
         }
 
-        return lectures
+        return timetableItems
     }
 }

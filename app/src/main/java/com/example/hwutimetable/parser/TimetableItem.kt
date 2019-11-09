@@ -5,9 +5,9 @@ import org.joda.time.Minutes
 import org.joda.time.Period
 
 /**
- * Lecture object represents a lecture, lab, tutorial etc.
+ * TimetableItem object represents a lecture, lab, tutorial etc.
  */
-data class Lecture(
+data class TimetableItem(
     val code: String,
     val name: String,
     val room: String,
