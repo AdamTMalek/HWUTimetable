@@ -117,7 +117,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun timetableRequestCallback(document: Document?) {
         checkNotNull(document) { return }
         checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
-        val filename = requestedGroup!!.optionValue
-        DocumentSaver.save(this.applicationContext, document, filename)
+        val timetableInfo = TimetableInfo(requestedGroup!!.optionValue, requestedGroup!!.text)
+        DocumentHandler.save(this.applicationContext, document, timetableInfo)
     }
 }
