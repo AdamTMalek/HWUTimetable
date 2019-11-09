@@ -273,7 +273,7 @@ class Scraper {
         if (connection.statusCode() == 200)
             state = ScraperState.Finished
 
-        response = connection.parse()
+        response = Jsoup.parse(connection.parse().selectFirst("table.grid-border-args").outerHtml())
         return response as Document
     }
 }

@@ -1,6 +1,7 @@
 package com.example.hwutimetable.scraper
 
 import android.os.AsyncTask
+import org.jsoup.nodes.Document
 
 /**
  * This class is a helper class for the Scraper class that allows asynchronous scraping.
@@ -38,6 +39,20 @@ class AsyncScraper {
     }
 
     /**
+     * AsyncTimetableRequest requests the timetable and returns it as Jsoup Document
+     */
+    internal class AsyncTimetableRequest(private val scraper: Scraper, private val callback: (Document?) -> Unit) :
+        AsyncTask<GroupRequest, Void, Document?>() {
+        override fun doInBackground(vararg params: GroupRequest): Document? {
+            val groupRequest = params[0]
+            return scraper.getTimetable(groupRequest.optionValue, groupRequest.semester)
+        }
+
+        override fun onPostExecute(result: Document?) {
+            this.callback(result)
+        }
+    }
+    /**
      * Initialises the scraper asynchronously
      * @param callback: Callback that will be invoked after the scraper is initialised.
      */
@@ -65,5 +80,16 @@ class AsyncScraper {
     fun filter(department: String, level: String, callback: (List<Option>?) -> Unit) {
         asyncFilter = this.scraper?.let { AsyncFilter(it, callback) }
         asyncFilter?.execute(department, level)
+    }
+
+    /**
+     * Makes an asynchronous request to get the timetable for the chosen group
+     * @param group: Group (programme) option value
+     * @param semester: Semester - either 0 or 1
+     * @param callback: Callback that accepts a Jsoup document of the timetable
+     */
+    fun requestGroup(group: String, semester: Int, callback: (Document?) -> Unit) {
+        val asyncRequest = this.scraper?.let { AsyncTimetableRequest(it, callback)}
+        asyncRequest?.execute(GroupRequest(group, semester))
     }
 }
