@@ -11,19 +11,23 @@ import com.example.hwutimetable.scraper.Option
 
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.android.synthetic.main.activity_add.*
+import org.jsoup.nodes.Document
 
 class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private var asyncScraper = AsyncScraper()
     private var departments: List<Option>? = null
     private var levels: List<Option>? = null
+    private var groups: List<Option>? = null
     private var selectedDepartment: Option? = null
     private var selectedLevel: Option? = null
+    private var requestedGroup: Option? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add)
 
         setItemSelectedListener()
+        setButtonClickListener()
 
         asyncScraper.initialise(::scraperInitCallback)
     }
@@ -34,6 +38,20 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun setItemSelectedListener() {
         departments_spinner.onItemSelectedListener = this
         levels_spinner.onItemSelectedListener = this
+    }
+
+    private fun setButtonClickListener() {
+        submit_button.setOnClickListener {
+            val groupOption = groups?.find {
+                it.text == groups_spinner.selectedItem.toString()
+            }
+
+            if (groupOption != null) {
+                requestedGroup = groupOption
+                val optionValue = groupOption.optionValue
+                asyncScraper.requestGroup(optionValue, 1, ::timetableRequestCallback)
+            }
+        }
     }
 
     /**
@@ -53,6 +71,8 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * getGroups callback for AsyncScraper
      */
     private fun groupsCallback(options: List<Option>?) {
+        groups = options
+
         if (options != null) {
             applyAdapterFromList(groups_spinner, options.map { it.text })
             submit_button.isEnabled = true
@@ -92,5 +112,12 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
+    }
+
+    private fun timetableRequestCallback(document: Document?) {
+        checkNotNull(document) { return }
+        checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
+        val filename = requestedGroup!!.optionValue
+        DocumentSaver.save(this.applicationContext, document, filename)
     }
 }
