@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">HWU Timetable</string>
-    <string name="action_settings">Settings</string>
+	<string name="app_name">HWU Timetable</string>
+	<string name="action_settings">Settings</string>
+	<string name="departments">Departments:</string>
+	<string name="levels">Levels:</string>
+	<string name="groups">Groups</string>
+	<string name="submit">Get Timetable</string>
 </resources>

@@ -212,8 +212,8 @@ class Scraper {
      * @return List of group options
      */
     fun getGroups(department: String, level: String): List<Option>? {
-        check(state == ScraperState.OnTimetablesSite) {
-            throw IllegalStateException("To get the groups, the Scraper must be on the Student Groups Timetables site")
+        check(state == ScraperState.OnTimetablesSite || state == ScraperState.Filtered) {
+            throw IllegalStateException("Illegal state for getGroups. Must be OnTimetablesSite or Filter.")
         }
 
         // Apply the filter
