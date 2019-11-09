@@ -6,8 +6,11 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.ArrayAdapter
 
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,6 +23,8 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddActivity::class.java)
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
         }
+
+        listTimetables()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -36,5 +41,19 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun listTimetables() {
+        val timetableInfoList = DocumentHandler.getStoredTimetables(this.applicationContext)
+
+        if (timetableInfoList.isEmpty())
+            return
+
+        no_timetables_text.visibility = View.INVISIBLE
+        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, timetableInfoList.map {
+            it.name
+        })
+
+        timetables_list_view.adapter = adapter
     }
 }

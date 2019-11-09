@@ -5,4 +5,5 @@
 	<string name="levels">Levels:</string>
 	<string name="groups">Groups</string>
 	<string name="submit">Get Timetable</string>
+	<string name="no_timetables">No timetables found</string>
 </resources>

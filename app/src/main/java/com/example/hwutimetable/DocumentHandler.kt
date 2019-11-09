@@ -15,6 +15,8 @@ import kotlinx.serialization.*
  */
 class DocumentHandler {
     companion object {
+        private const val infoFilename = "tt_dict.json" // Dictionary file
+
         /**
          * Saves the given [document] (timetable) as an HTML timetable and the [timetableInfo]
          * in a JSON dictionary so that the [document] name, which is the group code,
@@ -29,7 +31,7 @@ class DocumentHandler {
         }
 
         private fun saveTimetableInfo(context: Context, timetableInfo: TimetableInfo) {
-            val file = File(context.filesDir, "tt_dict.json")
+            val file = File(context.filesDir, infoFilename)
 
             // First, get the list have so far
             val list = mutableListOf<TimetableInfo>()
@@ -72,6 +74,13 @@ class DocumentHandler {
             } catch (exception: IOException) {
                 Log.e("DocSaver", "IOException has occurred when writing to the file")
             }
+        }
+
+        fun getStoredTimetables(context: Context): List<TimetableInfo> {
+            val file = File(context.filesDir, infoFilename)
+            if (!file.exists())
+                return listOf()
+            return getExistingInfo(file)
         }
     }
 }
