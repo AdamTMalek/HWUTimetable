@@ -39,6 +39,9 @@ class DocumentHandler {
                 list.addAll(getExistingInfo(file))
             }
 
+            if (list.contains(timetableInfo))
+                return  // Info for this file already exists in the dictionary
+
             // Add the new info and save
             list.add(timetableInfo)
             saveInfoAsJson(file, list)
