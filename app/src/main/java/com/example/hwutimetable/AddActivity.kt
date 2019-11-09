@@ -32,10 +32,8 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * Sets the ItemSelectedListener of all spinners of this activity to this object
      */
     private fun setItemSelectedListener() {
-
         departments_spinner.onItemSelectedListener = this
         levels_spinner.onItemSelectedListener = this
-        groups_spinner.onItemSelectedListener = this
     }
 
     /**
