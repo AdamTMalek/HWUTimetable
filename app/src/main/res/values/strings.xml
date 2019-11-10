@@ -6,4 +6,5 @@
 	<string name="groups">Groups</string>
 	<string name="submit">Get Timetable</string>
 	<string name="no_timetables">No timetables found</string>
+	<string name="title_activity_view_timetable">View Timetable</string>
 </resources>

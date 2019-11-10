@@ -1,5 +1,7 @@
 package com.example.hwutimetable
 
+import android.app.ActivityOptions
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -127,6 +129,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         DocumentHandler.save(this.applicationContext, document, timetableInfo)
 
         changeProgressBarVisibility(false)
+
+        val intent = Intent(this, ViewTimetable::class.java)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun changeProgressBarVisibility(visible: Boolean) {

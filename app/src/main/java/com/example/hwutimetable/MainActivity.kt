@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 
 import kotlinx.android.synthetic.main.activity_main.*
@@ -25,6 +26,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         listTimetables()
+        setTimetablesClickListener()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -55,5 +57,13 @@ class MainActivity : AppCompatActivity() {
         })
 
         timetables_list_view.adapter = adapter
+    }
+
+    private fun setTimetablesClickListener() {
+        timetables_list_view.onItemClickListener =
+            AdapterView.OnItemClickListener { adapterView: AdapterView<*>, view1: View, i: Int, l: Long ->
+                val intent = Intent(this, ViewTimetable::class.java)
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+            }
     }
 }
