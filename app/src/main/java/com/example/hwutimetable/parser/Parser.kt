@@ -10,7 +10,13 @@ import org.joda.time.LocalTime
  * @param table: Jsoup document with a Jsoup parser
  */
 class Parser(private val table: Document) {
-    val timetableItems : MutableList<TimetableItem> = mutableListOf()
+    val timetableItems : Array<MutableList<TimetableItem>> = arrayOf(
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf(),
+        mutableListOf()
+    )
 
     /**
      * Finds the rows of the day and returns the list of them
@@ -76,7 +82,7 @@ class Parser(private val table: Document) {
      * @param tdCounter: td index at which the item appears
      * @return Colspan width of the item
      */
-    private fun getLecture(td: Element, tdCounter: Int) : Int {
+    private fun addLecture(td: Element, tdCounter: Int, dayIndex: Int) : Int {
         val colspan = td.attr("colspan").toInt()  // Colspan tells us the duration of the lecture
         val startTime = getTime(tdCounter)
         val endTime = getTime(tdCounter + colspan)
@@ -96,7 +102,7 @@ class Parser(private val table: Document) {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableItems.add(TimetableItem(
+        timetableItems[dayIndex].add(TimetableItem(
             name = name,
             code = code,
             room = room,
@@ -114,7 +120,7 @@ class Parser(private val table: Document) {
      * With the given list of rows - finds all timetable items that are in them and adds them to the timetableItems list.
      * @param rows: List of rows
      */
-    private fun addLecturesFromRows(rows: List<Element>) {
+    private fun addLecturesFromRows(rows: List<Element>, day: Int) {
         rows.forEachIndexed{ index, row ->
             val columns = row.children()  // Children are the tds of the row
             var tdCounter = -1  // Current td
@@ -133,7 +139,7 @@ class Parser(private val table: Document) {
                     return@forEach  // No lecture
 
                 // Get the item and its width (colspan)
-                val colspan = getLecture(column, tdCounter)
+                val colspan = addLecture(column, tdCounter, day)
                 tdCounter = tdCounter + colspan - 1  // There would be a double incrementation so takeaway 1
             }
         }
@@ -149,13 +155,13 @@ class Parser(private val table: Document) {
      * Parses the timetable and return the timetable items
      * @return List of timetable items
      */
-    fun parse() : List<TimetableItem> {
+    fun parse() : Array<MutableList<TimetableItem>> {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
         for (day in 0..4) {
             val rows = findRowsOfDay(day)
-            addLecturesFromRows(rows)
+            addLecturesFromRows(rows, day)
         }
 
         return timetableItems
