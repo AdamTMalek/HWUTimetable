@@ -1,20 +1,21 @@
 package com.example.hwutimetable
 
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.viewpager.widget.ViewPager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.GridLayout
+import androidx.constraintlayout.widget.ConstraintSet
 
 import kotlinx.android.synthetic.main.activity_view_timetable.*
+import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
 
 class ViewTimetable : AppCompatActivity() {
@@ -41,7 +42,6 @@ class ViewTimetable : AppCompatActivity() {
         // Set up the ViewPager with the sections adapter.
         container.adapter = mSectionsPagerAdapter
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -84,6 +84,7 @@ class ViewTimetable : AppCompatActivity() {
      * A placeholder fragment containing a simple view.
      */
     class PlaceholderFragment : Fragment() {
+        private var gridLayout: GridLayout? = null
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -98,7 +99,32 @@ class ViewTimetable : AppCompatActivity() {
                 5 -> "Friday"
                 else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 0 and 4")
             }
+            gridLayout = addGridLayout()
             return rootView
+        }
+
+        override fun onActivityCreated(savedInstanceState: Bundle?) {
+            super.onActivityCreated(savedInstanceState)
+            addConstraints()
+        }
+
+        private fun addGridLayout(): GridLayout {
+            return GridLayout(context).also {
+                it.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+
+                it.columnCount = 2
+                it.orientation = GridLayout.HORIZONTAL
+            }
+        }
+
+        private fun addConstraints() {
+            val constraintSet = ConstraintSet()
+            constraintSet.clone(context, R.layout.fragment_view_timetable)
+            constraintSet.connect(gridLayout!!.id, ConstraintSet.TOP, R.id.section_label, ConstraintSet.BOTTOM)
+            constraintSet.applyTo(constraintLayout)
         }
 
         companion object {
