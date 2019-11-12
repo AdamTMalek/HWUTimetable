@@ -9,8 +9,8 @@ env:
     - ANDROID_ABI=x86
     - ANDROID_TAG=google_apis
     - QUEMU_AUDIO_DRV=none
-    - export ANDROID_SDK_ROOT=/usr/local/android-sdk
     - export PATH=$PWD/android-sdk-linux/tools:$PATH
+    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux
 
 android:
   components:
@@ -39,7 +39,6 @@ cache:
     - $HOME/.android/build-cache
 
 before_script:
-  - export ANDROID_HOME=$PWD/android-sdk-linux
   - echo no | android create avd --force -n test -t "android-"$ANDROID_EMULATOR_LEVEL --abi $ANDROID_ABI --tag $ANDROID_TAG
   - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
