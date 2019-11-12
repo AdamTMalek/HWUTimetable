@@ -10,7 +10,7 @@ env:
     - ANDROID_TAG=google_apis
     - QUEMU_AUDIO_DRV=none
     - export PATH=$PWD/android-sdk-linux/tools:$PATH
-    - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux
+    - export ANDROID_SDK_ROOT=/usr/local/android-sdk/tools/android
 
 android:
   components:
