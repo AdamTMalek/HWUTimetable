@@ -6,7 +6,7 @@ env:
     - ANDROID_API_LEVEL=29
     - ANDROID_BUILD_TOOLS_VERSION=29.0.2
     - ANDROID_EMULATOR_LEVEL=28
-    - ANDROID_ABI=armeabi-v7a
+    - ANDROID_ABI=x86
     - ANDROID_TAG=google_apis
     - QUEMU_AUDIO_DRV=none
 
