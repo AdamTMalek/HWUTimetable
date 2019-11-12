@@ -39,6 +39,7 @@ cache:
     - $HOME/.android/build-cache
 
 before_script:
+  - export ANDROID_HOME=$PWD/android-sdk-linux
   - echo no | android create avd --force -n test -t "android-"$ANDROID_EMULATOR_LEVEL --abi $ANDROID_ABI --tag $ANDROID_TAG
   - emulator -avd test -no-audio -no-window &
   - android-wait-for-emulator
@@ -46,5 +47,4 @@ before_script:
 
 script:
   - android list target
-  - export ANDROID_HOME=$ANDROID_SDK_ROOT
   - gradle build connectedAndroidTest
