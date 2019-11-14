@@ -17,19 +17,16 @@ android:
     - tools
     - platform-tools
     - tools
+    - build-tools-$ANDROID_BUILD_TOOLS_VERSION
     - android-$ANDROID_API_LEVEL
+    - android-$ANDROID_EMULATOR_LEVEL
+    - sys-img-$ANDROID_ABI-$ANDROID_TAG-$ANDROID_EMULATOR_LEVEL
 
   licenses:
     - 'android-sdk-preview-license-52d11cd2'
     - 'android-sdk-license-.+'
     - 'google-gdk-license-.+'
     - 'android-sdk-arm-dbt-license-37db4d1f'
-
-before_install:
-  - touch $HOME/.android/repositories.cfg
-  - yes | sdkmanager "platforms;android-$ANDROID_API_LEVEL"
-  - yes | sdkmanager "platforms;android-$ANDROID_EMULATOR_LEVEL"
-  - yes | sdkmanager "build-tools;$ANDROID_BUILD_TOOLS_VERSION"
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
