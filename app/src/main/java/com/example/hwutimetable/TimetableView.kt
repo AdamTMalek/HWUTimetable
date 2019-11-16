@@ -2,6 +2,7 @@ package com.example.hwutimetable
 
 import android.content.Context
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
@@ -15,12 +16,30 @@ object TimetableView {
         val gravity: Int?
     )
 
-    fun getTimetableItemView(context: Context, timetable: List<TimetableInfo>) {
-        TODO("Construct the view")
+    fun getTimetableItemView(context: Context): GridLayout {
+        val gridLayout = createMainGridLayout(context)
+        gridLayout.addView(
+            createTimeTextView(context, "9:15"),
+            getLayoutParams(0)
+        )
+        gridLayout.addView(
+            createTimeTextView(context, "9:30"),
+            getLayoutParams(1)
+        )
+        gridLayout.addView(
+            createTimeTextView(context, "9:45"),
+            getLayoutParams(2))
+
+        gridLayout.addView(
+            createTimeTextView(context, "10:00"),
+            getLayoutParams(3)
+        )
+        return gridLayout
     }
 
     private fun createMainGridLayout(context: Context): GridLayout {
         return GridLayout(context).also {
+            it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -31,12 +50,11 @@ object TimetableView {
     }
 
     private fun createTimeTextView(context: Context, text: String): TextView {
-        return TextView(context).also {
+        return TextView(context).also { it ->
+            it.id = View.generateViewId()
             it.text = text
-            it.layoutParams = GridLayout.LayoutParams(
-                GridLayout.spec(GridLayout.UNDEFINED, 0.2f),
-                GridLayout.spec(getTimeHeight(context), 1)
-            )
+            it.width = 0
+            it.height = getTimeHeight(context)
         }
     }
 
@@ -88,6 +106,11 @@ object TimetableView {
 
         return textView
     }
+
+    private fun getLayoutParams(row: Int) = GridLayout.LayoutParams(
+        GridLayout.spec(row),
+        GridLayout.spec(0, 0.2f)
+    )
 
     private fun getTimeHeight(context: Context): Int {
         val dp = 40

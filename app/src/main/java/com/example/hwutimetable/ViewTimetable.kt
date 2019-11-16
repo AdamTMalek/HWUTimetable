@@ -99,7 +99,14 @@ class ViewTimetable : AppCompatActivity() {
                 5 -> "Friday"
                 else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 0 and 4")
             }
-            gridLayout = addGridLayout()
+
+            val timetableView = TimetableView.getTimetableItemView(context!!)
+            gridLayout = timetableView
+
+            with (rootView.findViewById(R.id.constraintLayout) as ViewGroup) {
+                addView(timetableView)
+            }
+
             return rootView
         }
 
@@ -108,22 +115,15 @@ class ViewTimetable : AppCompatActivity() {
             addConstraints()
         }
 
-        private fun addGridLayout(): GridLayout {
-            return GridLayout(context).also {
-                it.layoutParams = ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-
-                it.columnCount = 2
-                it.orientation = GridLayout.HORIZONTAL
-            }
-        }
-
         private fun addConstraints() {
             val constraintSet = ConstraintSet()
+            val gridId = gridLayout!!.id
+
             constraintSet.clone(context, R.layout.fragment_view_timetable)
-            constraintSet.connect(gridLayout!!.id, ConstraintSet.TOP, R.id.section_label, ConstraintSet.BOTTOM)
+            constraintSet.connect(gridId, ConstraintSet.TOP, R.id.section_label, ConstraintSet.BOTTOM)
+            constraintSet.connect(gridId, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM)
+            constraintSet.connect(gridId, ConstraintSet.LEFT, R.id.constraintLayout, ConstraintSet.LEFT)
+            constraintSet.connect(gridId, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT)
             constraintSet.applyTo(constraintLayout)
         }
 
