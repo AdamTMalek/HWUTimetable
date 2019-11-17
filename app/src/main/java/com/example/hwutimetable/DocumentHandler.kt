@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document
 import java.io.File
 import java.io.IOException
 import kotlinx.serialization.*
+import org.jsoup.Jsoup
 
 /**
  * This class provides methods that allow saving the JSoup documents as HTML files
@@ -84,6 +85,26 @@ class DocumentHandler {
             if (!file.exists())
                 return listOf()
             return getExistingInfo(file)
+        }
+
+        fun getTimetable(context: Context, title: String): Document {
+            val file = File(context.filesDir, infoFilename)
+            if (!file.exists())
+                throw Exception("Info file does not exist")
+
+            val infoList = getExistingInfo(file)
+            val filenameInfo =
+                infoList.firstOrNull { it.name == title } ?: throw Exception("Timetable \"$title\" does not exist")
+
+            val timetableFile = File(context.filesDir, getFilenameByInfo(filenameInfo))
+            if (!file.exists())
+                throw Exception("Corrupted info file. Timetable does not exist.")
+
+            return Jsoup.parse(timetableFile, "UTF-8", title)
+        }
+
+        private fun getFilenameByInfo(info: TimetableInfo): String {
+            return "${info.code}.html"
         }
     }
 }

@@ -13,6 +13,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.parser.TimetableItem
 
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
@@ -35,9 +37,10 @@ class ViewTimetable : AppCompatActivity() {
         setContentView(R.layout.activity_view_timetable)
 
         setSupportActionBar(toolbar)
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
+
+        val code = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
+        val timetable = getTimetable(code as String)
+        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
 
         // Set up the ViewPager with the sections adapter.
         container.adapter = mSectionsPagerAdapter
@@ -62,17 +65,35 @@ class ViewTimetable : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun getTimetable(title: String): ArrayList<List<TimetableItem>> {
+        val doc = DocumentHandler.getTimetable(baseContext, title)
+        val timetable = Parser(doc).parse()
+        val arrayList = arrayListOf(
+            timetable[0].toList(),
+            timetable[1].toList(),
+            timetable[2].toList(),
+            timetable[3].toList(),
+            timetable[4].toList()
+        )
+        return arrayList
+    }
+
 
     /**
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    inner class SectionsPagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
+    inner class SectionsPagerAdapter(fm: FragmentManager, private val timetable: ArrayList<List<TimetableItem>>) :
+        FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1)
+            val itemsOfDay = ArrayList<TimetableItem>()
+            timetable[position].forEach {
+                itemsOfDay.add(it)
+            }
+            return PlaceholderFragment.newInstance(position + 1, itemsOfDay)
         }
 
         override fun getCount(): Int {
@@ -100,10 +121,13 @@ class ViewTimetable : AppCompatActivity() {
                 else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 0 and 4")
             }
 
-            val timetableView = TimetableView.getTimetableItemView(context!!)
+            val list = arguments?.getParcelableArrayList<TimetableItem>(ARG_SECTION_ITEMS)
+                ?: throw Exception("TimetableItem list must not be null")
+
+            val timetableView = TimetableView.getTimetableItemView(context!!, list)
             gridLayout = timetableView
 
-            with (rootView.findViewById(R.id.constraintLayout) as ViewGroup) {
+            with(rootView.findViewById(R.id.constraintLayout) as ViewGroup) {
                 addView(timetableView)
             }
 
@@ -135,13 +159,20 @@ class ViewTimetable : AppCompatActivity() {
             private val ARG_SECTION_NUMBER = "section_number"
 
             /**
+             * The fragment argument representing the timetable items for this
+             * fragment.
+             */
+            private val ARG_SECTION_ITEMS = "section_items"
+
+            /**
              * Returns a new instance of this fragment for the given section
              * number.
              */
-            fun newInstance(sectionNumber: Int): PlaceholderFragment {
+            fun newInstance(sectionNumber: Int, timetableItems: ArrayList<TimetableItem>): PlaceholderFragment {
                 val fragment = PlaceholderFragment()
                 val args = Bundle()
                 args.putInt(ARG_SECTION_NUMBER, sectionNumber)
+                args.putParcelableArrayList(ARG_SECTION_ITEMS, timetableItems)
                 fragment.arguments = args
                 return fragment
             }

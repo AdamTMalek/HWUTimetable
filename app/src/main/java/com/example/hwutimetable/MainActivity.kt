@@ -62,7 +62,9 @@ class MainActivity : AppCompatActivity() {
     private fun setTimetablesClickListener() {
         timetables_list_view.onItemClickListener =
             AdapterView.OnItemClickListener { adapterView: AdapterView<*>, view1: View, i: Int, l: Long ->
+                val string = timetables_list_view.getItemAtPosition(i) as String
                 val intent = Intent(this, ViewTimetable::class.java)
+                intent.putExtra("timetable", string)
                 startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
             }
     }
