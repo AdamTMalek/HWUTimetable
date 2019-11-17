@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import com.example.hwutimetable.parser.TimetableItem
+import com.example.hwutimetable.parser.TimetableDay
 
 object TimetableView {
     internal class TextViewProperties(
@@ -17,7 +17,7 @@ object TimetableView {
         val gravity: Int?
     )
 
-    fun getTimetableItemView(context: Context, timetable: ArrayList<TimetableItem>): GridLayout {
+    fun getTimetableItemView(context: Context, timetable: TimetableDay): GridLayout {
         val gridLayout = createMainGridLayout(context)
         gridLayout.addView(
             createTimeTextView(context, "9:15"),
