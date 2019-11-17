@@ -10,13 +10,14 @@ import org.joda.time.LocalTime
  * @param table: Jsoup document with a Jsoup parser
  */
 class Parser(private val table: Document) {
-    val timetableItems : Array<MutableList<TimetableItem>> = arrayOf(
-        mutableListOf(),
-        mutableListOf(),
-        mutableListOf(),
-        mutableListOf(),
-        mutableListOf()
+    private val timetableDays: Array<TimetableDay> = arrayOf(
+        TimetableDay(Day.MONDAY, arrayListOf()),
+        TimetableDay(Day.TUESDAY, arrayListOf()),
+        TimetableDay(Day.WEDNESDAY, arrayListOf()),
+        TimetableDay(Day.THURSDAY, arrayListOf()),
+        TimetableDay(Day.FRIDAY, arrayListOf())
     )
+    private var timetable: Timetable? = null
 
     /**
      * Finds the rows of the day and returns the list of them
@@ -102,7 +103,7 @@ class Parser(private val table: Document) {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableItems[dayIndex].add(TimetableItem(
+        timetableDays[dayIndex].items.add(TimetableItem(
             name = name,
             code = code,
             room = room,
@@ -155,7 +156,7 @@ class Parser(private val table: Document) {
      * Parses the timetable and return the timetable items
      * @return List of timetable items
      */
-    fun parse() : Array<MutableList<TimetableItem>> {
+    fun parse() : Timetable {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
@@ -164,6 +165,12 @@ class Parser(private val table: Document) {
             addLecturesFromRows(rows, day)
         }
 
-        return timetableItems
+        // TODO: Find the hash of the timetable
+        timetable = Timetable("hash", timetableDays)
+        return timetable!!
+    }
+
+    fun getTimetable(): Timetable {
+        return timetable ?: throw ParserException("The timetable document has not been parsed!")
     }
 }

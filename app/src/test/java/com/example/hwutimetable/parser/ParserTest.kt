@@ -10,9 +10,11 @@ class ParserTest {
         org.jsoup.Jsoup.parse(File("src/test/sampleTimetables/tt1.html"), "UTF-8")
     )
 
+    private var timetable: Timetable? = null
+
     @Before
     fun runParser() {
-        parser.parse()
+        timetable = parser.parse()
     }
 
     /**
@@ -26,8 +28,7 @@ class ParserTest {
     @Test
     fun testNumberOfItems() {
         // There are 15 timetable items in tt1.html
-        val lectures = parser.timetableItems.sumBy { it.size }
-        assertEquals(15, lectures)
+        assertEquals(15, timetable!!.getTotalItems())
     }
 
     @Test
@@ -35,7 +36,7 @@ class ParserTest {
         val expectedList = arrayOf(1, 3, 3, 4, 4)
 
         expectedList.forEachIndexed { index, expected ->
-            assertEquals(expected, parser.timetableItems[index].size)
+            assertEquals(expected, timetable!!.days[index].items.size)
         }
     }
 
@@ -49,10 +50,10 @@ class ParserTest {
             listOf("F29SO-S1", "F29AI-S1", "F29SO-S1", "F29SO-S1")  // Friday
         )
 
-        parser.timetableItems.forEachIndexed { index, itemsOfDay ->
-            val codes = itemsOfDay.map { it.code }
+        timetable!!.days.forEachIndexed {index, day ->
+            val codes = timetable!!.days[index].items.map { it.code }
             assertTrue(expected[index].containsAll(codes))
-            assertEquals(expected[index].size, itemsOfDay.size)
+            assertEquals(expected[index].size, timetable!!.days[index].items.size)
         }
     }
 }
