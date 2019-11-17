@@ -166,7 +166,7 @@ class Parser(private val table: Document) {
         }
 
         // TODO: Find the hash of the timetable
-        timetable = Timetable("hash", timetableDays)
+        timetable = Timetable(Hash.get(this.table), timetableDays)
         return timetable!!
     }
 
