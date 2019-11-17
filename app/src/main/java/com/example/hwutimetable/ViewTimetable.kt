@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.widget.ScrollView
 import androidx.constraintlayout.widget.ConstraintSet
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
@@ -95,7 +96,7 @@ class ViewTimetable : AppCompatActivity() {
      * A placeholder fragment containing a simple view.
      */
     class PlaceholderFragment : Fragment() {
-        private var gridLayout: GridLayout? = null
+        private var gridLayout: ScrollView? = null
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,

@@ -6,7 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.hwutimetable.parser.TimetableDay
 
 object TimetableView {
@@ -17,25 +19,46 @@ object TimetableView {
         val gravity: Int?
     )
 
-    fun getTimetableItemView(context: Context, timetable: TimetableDay): GridLayout {
+    fun getTimetableItemView(context: Context, timetable: TimetableDay): ScrollView {
+        val scrollView = createScrollView(context)
         val gridLayout = createMainGridLayout(context)
-        gridLayout.addView(
-            createTimeTextView(context, "9:15"),
-            getLayoutParams(0)
-        )
-        gridLayout.addView(
-            createTimeTextView(context, "9:30"),
-            getLayoutParams(1)
-        )
-        gridLayout.addView(
-            createTimeTextView(context, "9:45"),
-            getLayoutParams(2))
+        scrollView.addView(gridLayout)
+        createHourLabels(context, gridLayout)
+        return scrollView
+    }
 
-        gridLayout.addView(
-            createTimeTextView(context, "10:00"),
-            getLayoutParams(3)
-        )
-        return gridLayout
+    private fun createScrollView(context: Context): ScrollView {
+        return ScrollView(context).also {
+            it.id = View.generateViewId()
+            it.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+    }
+
+    private fun createHourLabels(context: Context, gridLayout: GridLayout) {
+        for (i in 0..36) {
+            val text = getHourLabelText(i)
+            gridLayout.addView(
+                createTimeTextView(context, text),
+                getLayoutParams(i)
+            )
+        }
+    }
+
+    private fun getHourLabelText(index: Int): String {
+        var hours = 9
+        var minutes = 15
+
+        for (i in 1..index) {
+            minutes += 15
+            if (minutes >= 60) {
+                minutes = 0
+                hours++
+            }
+        }
+        return "$hours:${minutes.toString().padStart(2, '0')}"
     }
 
     private fun createMainGridLayout(context: Context): GridLayout {
