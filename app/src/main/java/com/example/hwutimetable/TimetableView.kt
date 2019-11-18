@@ -1,6 +1,8 @@
 package com.example.hwutimetable
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -8,33 +10,20 @@ import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.hwutimetable.parser.TimetableDay
+import com.example.hwutimetable.parser.TimetableItem
+import org.joda.time.LocalTime
+import org.joda.time.Period
 
 object TimetableView {
-    internal class TextViewProperties(
-        val text: String,
-        val columnWeight: Float,
-        val columnSpan: Int?,
-        val gravity: Int?
-    )
 
     fun getTimetableItemView(context: Context, timetable: TimetableDay): ScrollView {
         val scrollView = createScrollView(context)
         val gridLayout = createMainGridLayout(context)
-        scrollView.addView(gridLayout)
         createHourLabels(context, gridLayout)
+        createItems(context, gridLayout, timetable)
+        scrollView.addView(gridLayout)
         return scrollView
-    }
-
-    private fun createScrollView(context: Context): ScrollView {
-        return ScrollView(context).also {
-            it.id = View.generateViewId()
-            it.layoutParams = ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            )
-        }
     }
 
     private fun createHourLabels(context: Context, gridLayout: GridLayout) {
@@ -42,7 +31,7 @@ object TimetableView {
             val text = getHourLabelText(i)
             gridLayout.addView(
                 createTimeTextView(context, text),
-                getLayoutParams(i)
+                getLayoutParams(i, 0, columnWeight = 0.2f)
             )
         }
     }
@@ -61,12 +50,69 @@ object TimetableView {
         return "$hours:${minutes.toString().padStart(2, '0')}"
     }
 
+    private fun createItems(context: Context, gridLayout: GridLayout, timetable: TimetableDay) {
+        for (item in timetable.items) {
+            val row = getRowIndexByTime(item.start)
+            val rowspan = getRowspanByPeriod(item.duration)
+            gridLayout.addView(
+                createItem(context, item),
+                getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = rowspan)
+            )
+        }
+    }
+
+    private fun getRowIndexByTime(localTime: LocalTime): Int {
+        val dayStart = Period(9, 15, 0, 0)
+        val itemStart = Period(localTime.hourOfDay, localTime.minuteOfHour, 0, 0)
+        val differenceMinutes = itemStart.minus(dayStart).toStandardMinutes().minutes
+        return differenceMinutes / 15;
+    }
+
+    private fun getRowspanByPeriod(period: Period): Int {
+        return period.minutes / 15
+    }
+
+    private fun createItem(context: Context, item: TimetableItem): LinearLayout {
+        val linearLayout = createItemLinearLayout(context)
+        val gridLayout = createItemGridLayout(context)
+
+        val code = createItemTextView(context, item.code, Gravity.LEFT)
+        val weeks = createItemTextView(context, item.weeks, Gravity.CENTER_HORIZONTAL)
+        val room = createItemTextView(context, item.room, Gravity.RIGHT)
+        val name = createItemTextView(context, item.name, Gravity.CENTER_HORIZONTAL)
+        val lecturer = createItemTextView(context, item.lecturer, Gravity.LEFT)
+        val type = createItemTextView(context, item.type, Gravity.RIGHT)
+
+        with (gridLayout) {
+            addView(code, getLayoutParams(0, 0, columnWeight = 0.2f))
+            addView(weeks, getLayoutParams(0, 1, columnWeight = 0.6f))
+            addView(room, getLayoutParams(0, 2, columnWeight = 0.2f))
+            addView(name, getLayoutParams(1, 0, columnSpan = 3))
+            addView(lecturer, getLayoutParams(2, 0, columnWeight = 0.5f))
+            addView(type, getLayoutParams(2, 2, columnSpan = 1, columnWeight = 0.5f))
+
+        }
+
+        linearLayout.addView(gridLayout)
+        return linearLayout
+    }
+
+    private fun createScrollView(context: Context): ScrollView {
+        return ScrollView(context).also {
+            it.id = View.generateViewId()
+            it.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
+    }
+
     private fun createMainGridLayout(context: Context): GridLayout {
         return GridLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
             it.columnCount = 2
             it.orientation = GridLayout.HORIZONTAL
@@ -74,7 +120,7 @@ object TimetableView {
     }
 
     private fun createTimeTextView(context: Context, text: String): TextView {
-        return TextView(context).also { it ->
+        return TextView(context).also {
             it.id = View.generateViewId()
             it.text = text
             it.width = 0
@@ -82,23 +128,21 @@ object TimetableView {
         }
     }
 
-    private fun createItemLinearLayout(span: Int, context: Context): LinearLayout {
+    private fun createItemLinearLayout(context: Context): LinearLayout {
         return LinearLayout(context).also {
-            it.layoutParams = GridLayout.LayoutParams(
-                GridLayout.spec(0, 0.8f),
-                GridLayout.spec(0, 1)
-            ).apply {
-                rowSpec = GridLayout.spec(GridLayout.UNDEFINED, span)
-            }
-
-            it.gravity = Gravity.FILL_VERTICAL
+            it.id = View.generateViewId()
+            it.layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            it.background = ColorDrawable(Color.RED)
         }
     }
 
     private fun createItemGridLayout(context: Context): GridLayout {
         return GridLayout(context).also {
             it.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             ).apply {
                 gravity = Gravity.CENTER_VERTICAL
@@ -110,32 +154,27 @@ object TimetableView {
         }
     }
 
-    private fun createItemTextView(context: Context, properties: TextViewProperties): TextView {
-        val textView = TextView(context)
-        textView.text = properties.text
-
-        val layoutParams = GridLayout.LayoutParams(
-            GridLayout.spec(GridLayout.UNDEFINED, properties.columnWeight),
-            GridLayout.spec(GridLayout.UNDEFINED, 0)
-        )
-
-        if (properties.columnSpan != null) {
-            layoutParams.rowSpec = GridLayout.spec(properties.columnSpan)
-            textView.layoutParams = layoutParams
+    private fun createItemTextView(context: Context, text: String, gravity: Int): TextView {
+        return TextView(context).apply {
+            this.text = text
+            layoutParams = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                getTimeHeight(context)
+            )
+            this.gravity = gravity
         }
-
-        if (properties.gravity != null) {
-            textView.gravity = properties.gravity
-        }
-
-        return textView
     }
 
-    private fun getLayoutParams(row: Int) = GridLayout.LayoutParams(
-        GridLayout.spec(row),
-        GridLayout.spec(0, 0.2f)
+    private fun getLayoutParams(row: Int, column: Int,
+                                rowWeight: Float = 1f,
+                                columnWeight: Float = 1f,
+                                rowSpan: Int = 1,
+                                columnSpan: Int = 1) = GridLayout.LayoutParams(
+        GridLayout.spec(row, rowSpan, rowWeight),
+        GridLayout.spec(column, columnSpan, columnWeight)
     )
 
+    // TODO - Extract to values xml
     private fun getTimeHeight(context: Context): Int {
         val dp = 40
         val scale = context.resources.displayMetrics.density
