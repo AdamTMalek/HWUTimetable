@@ -1,7 +1,6 @@
 package com.example.hwutimetable
 
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.view.Gravity
 import android.view.View
@@ -135,6 +134,7 @@ object TimetableView {
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
+            it.gravity = Gravity.CENTER_VERTICAL
             it.background = ColorDrawable(color)
         }
     }
@@ -143,10 +143,8 @@ object TimetableView {
         return GridLayout(context).also {
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT
-            ).apply {
-                gravity = Gravity.CENTER_VERTICAL
-            }
+                getTimeHeight(context) * 4  // spreads the information across one full hour
+            )
 
             it.orientation = GridLayout.HORIZONTAL
             it.columnCount = 3
@@ -157,10 +155,8 @@ object TimetableView {
     private fun createItemTextView(context: Context, text: String, gravity: Int): TextView {
         return TextView(context).apply {
             this.text = text
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                getTimeHeight(context)
-            )
+            this.height = getTimeHeight(context)
+            this.width = 0
             this.gravity = gravity
         }
     }
