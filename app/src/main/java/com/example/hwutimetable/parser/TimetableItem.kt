@@ -2,6 +2,7 @@ package com.example.hwutimetable.parser
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 import org.joda.time.LocalTime
 import org.joda.time.Minutes
 import org.joda.time.Period
@@ -15,7 +16,7 @@ data class TimetableItem(
     val name: String,
     val room: String,
     val lecturer: String,
-    val type: String,
+    val type: @RawValue ItemType,
     val start: LocalTime,
     val end: LocalTime,
     val weeks: String,

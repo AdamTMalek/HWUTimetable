@@ -108,7 +108,7 @@ class Parser(private val table: Document) {
             code = code,
             room = room,
             lecturer = lecturer,
-            type = type,
+            type = ItemType(type),
             start = startTime,
             end = endTime,
             weeks = weeks

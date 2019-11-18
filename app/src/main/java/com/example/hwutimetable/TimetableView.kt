@@ -73,7 +73,7 @@ object TimetableView {
     }
 
     private fun createItem(context: Context, item: TimetableItem): LinearLayout {
-        val linearLayout = createItemLinearLayout(context)
+        val linearLayout = createItemLinearLayout(context, item.type.getColor(context))
         val gridLayout = createItemGridLayout(context)
 
         val code = createItemTextView(context, item.code, Gravity.LEFT)
@@ -81,7 +81,7 @@ object TimetableView {
         val room = createItemTextView(context, item.room, Gravity.RIGHT)
         val name = createItemTextView(context, item.name, Gravity.CENTER_HORIZONTAL)
         val lecturer = createItemTextView(context, item.lecturer, Gravity.LEFT)
-        val type = createItemTextView(context, item.type, Gravity.RIGHT)
+        val type = createItemTextView(context, item.type.name, Gravity.RIGHT)
 
         with (gridLayout) {
             addView(code, getLayoutParams(0, 0, columnWeight = 0.2f))
@@ -128,14 +128,14 @@ object TimetableView {
         }
     }
 
-    private fun createItemLinearLayout(context: Context): LinearLayout {
+    private fun createItemLinearLayout(context: Context, color: Int): LinearLayout {
         return LinearLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
-            it.background = ColorDrawable(Color.RED)
+            it.background = ColorDrawable(color)
         }
     }
 
