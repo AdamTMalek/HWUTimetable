@@ -64,7 +64,7 @@ object TimetableView {
         val dayStart = Period(9, 15, 0, 0)
         val itemStart = Period(localTime.hourOfDay, localTime.minuteOfHour, 0, 0)
         val differenceMinutes = itemStart.minus(dayStart).toStandardMinutes().minutes
-        return differenceMinutes / 15;
+        return differenceMinutes / 15
     }
 
     private fun getRowspanByPeriod(period: Period): Int {
@@ -123,7 +123,7 @@ object TimetableView {
             it.id = View.generateViewId()
             it.text = text
             it.width = 0
-            it.height = getTimeHeight(context)
+            it.height = getTimeLabelHeight(context)
         }
     }
 
@@ -143,7 +143,7 @@ object TimetableView {
         return GridLayout(context).also {
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                getTimeHeight(context) * 4  // spreads the information across one full hour
+                getTimeLabelHeight(context) * 4  // spreads the information across one full hour
             )
 
             it.orientation = GridLayout.HORIZONTAL
@@ -155,7 +155,7 @@ object TimetableView {
     private fun createItemTextView(context: Context, text: String, gravity: Int): TextView {
         return TextView(context).apply {
             this.text = text
-            this.height = getTimeHeight(context)
+            this.height = getTimeLabelHeight(context)
             this.width = 0
             this.gravity = gravity
         }
@@ -170,10 +170,11 @@ object TimetableView {
         GridLayout.spec(column, columnSpan, columnWeight)
     )
 
-    // TODO - Extract to values xml
-    private fun getTimeHeight(context: Context): Int {
-        val dp = 40
-        val scale = context.resources.displayMetrics.density
-        return (dp * scale + 0.5f).toInt()
+    /**
+     * Get the time label height in pixels from the dimensions resources
+     * @return Label height in pixels
+     */
+    private fun getTimeLabelHeight(context: Context): Int {
+        return context.resources.getDimensionPixelSize(R.dimen.hour_label_height)
     }
 }
