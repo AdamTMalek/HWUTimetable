@@ -15,6 +15,27 @@ import com.example.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
 import org.joda.time.Period
 
+
+/**
+ * The TimetableView object is a singleton that constructs the whole view
+ * for the given timetable ([TimetableDay]).
+ *
+ * The view as a whole is constructed of many views nested in each other.
+ * The main outer view is a [ScrollView] created by [createScrollView].
+ * This view has only one child which is created by [createMainGridLayout].
+ * The grid layout has 36 rows and 2 columns. First column contains hour labels
+ * and the second timetable items if they exist at the given hour, otherwise
+ * cell (at the 2nd column) of the row of the corresponding hour is left empty.
+ *
+ * If there is an timetable item for the given hour it is made up of multiple
+ * views to resemble the same layout as on the original web timetables
+ * website, while also making it mobile friendly and readable.
+ *
+ * An item is made up of [LinearLayout] created by [createItemLinearLayout]
+ * this creates the background for the item. Inside it there's a
+ * 3 by 3 [GridLayout] (created by [createItemGridLayout]) holding all TextViews
+ * that contain information regarding the item (type, lecturer, room etc.).
+ */
 object TimetableView {
 
     /**
