@@ -2,7 +2,7 @@ package com.example.hwutimetable
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -88,7 +88,7 @@ object TimetableView {
      */
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
     private fun createItem(context: Context, item: TimetableItem): LinearLayout {
-        val linearLayout = createItemLinearLayout(context, item.type.getColor(context))
+        val linearLayout = createItemLinearLayout(context, item.type.getBackground(context))
         val gridLayout = createItemGridLayout(context)
 
         val code = createItemTextView(context, item.code, Gravity.LEFT)
@@ -98,7 +98,7 @@ object TimetableView {
         val lecturer = createItemTextView(context, item.lecturer, Gravity.LEFT)
         val type = createItemTextView(context, item.type.name, Gravity.RIGHT)
 
-        with (gridLayout) {
+        with(gridLayout) {
             addView(code, getLayoutParams(0, 0, columnWeight = 0.2f))
             addView(weeks, getLayoutParams(0, 1, columnWeight = 0.6f))
             addView(room, getLayoutParams(0, 2, columnWeight = 0.2f))
@@ -160,9 +160,9 @@ object TimetableView {
     /**
      * Creates linear layout that acts as a container for the
      * grid layout that created by [createItemGridLayout].
-     * @param color: Background color of this linear layout
+     * @param background: [Drawable] background of the item
      */
-    private fun createItemLinearLayout(context: Context, color: Int): LinearLayout {
+    private fun createItemLinearLayout(context: Context, background: Drawable): LinearLayout {
         return LinearLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
@@ -170,7 +170,7 @@ object TimetableView {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
             it.gravity = Gravity.CENTER_VERTICAL
-            it.background = ColorDrawable(color)
+            it.background = background
         }
     }
 
@@ -184,8 +184,14 @@ object TimetableView {
             layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 getTimeLabelHeight(context) * 4  // spreads the information across one full hour
-            )
-
+            ).also {
+                it.setMargins(
+                    context.resources.getDimensionPixelSize(R.dimen.item_grid_margin),
+                    0,
+                    context.resources.getDimensionPixelSize(R.dimen.item_grid_margin),
+                    0
+                )
+            }
             orientation = GridLayout.HORIZONTAL
             columnCount = 3
             rowCount = 3
@@ -215,11 +221,13 @@ object TimetableView {
      * @param rowSpan: Equivalent to the stop argument of [GridLayout.spec]
      * @param columnSpan: Equivalent to the stop argument of [GridLayout.spec]
      */
-    private fun getLayoutParams(row: Int, column: Int,
-                                rowWeight: Float = 1f,
-                                columnWeight: Float = 1f,
-                                rowSpan: Int = 1,
-                                columnSpan: Int = 1) = GridLayout.LayoutParams(
+    private fun getLayoutParams(
+        row: Int, column: Int,
+        rowWeight: Float = 1f,
+        columnWeight: Float = 1f,
+        rowSpan: Int = 1,
+        columnSpan: Int = 1
+    ) = GridLayout.LayoutParams(
         GridLayout.spec(row, rowSpan, rowWeight),
         GridLayout.spec(column, columnSpan, columnWeight)
     )

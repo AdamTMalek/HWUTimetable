@@ -1,7 +1,9 @@
 package com.example.hwutimetable.parser
 
 import android.content.Context
-import com.example.hwutimetable.R
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
+import androidx.core.content.ContextCompat
 
 /**
  * Item type represents a type of an timetable item.
@@ -11,20 +13,29 @@ import com.example.hwutimetable.R
 class ItemType(val name: String) {
 
     /**
-     * Get the background color associated with this type of item
+     * Gets the background associated with this item type
+     * @return: A background from drawable resources
      */
-    fun getColor(context: Context): Int {
+    fun getBackground(context: Context): Drawable {
         val id = getId(context)
-        return context.resources.getColor(id, context.theme)
+        return ContextCompat.getDrawable(context, id)
+            ?: throw Resources.NotFoundException("Failed to load drawable with id $id")
     }
 
+    /**
+     * Gets the id of the drawable
+     */
     private fun getId(context: Context): Int {
-        val name = "item_${name.toLowerCase()}"
-        val id = context.resources.getIdentifier(name, "color", context.packageName)
+        val name = this.name.toLowerCase()
+        val typeName = when(name) {
+            "wkp", "sgrp", "plab", "llab" -> "lab"  // These have the same background
+            else -> name
+        }.plus("_background") // add _background suffix
+
+        val id = context.resources.getIdentifier(typeName, "drawable", context.packageName)
 
         if (id == 0) {
-            // Color with this name was not found. Get the default.
-            return context.resources.getColor(R.color.item_default, context.theme)
+            throw Resources.NotFoundException("The background with name $name was not found in the resources")
         }
 
         return id
