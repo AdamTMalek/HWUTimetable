@@ -6,4 +6,5 @@
 	<dimen name="appbar_padding_top">8dp</dimen>
 	<dimen name="hour_label_height">40dp</dimen>
 	<dimen name="item_grid_margin">3dp</dimen>
+	<dimen name="edge_margin">10dp</dimen>
 </resources>
