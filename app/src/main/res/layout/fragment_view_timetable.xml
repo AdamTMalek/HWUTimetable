@@ -5,6 +5,8 @@
 												   android:id="@+id/constraintLayout"
 												   android:layout_width="match_parent"
 												   android:layout_height="match_parent"
+												   android:layout_marginStart="@dimen/edge_margin"
+												   android:layout_marginEnd="@dimen/edge_margin"
 												   tools:context=".ViewTimetable$PlaceholderFragment">
 
 	<!-- Ignore Hardcoded Text for this component because the text will be set programmatically -->
