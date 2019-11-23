@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -33,7 +32,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
         }
         recycler_view.layoutManager = LinearLayoutManager(this)
-
         addTouchCallbacksHandler()
         listTimetables()
     }
@@ -60,8 +58,8 @@ class MainActivity : AppCompatActivity() {
                 viewHolder.setIsRecyclable(false)
                 onItemSwiped(viewHolder.adapterPosition)
             }
-
         }
+
         val touchHelper = ItemTouchHelper(callback)
         touchHelper.attachToRecyclerView(recycler_view)
         recycler_view.addOnItemTouchListener(
@@ -71,9 +69,7 @@ class MainActivity : AppCompatActivity() {
                         onItemClick(position)
                     }
 
-                    override fun onItemLongClick(view: View, position: Int) {
-                        // TODO: Create delete context menu
-                    }
+                    override fun onItemLongClick(view: View, position: Int) { }
                 })
         )
     }
