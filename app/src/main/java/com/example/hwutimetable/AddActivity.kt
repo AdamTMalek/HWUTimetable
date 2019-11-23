@@ -8,6 +8,8 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import com.example.hwutimetable.filehandler.DocumentHandler
+import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.scraper.AsyncScraper
 import com.example.hwutimetable.scraper.Option
 
@@ -125,12 +127,16 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun timetableRequestCallback(document: Document?) {
         checkNotNull(document) { return }
         checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
-        val timetableInfo = TimetableInfo(requestedGroup!!.optionValue, requestedGroup!!.text)
+        val timetableInfo = TimetableInfo(
+            requestedGroup!!.optionValue,
+            requestedGroup!!.text
+        )
         DocumentHandler.save(this.applicationContext, document, timetableInfo)
 
         changeProgressBarVisibility(false)
 
         val intent = Intent(this, ViewTimetable::class.java)
+        intent.putExtra("timetable", timetableInfo.name)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
