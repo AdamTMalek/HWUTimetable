@@ -11,13 +11,12 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
 import android.widget.ScrollView
 import androidx.constraintlayout.widget.ConstraintSet
+import com.example.hwutimetable.filehandler.DocumentHandler
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
-import com.example.hwutimetable.parser.TimetableItem
 
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
