@@ -1,4 +1,4 @@
-package com.example.hwutimetable
+package com.example.hwutimetable.filehandler
 
 import kotlinx.serialization.Serializable
 
