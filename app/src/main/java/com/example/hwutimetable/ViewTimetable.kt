@@ -21,6 +21,7 @@ import com.example.hwutimetable.parser.TimetableDay
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
+import java.util.*
 
 class ViewTimetable : AppCompatActivity() {
 
@@ -46,6 +47,7 @@ class ViewTimetable : AppCompatActivity() {
 
         // Set up the ViewPager with the sections adapter.
         container.adapter = mSectionsPagerAdapter
+        container.currentItem = getCurrentDayIndex()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -70,6 +72,19 @@ class ViewTimetable : AppCompatActivity() {
     private fun getTimetable(title: String): Timetable {
         val doc = DocumentHandler.getTimetable(baseContext, title)
         return Parser(doc).parse()
+    }
+
+    private fun getCurrentDayIndex(): Int {
+        val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+
+        // If the current day is Saturday or Sunday - show the timetable for Monday
+        if (day == Calendar.SATURDAY || day == Calendar.SUNDAY)
+            return 0
+
+        // Monday is actually 2 in the Java's enum
+        // since their first day of the week (1) is Sunday
+        // we need to takeaway 2 to get the current day as index
+        return day - 2
     }
 
 
