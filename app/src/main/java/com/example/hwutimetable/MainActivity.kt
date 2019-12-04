@@ -40,6 +40,11 @@ class MainActivity : AppCompatActivity() {
         setupAlertDialog()
     }
 
+    override fun onResume() {
+        super.onResume()
+        reloadInfoList()
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -85,9 +90,29 @@ class MainActivity : AppCompatActivity() {
             return
 
         no_timetables_text.visibility = View.INVISIBLE
-        listAdapter = InfoListAdapter(infoList)
 
+        initializeListAdapter()
         recycler_view.adapter = listAdapter
+    }
+
+    private fun reloadInfoList() {
+        // Check if the list was empty to begin with
+        // then, the no_timetables_text will exist
+        if (infoList.isEmpty()) {
+            no_timetables_text.visibility = View.INVISIBLE
+        }
+        infoList.clear()
+        infoList.addAll(DocumentHandler.getStoredTimetables(this))
+
+        initializeListAdapter()
+        listAdapter.notifyDataSetChanged()
+    }
+
+    private fun initializeListAdapter() {
+        if (::listAdapter.isInitialized)
+            return
+
+        listAdapter = InfoListAdapter(infoList)
     }
 
     private fun onItemClick(position: Int) {
