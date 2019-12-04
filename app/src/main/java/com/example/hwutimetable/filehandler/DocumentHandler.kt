@@ -84,6 +84,19 @@ object DocumentHandler {
     }
 
     /**
+     * Deletes all timetables stored on the device
+     * @return List of the deleted timetables
+     */
+    fun deleteAllTimetables(context: Context): List<TimetableInfo> {
+        val deleted = mutableListOf<TimetableInfo>()
+        InfoFile.getList(context).forEach {
+            if (deleteTimetable(context, it.name))
+                deleted.add(it)
+        }
+        return deleted
+    }
+
+    /**
      * Adds the .html suffix to the timetable code taken from [info]
      */
     private fun getFilenameByInfo(info: TimetableInfo): String {

@@ -1,6 +1,8 @@
 package com.example.hwutimetable
 
 import android.app.ActivityOptions
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -21,6 +23,7 @@ import kotlinx.android.synthetic.main.content_main.*
 class MainActivity : AppCompatActivity() {
     private val infoList = mutableListOf<TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
+    private lateinit var alertDialog: AlertDialog.Builder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         recycler_view.layoutManager = LinearLayoutManager(this)
         addTouchCallbacksHandler()
         listTimetables()
+        setupAlertDialog()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -48,6 +52,7 @@ class MainActivity : AppCompatActivity() {
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
             R.id.action_settings -> true
+            R.id.action_delete -> { alertDialog.show(); true }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -69,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                         onItemClick(position)
                     }
 
-                    override fun onItemLongClick(view: View, position: Int) { }
+                    override fun onItemLongClick(view: View, position: Int) {}
                 })
         )
     }
@@ -97,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         val string = getTextFromRecyclerViewItem(position)
         val result = DocumentHandler.deleteTimetable(applicationContext, string)
 
-        val toastMessage = when(result) {
+        val toastMessage = when (result) {
             true -> "Successfully deleted "
             false -> "Failed to delete "
         }.plus(string)
@@ -115,5 +120,33 @@ class MainActivity : AppCompatActivity() {
 
     private fun getTimetablesInfoList(): List<TimetableInfo> {
         return DocumentHandler.getStoredTimetables(applicationContext)
+    }
+
+    private fun setupAlertDialog() {
+        val listener = DialogInterface.OnClickListener { _, which -> handleDialogClick(which) }
+        alertDialog = AlertDialog.Builder(this)
+        alertDialog.setMessage("Are you sure?")
+            .setPositiveButton("Yes", listener)
+            .setNegativeButton("No", listener)
+    }
+
+    private fun handleDialogClick(which: Int) {
+        if (which == DialogInterface.BUTTON_POSITIVE) {
+            deleteAllTimetables()
+        }
+    }
+
+    private fun deleteAllTimetables() {
+        val deleted = DocumentHandler.deleteAllTimetables(applicationContext)
+        infoList.removeAll(deleted)
+
+        val message = when (infoList.isEmpty()) {
+            true -> "Successfully deleted all timetables"
+            false -> "Something went wrong. Not all timetables were deleted"
+        }
+
+        DocumentHandler.getStoredTimetables(this)
+        listAdapter.notifyDataSetChanged()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }
