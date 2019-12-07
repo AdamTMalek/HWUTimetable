@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private val infoList = mutableListOf<TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
+    private lateinit var docHandler: DocumentHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         addTouchCallbacksHandler()
         listTimetables()
         setupAlertDialog()
+
+        docHandler = DocumentHandler(this)
     }
 
     override fun onResume() {
@@ -102,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             no_timetables_text.visibility = View.INVISIBLE
         }
         infoList.clear()
-        infoList.addAll(DocumentHandler.getStoredTimetables(this))
+        infoList.addAll(docHandler.getStoredTimetables())
 
         initializeListAdapter()
         listAdapter.notifyDataSetChanged()
@@ -125,7 +128,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onItemSwiped(position: Int) {
         val string = getTextFromRecyclerViewItem(position)
-        val result = DocumentHandler.deleteTimetable(applicationContext, string)
+        val result = docHandler.deleteTimetable(string)
 
         val toastMessage = when (result) {
             true -> "Successfully deleted "
@@ -144,7 +147,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getTimetablesInfoList(): List<TimetableInfo> {
-        return DocumentHandler.getStoredTimetables(applicationContext)
+        return docHandler.getStoredTimetables()
     }
 
     private fun setupAlertDialog() {
@@ -162,7 +165,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteAllTimetables() {
-        val deleted = DocumentHandler.deleteAllTimetables(applicationContext)
+        val deleted = docHandler.deleteAllTimetables()
         infoList.removeAll(deleted)
 
         val message = when (infoList.isEmpty()) {
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             false -> "Something went wrong. Not all timetables were deleted"
         }
 
-        DocumentHandler.getStoredTimetables(this)
+        docHandler.getStoredTimetables()
         listAdapter.notifyDataSetChanged()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }

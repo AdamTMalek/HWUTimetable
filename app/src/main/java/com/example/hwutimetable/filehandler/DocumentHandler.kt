@@ -11,30 +11,24 @@ import java.io.IOException
  * This class provides methods that allow saving the JSoup documents as HTML files
  * and also keeps a record of any additional information for a timetable
  */
-object DocumentHandler {
+class DocumentHandler(private val context: Context) {
     /**
      * Saves the given [document] (timetable) as an HTML timetable.
-     * @param context: Context of the application - used to get the files directory
      * @param document: JSoup document of the timetable
      * @param timetableInfo: Information of the timetable (code and name)
      */
-    fun save(context: Context, document: Document, timetableInfo: TimetableInfo) {
+    fun save(document: Document, timetableInfo: TimetableInfo) {
         InfoFile.save(context, timetableInfo)
-        saveTimetable(context, document, timetableInfo.code)
+        saveTimetable(document, timetableInfo.code)
     }
 
     /**
      * Save the timetable as HTML document with [timetableName] as the name
      * (without the extension as it is added in the method)
-     * @param context: Context of the application - used to get the files directory
      * @param document: Timetable to save
      * @param timetableName: Group code
      */
-    private fun saveTimetable(
-        context: Context,
-        document: Document,
-        timetableName: String
-    ) {
+    private fun saveTimetable(document: Document, timetableName: String) {
         try {
             val file = File(context.filesDir, "$timetableName.html")
             file.writeText(document.outerHtml())
@@ -46,14 +40,14 @@ object DocumentHandler {
     /**
      * Gets the list of the timetables stored on the device
      */
-    fun getStoredTimetables(context: Context): List<TimetableInfo> {
+    fun getStoredTimetables(): List<TimetableInfo> {
         return InfoFile.getList(context)
     }
 
     /**
      * Gets the JSoup document of a timetable
      */
-    fun getTimetable(context: Context, title: String): Document {
+    fun getTimetable(title: String): Document {
         val infoList = InfoFile.getList(context)
         val filenameInfo = infoList.firstOrNull { it.name == title }
             ?: throw FileHandlerException(
@@ -70,7 +64,7 @@ object DocumentHandler {
      * Deletes a timetable from the device
      * @return true on success, false otherwise
      */
-    fun deleteTimetable(context: Context, name: String): Boolean {
+    fun deleteTimetable(name: String): Boolean {
         val timetableInfo = InfoFile.getInfoByName(context, name)
             ?: throw FileHandlerException("Timetable not found in the info file", FileHandlerException.Reason.NOT_FOUND)
 
@@ -87,10 +81,10 @@ object DocumentHandler {
      * Deletes all timetables stored on the device
      * @return List of the deleted timetables
      */
-    fun deleteAllTimetables(context: Context): List<TimetableInfo> {
+    fun deleteAllTimetables(): List<TimetableInfo> {
         val deleted = mutableListOf<TimetableInfo>()
         InfoFile.getList(context).forEach {
-            if (deleteTimetable(context, it.name))
+            if (deleteTimetable(it.name))
                 deleted.add(it)
         }
         return deleted

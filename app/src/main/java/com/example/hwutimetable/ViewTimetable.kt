@@ -70,7 +70,8 @@ class ViewTimetable : AppCompatActivity() {
     }
 
     private fun getTimetable(title: String): Timetable {
-        val doc = DocumentHandler.getTimetable(baseContext, title)
+        val docHandler = DocumentHandler(this)
+        val doc = docHandler.getTimetable(title)
         return Parser(doc).parse()
     }
 

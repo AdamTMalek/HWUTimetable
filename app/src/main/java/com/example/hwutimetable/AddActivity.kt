@@ -131,7 +131,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             requestedGroup!!.optionValue,
             requestedGroup!!.text
         )
-        DocumentHandler.save(this.applicationContext, document, timetableInfo)
+
+        val docHandler = DocumentHandler(this)
+        docHandler.save(document, timetableInfo)
 
         changeProgressBarVisibility(false)
 
