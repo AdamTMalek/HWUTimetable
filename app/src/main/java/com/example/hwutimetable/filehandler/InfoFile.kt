@@ -1,6 +1,5 @@
 package com.example.hwutimetable.filehandler
 
-import android.content.Context
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.list
@@ -10,34 +9,33 @@ import java.io.File
  * This object/singleton handles the tt_dict.json file responsible
  * for storing information ([TimetableInfo]) about stored documents/timetables.
  */
-object InfoFile : ListFileHandler<TimetableInfo> {
-    private const val FILENAME = "tt_dict.json"
-
+class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
+    private val filename = "tt_dict.json"
     /**
      * Adds the new information to the info file
      */
-    override fun save(context: Context, member: TimetableInfo) {
-        val file = getFile(context)
+    override fun save(member: TimetableInfo) {
+        val file = getFile()
 
         // Get the list we have so far
         val infoList = mutableListOf<TimetableInfo>()
         if (file.isFile) {
-            infoList.addAll(getList(context))
+            infoList.addAll(getList())
         }
 
         if (infoList.contains(member))
             return  // Info for this list already exists in the file
 
         infoList.add(member)
-        return saveAll(context, infoList)
+        return saveAll(infoList)
     }
 
     /**
      * Save the given [list] to the info file.
      * WARNING - This will override the existing file.
      */
-    override fun saveAll(context: Context, list: List<TimetableInfo>) {
-        val file = File(context.filesDir, FILENAME)
+    override fun saveAll(list: List<TimetableInfo>) {
+        val file = File(directory, filename)
 
         val json = Json(JsonConfiguration.Stable)
         val jsonData = json.stringify(TimetableInfo.serializer().list, list)
@@ -47,8 +45,8 @@ object InfoFile : ListFileHandler<TimetableInfo> {
     /**
      * Gets the list of [TimetableInfo] stored in the info file
      */
-    override fun getList(context: Context): List<TimetableInfo> {
-        val file = getFile(context)
+    override fun getList(): List<TimetableInfo> {
+        val file = getFile()
 
         if (!file.isFile)
             return emptyList()
@@ -61,41 +59,39 @@ object InfoFile : ListFileHandler<TimetableInfo> {
     /**
      * Delete a [TimetableInfo] element from the info file
      */
-    override fun delete(context: Context, member: TimetableInfo) {
-        val list = getList(context).toMutableList()
+    @Throws(InfoNotFoundException::class)
+    override fun delete(member: TimetableInfo) {
+        val list = getList().toMutableList()
 
         if (!list.remove(member))
-            throw FileHandlerException(
-                "The info list does not have the code ${member.code}",
-                FileHandlerException.Reason.CORRUPTED
-            )
+            throw InfoNotFoundException(member)
 
-        saveAll(context, list)
+        saveAll(list)
     }
 
     /**
      * Delete the whole info file
      */
-    override fun deleteAll(context: Context) {
-        getFile(context).delete()
+    override fun deleteAll() {
+        getFile().delete()
     }
 
     /**
      * Given the timetable [name] return the [TimetableInfo] if it exists
      */
-    fun getInfoByName(context: Context, name: String): TimetableInfo? {
-        return getList(context).find { it.name == name }
+    fun getInfoByName(name: String): TimetableInfo? {
+        return getList().find { it.name == name }
     }
 
     /**
      * Given the timetable [code] return the [TimetableInfo] if it exists
      */
-    fun getInfoByCode(context: Context, code: String): TimetableInfo? {
-        return getList(context).find { it.code == code }
+    fun getInfoByCode(code: String): TimetableInfo? {
+        return getList().find { it.code == code }
     }
 
     /**
      * Get the info file
      */
-    private fun getFile(context: Context) = File(context.filesDir, FILENAME)
+    private fun getFile() = File(directory, filename)
 }
