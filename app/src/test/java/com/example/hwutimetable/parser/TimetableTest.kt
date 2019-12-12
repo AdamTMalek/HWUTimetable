@@ -42,6 +42,6 @@ class TimetableTest {
 
     private fun createTimetableItem() :  TimetableItem {
         return TimetableItem("code", "name", "room" ,"lecturer", ItemType("type"),
-            LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, "1", Period.ZERO)
+            LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, "1")
     }
 }
