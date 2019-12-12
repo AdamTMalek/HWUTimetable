@@ -14,22 +14,26 @@ import android.widget.Toast
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hwutimetable.filehandler.DocumentHandler
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.filehandler.*
 
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.io.FileNotFoundException
 
 class MainActivity : AppCompatActivity() {
     private val infoList = mutableListOf<TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
-    private lateinit var docHandler: DocumentHandler
+    private lateinit var infoFile: InfoFile
+    private lateinit var timetableHandler: TimetableHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        timetableHandler = TimetableFileHandler(this.filesDir)
+        infoFile = InfoFile(this.filesDir)
 
         fab.setOnClickListener {
             val intent = Intent(this, AddActivity::class.java)
@@ -39,8 +43,6 @@ class MainActivity : AppCompatActivity() {
         addTouchCallbacksHandler()
         listTimetables()
         setupAlertDialog()
-
-        docHandler = DocumentHandler(this)
     }
 
     override fun onResume() {
@@ -105,7 +107,7 @@ class MainActivity : AppCompatActivity() {
             no_timetables_text.visibility = View.INVISIBLE
         }
         infoList.clear()
-        infoList.addAll(docHandler.getStoredTimetables())
+        infoList.addAll(timetableHandler.getStoredTimetables())
 
         initializeListAdapter()
         listAdapter.notifyDataSetChanged()
@@ -122,15 +124,35 @@ class MainActivity : AppCompatActivity() {
         val string = getTextFromRecyclerViewItem(position)
 
         val intent = Intent(this, ViewTimetable::class.java)
-        intent.putExtra("timetable", string)
+        val info = infoFile.getInfoByName(string)
+
+        checkNotNull(info) {
+            // TODO: Invalidate info file
+            return
+        }
+
+        val timetable = timetableHandler.getTimetable(info)
+        intent.putExtra("timetable", timetable)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun onItemSwiped(position: Int) {
         val string = getTextFromRecyclerViewItem(position)
-        val result = docHandler.deleteTimetable(string)
+        val info = infoFile.getInfoByName(string)
 
-        val toastMessage = when (result) {
+        var success = true
+        if (info != null) {
+            try {
+                timetableHandler.deleteTimetable(info)
+            } catch (ex: FileNotFoundException) {
+                success = false
+            }
+        } else {
+            success = false
+        }
+
+
+        val toastMessage = when (success) {
             true -> "Successfully deleted "
             false -> "Failed to delete "
         }.plus(string)
@@ -147,7 +169,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getTimetablesInfoList(): List<TimetableInfo> {
-        return docHandler.getStoredTimetables()
+        return timetableHandler.getStoredTimetables()
     }
 
     private fun setupAlertDialog() {
@@ -165,7 +187,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun deleteAllTimetables() {
-        val deleted = docHandler.deleteAllTimetables()
+        val deleted = timetableHandler.deleteAllTimetables()
         infoList.removeAll(deleted)
 
         val message = when (infoList.isEmpty()) {
@@ -173,7 +195,6 @@ class MainActivity : AppCompatActivity() {
             false -> "Something went wrong. Not all timetables were deleted"
         }
 
-        docHandler.getStoredTimetables()
         listAdapter.notifyDataSetChanged()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
