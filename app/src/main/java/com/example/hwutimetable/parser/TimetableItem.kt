@@ -17,8 +17,10 @@ open class TimetableItem(
     val type: ItemType,
     val start: LocalTime,
     val end: LocalTime,
-    val weeks: String,
-    val duration: Period = Period.minutes(Minutes.minutesBetween(start, end).minutes)) : Parcelable {
+    val weeks: String
+) : Parcelable {
+
+    val duration: Period = Period.minutes(Minutes.minutesBetween(start, end).minutes)
 
     constructor(parcel: Parcel) : this(
         code = parcel.readString()!!,
@@ -55,5 +57,37 @@ open class TimetableItem(
         override fun newArray(size: Int): Array<TimetableItem?> {
             return arrayOfNulls(size)
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimetableItem
+
+        if (code != other.code) return false
+        if (name != other.name) return false
+        if (room != other.room) return false
+        if (lecturer != other.lecturer) return false
+        if (type != other.type) return false
+        if (start != other.start) return false
+        if (end != other.end) return false
+        if (weeks != other.weeks) return false
+        if (duration != other.duration) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = code.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + room.hashCode()
+        result = 31 * result + lecturer.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + start.hashCode()
+        result = 31 * result + end.hashCode()
+        result = 31 * result + weeks.hashCode()
+        result = 31 * result + duration.hashCode()
+        return result
     }
 }

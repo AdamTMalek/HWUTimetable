@@ -8,8 +8,9 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
-import com.example.hwutimetable.filehandler.DocumentHandler
+import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.AsyncScraper
 import com.example.hwutimetable.scraper.Option
 
@@ -131,12 +132,16 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             requestedGroup!!.optionValue,
             requestedGroup!!.text
         )
-        DocumentHandler.save(this.applicationContext, document, timetableInfo)
+
+        val timetable = Parser(document).parse()
+        val directory = applicationContext.filesDir
+        val fileHandler = TimetableFileHandler(directory)
+        fileHandler.save(timetable, timetableInfo)
 
         changeProgressBarVisibility(false)
 
         val intent = Intent(this, ViewTimetable::class.java)
-        intent.putExtra("timetable", timetableInfo.name)
+        intent.putExtra("timetable", timetable)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 

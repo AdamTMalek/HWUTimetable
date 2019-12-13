@@ -1,15 +1,29 @@
 package com.example.hwutimetable.parser
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
-class Timetable(
-    val hash: ByteArray,
-    val days: Array<TimetableDay>
-) {
-    fun getTotalItems(): Int {
-        var items = 0
-        days.forEach {day ->
-            items += day.items.size
-        }
-        return items
+
+@Parcelize
+class Timetable(val hash: ByteArray,val days: Array<TimetableDay>): Parcelable {
+    fun getTotalItems() = days.sumBy { it.items.size }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Timetable
+
+        if (!hash.contentEquals(other.hash)) return false
+        if (!days.contentEquals(other.days)) return false
+
+        return true
     }
+
+    override fun hashCode(): Int {
+        var result = hash.contentHashCode()
+        result = 31 * result + days.contentHashCode()
+        return result
+    }
+
 }

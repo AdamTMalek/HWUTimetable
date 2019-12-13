@@ -1,23 +1,15 @@
 package com.example.hwutimetable
 
+import android.os.Bundle
+import android.view.*
+import android.widget.ScrollView
 import androidx.appcompat.app.AppCompatActivity
-
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.ScrollView
-import androidx.constraintlayout.widget.ConstraintSet
-import com.example.hwutimetable.filehandler.DocumentHandler
-import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
-
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
@@ -41,8 +33,8 @@ class ViewTimetable : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        val code = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
-        val timetable = getTimetable(code as String)
+        var timetable = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
+        timetable = timetable as Timetable
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
 
         // Set up the ViewPager with the sections adapter.
@@ -67,11 +59,6 @@ class ViewTimetable : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
-    }
-
-    private fun getTimetable(title: String): Timetable {
-        val doc = DocumentHandler.getTimetable(baseContext, title)
-        return Parser(doc).parse()
     }
 
     private fun getCurrentDayIndex(): Int {
