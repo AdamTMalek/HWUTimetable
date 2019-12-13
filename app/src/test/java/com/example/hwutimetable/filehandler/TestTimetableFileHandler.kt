@@ -20,9 +20,9 @@ class TestTimetableFileHandler {
         @JvmStatic
         fun setup() {
             if (test_dir.exists()) {
-                fail("The timetable file handler test directory should not exist prior to testing")
-                return
+                test_dir.delete()
             }
+
             val success = test_dir.mkdir()
             if (!success) {
                 fail("Unable to create timetable file handler test directory")
