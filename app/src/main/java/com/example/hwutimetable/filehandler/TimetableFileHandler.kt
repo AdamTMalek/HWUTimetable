@@ -77,11 +77,34 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
         return deleted
     }
 
+    /**
+     * This method will
+     * - delete all timetables (json files) that do not have info entries saved
+     * - delete all info entries of timetables that are missing
+     * @return [TimetableInfo] list of timetables that are left
+     */
+    override fun invalidateList(): List<TimetableInfo> {
+        val codes = getStoredTimetablesCodes()
+        val infoList = infoFile.getList()
+        val infoCodes = infoList.map { it.code }
+        val noInfo = codes.filterNot { code -> infoCodes.contains(code.nameWithoutExtension) }
+
+        noInfo.forEach { file -> file.delete() }
+        return infoFile.invalidateInfoFile(codes.map { it.nameWithoutExtension }.toList())
+    }
+
+    private fun getStoredTimetablesCodes(): Array<File> {
+        return directory.listFiles { _, name ->
+            name.endsWith(".json", true)
+                .and(!name.endsWith(InfoFile.FILENAME))
+        } ?: return emptyArray()
+    }
+
     private fun getGson(): Gson {
         return GsonBuilder().registerTypeAdapter(
             LocalTime::class.java, LocalTimeConverter()
         ).registerTypeAdapter(
-          Period::class.java, PeriodConverter()
+            Period::class.java, PeriodConverter()
         ).create()
     }
 

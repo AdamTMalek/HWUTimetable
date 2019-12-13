@@ -10,7 +10,11 @@ import java.io.File
  * for storing information ([TimetableInfo]) about stored documents/timetables.
  */
 class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
-    private val filename = "tt_dict.json"
+
+    companion object {
+        const val FILENAME = "tt_dict.json"
+    }
+
     /**
      * Adds the new information to the info file
      */
@@ -35,7 +39,7 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
      * WARNING - This will override the existing file.
      */
     override fun saveAll(list: List<TimetableInfo>) {
-        val file = File(directory, filename)
+        val file = File(directory, FILENAME)
 
         val json = Json(JsonConfiguration.Stable)
         val jsonData = json.stringify(TimetableInfo.serializer().list, list)
@@ -76,6 +80,15 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
         getFile().delete()
     }
 
+    fun invalidateInfoFile(codes: Iterable<String>): List<TimetableInfo> {
+        val infoList = getList()
+        val noTimetables = infoList.filterNot { codes.contains(it.code) }
+        noTimetables.forEach {
+            delete(it)
+        }
+        return getList()  // Return updated list
+    }
+
     /**
      * Given the timetable [name] return the [TimetableInfo] if it exists
      */
@@ -93,5 +106,5 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
     /**
      * Get the info file
      */
-    private fun getFile() = File(directory, filename)
+    private fun getFile() = File(directory, FILENAME)
 }

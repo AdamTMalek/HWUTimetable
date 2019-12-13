@@ -30,4 +30,10 @@ interface TimetableHandler {
      * @return List of the deleted timetables
      */
     fun deleteAllTimetables(): List<TimetableInfo>
+
+    /**
+     * This may be run by the objects handling FileNotFound exceptions
+     * thrown when timetables do not exist, but info files do.
+     */
+    fun invalidateList(): List<TimetableInfo>
 }

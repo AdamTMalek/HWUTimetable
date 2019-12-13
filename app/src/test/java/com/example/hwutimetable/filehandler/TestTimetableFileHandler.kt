@@ -50,15 +50,9 @@ class TestTimetableFileHandler {
 
     @Test
     fun testSaveTimetable() {
-        val timetable = Timetable(
-            ByteArray(0),
-            generateTimetableDays()
-        )
+        val info = saveTimetable()
 
-        val timetableInfo = TimetableInfo("code", "name")
-        fileHandler.save(timetable, timetableInfo)
-
-        val file = File(dir_path + "/${timetableInfo.code}.json")
+        val file = getFileByInfo(info)
         assertTrue(file.exists())
     }
 
@@ -67,10 +61,7 @@ class TestTimetableFileHandler {
         val infoList = mutableListOf<TimetableInfo>()
 
         for (i in 1..5) {
-            val timetable = Timetable(ByteArray(0), generateTimetableDays())
-            val info = TimetableInfo("code$i", "name$i")
-            infoList.add(info)
-            fileHandler.save(timetable, info)
+            infoList.add(saveTimetable(code = "code$i"))
         }
 
         val savedInfoList = fileHandler.getStoredTimetables()
@@ -99,12 +90,10 @@ class TestTimetableFileHandler {
 
     @Test
     fun testDeleteTimetable() {
-        val timetable = Timetable(ByteArray(0), generateTimetableDays())
-        val info = TimetableInfo("xxx", "xxx")
-        fileHandler.save(timetable, info)
+        val info = saveTimetable()
         fileHandler.deleteTimetable(info)
 
-        val file = File(dir_path + "/${info.code}.json")
+        val file = getFileByInfo(info)
         assertFalse("Has the file been deleted?", file.exists())
     }
 
@@ -113,6 +102,46 @@ class TestTimetableFileHandler {
         val info = TimetableInfo("xxx", "xxx")
         fileHandler.deleteTimetable(info)
     }
+
+    @Test
+    fun testInvalidateNoTimetable() {
+        val infoA = saveTimetable(code = "codeA")
+        val infoB = saveTimetable(code = "codeB")
+
+        val file = getFileByInfo(infoA)
+        file.delete()
+
+        val saved = fileHandler.invalidateList()
+
+        assertTrue("Was the infoA deleted?", !saved.contains(infoA))
+        assertTrue(saved.contains(infoB))
+        assertEquals(1, saved.size)
+    }
+
+    @Test
+    fun testInvalidateNoInfo() {
+        val info = saveTimetable()
+
+        val infoFile = File(dir_path + "/${InfoFile.FILENAME}")
+        infoFile.delete()
+
+        val saved = fileHandler.invalidateList()
+        assertTrue("Returned empty \"saved\" list?", saved.isEmpty())
+
+        val timetableFile = getFileByInfo(info)
+        assertTrue("Timetable file deleted?", !timetableFile.exists())
+    }
+
+
+    private fun saveTimetable(code: String = "xxx"): TimetableInfo {
+        val timetable = Timetable(ByteArray(0), generateTimetableDays())
+        val info = TimetableInfo(code, "xxx")
+        fileHandler.save(timetable, info)
+        return info
+    }
+
+    private fun getFileByInfo(info: TimetableInfo) =
+        File(dir_path + "/${info.code}.json")
 
     private fun generateTimetableDays(): Array<TimetableDay> {
         return arrayOf(

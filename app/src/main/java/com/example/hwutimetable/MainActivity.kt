@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
         val info = infoFile.getInfoByName(string)
 
         checkNotNull(info) {
-            // TODO: Invalidate info file
+            timetableHandler.invalidateList()
             return
         }
 
