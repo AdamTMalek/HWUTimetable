@@ -8,4 +8,5 @@
 	<string name="no_timetables">No timetables found</string>
 	<string name="title_activity_view_timetable">View Timetable</string>
     <string name="delete_all">Delete all</string>
+    <string name="follow">Save on the device and \"follow\"</string>
 </resources>

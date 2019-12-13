@@ -7,4 +7,5 @@
 	<dimen name="hour_label_height">40dp</dimen>
 	<dimen name="item_grid_margin">3dp</dimen>
 	<dimen name="edge_margin">10dp</dimen>
+    <dimen name="heading_text_size">20sp</dimen>
 </resources>
