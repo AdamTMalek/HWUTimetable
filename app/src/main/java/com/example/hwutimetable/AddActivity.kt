@@ -2,18 +2,17 @@ package com.example.hwutimetable
 
 import android.app.ActivityOptions
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import androidx.appcompat.app.AppCompatActivity
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.AsyncScraper
 import com.example.hwutimetable.scraper.Option
-
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.android.synthetic.main.activity_add.*
 import org.jsoup.nodes.Document
@@ -135,8 +134,11 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val timetable = Parser(document).parse()
         val directory = applicationContext.filesDir
-        val fileHandler = TimetableFileHandler(directory)
-        fileHandler.save(timetable, timetableInfo)
+
+        if (saveTimetable()) {
+            val fileHandler = TimetableFileHandler(directory)
+            fileHandler.save(timetable, timetableInfo)
+        }
 
         changeProgressBarVisibility(false)
 
@@ -144,6 +146,8 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         intent.putExtra("timetable", timetable)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
+
+    private fun saveTimetable() = follow_checkbox.isChecked
 
     private fun changeProgressBarVisibility(visible: Boolean) {
         when (visible) {
