@@ -3,11 +3,13 @@ package com.example.hwutimetable
 import android.os.Bundle
 import android.view.*
 import android.widget.ScrollView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import com.example.hwutimetable.parser.Clashes
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
 import kotlinx.android.synthetic.main.activity_view_timetable.*
@@ -35,6 +37,10 @@ class ViewTimetable : AppCompatActivity() {
 
         var timetable = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
         timetable = timetable as Timetable
+        val clashes = timetable.getClashes()
+        if (!clashes.isEmpty())
+            displayClashesDialog(clashes)
+
         mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
 
         // Set up the ViewPager with the sections adapter.
@@ -59,6 +65,22 @@ class ViewTimetable : AppCompatActivity() {
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun displayClashesDialog(clashes: Clashes) {
+        val builder = AlertDialog.Builder(this)
+        val daysOfClashes = clashes.getClashes()
+            .groupBy { it.day }.keys
+            .joinToString(prefix = "", postfix = "", separator = ",")
+        builder.setTitle("Clashes")
+            .setMessage("There are clashes for the following days: $daysOfClashes")
+            .setCancelable(false)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.cancel()
+            }
+
+        val dialog = builder.create()
+        dialog.show()
     }
 
     private fun getCurrentDayIndex(): Int {

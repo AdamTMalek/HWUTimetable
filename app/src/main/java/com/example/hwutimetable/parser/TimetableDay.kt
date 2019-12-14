@@ -9,7 +9,17 @@ enum class Day(val index: Int) {
     TUESDAY(1),
     WEDNESDAY(2),
     THURSDAY(3),
-    FRIDAY(4)
+    FRIDAY(4);
+
+    override fun toString(): String {
+        return when (this) {
+            MONDAY -> "Monday"
+            TUESDAY -> "Tuesday"
+            WEDNESDAY -> "Wednesday"
+            THURSDAY -> "Thursday"
+            FRIDAY -> "Friday"
+        }
+    }
 }
 
 @Parcelize
