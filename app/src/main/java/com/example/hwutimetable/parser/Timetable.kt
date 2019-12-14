@@ -5,8 +5,16 @@ import kotlinx.android.parcel.Parcelize
 
 
 @Parcelize
-class Timetable(val hash: ByteArray,val days: Array<TimetableDay>): Parcelable {
+class Timetable(val hash: ByteArray, val days: Array<TimetableDay>) : Parcelable {
     fun getTotalItems() = days.sumBy { it.items.size }
+
+    fun getClashes(): Clashes {
+        val clashes = Clashes()
+        days.forEach { day ->
+            clashes.addClashes(day.getClashes())
+        }
+        return clashes
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
