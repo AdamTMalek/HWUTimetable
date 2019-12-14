@@ -1,7 +1,7 @@
 package com.example.hwutimetable.parser
 
 import com.example.hwutimetable.extensions.toIntArray
-import org.junit.Assert.assertEquals
+import com.example.hwutimetable.parser.exceptions.InvalidRangeException
 import org.junit.Assert.assertTrue
 import org.junit.Test
 

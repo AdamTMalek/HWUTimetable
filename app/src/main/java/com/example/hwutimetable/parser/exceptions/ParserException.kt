@@ -1,4 +1,4 @@
-package com.example.hwutimetable.parser
+package com.example.hwutimetable.parser.exceptions
 
 import java.lang.Exception
 

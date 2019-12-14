@@ -1,6 +1,7 @@
 package com.example.hwutimetable.parser
 
 import com.example.hwutimetable.extensions.toIntArray
+import com.example.hwutimetable.parser.exceptions.InvalidRangeException
 
 class WeeksBuilder {
     private var weeks: IntArray = IntArray(0)

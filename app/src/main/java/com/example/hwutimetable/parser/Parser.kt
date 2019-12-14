@@ -1,5 +1,6 @@
 package com.example.hwutimetable.parser
 
+import com.example.hwutimetable.parser.exceptions.ParserException
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import org.joda.time.LocalTime

@@ -1,5 +1,6 @@
 package com.example.hwutimetable.parser
 
+import com.example.hwutimetable.parser.exceptions.ParserException
 import org.jsoup.nodes.Document
 import org.junit.Test
 import org.junit.Assert.*
@@ -24,7 +25,7 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser(org.jsoup.nodes.Document("src/test/sampleTimetables/tt1.html")).parse()
+        Parser(Document("src/test/sampleTimetables/tt1.html")).parse()
     }
 
     @Test
