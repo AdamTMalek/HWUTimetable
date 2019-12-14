@@ -43,7 +43,7 @@ class TestTimetableFileHandler {
     @After
     fun deleteAllStoredTimetables() {
         val files = test_dir.listFiles()
-        files?.forEach {file ->
+        files?.forEach { file ->
             file.delete()
         }
     }
@@ -167,7 +167,9 @@ class TestTimetableFileHandler {
             ItemType("type"),
             LocalTime.MIDNIGHT,
             LocalTime.MIDNIGHT,
-            "0"
+            WeeksBuilder()
+                .setRange(1, 1)
+                .getWeeks()
         )
     }
 }
