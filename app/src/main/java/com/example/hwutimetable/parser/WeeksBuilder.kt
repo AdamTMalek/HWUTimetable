@@ -7,9 +7,9 @@ class WeeksBuilder {
     private var weeks: IntArray = IntArray(0)
 
     /**
-     * Get the number of weeks in the specified weeks
+     * Get the result of the builder
      */
-    fun getNumberOfWeeks(): Weeks {
+    fun getWeeks(): Weeks {
         return Weeks(weeks)
     }
 

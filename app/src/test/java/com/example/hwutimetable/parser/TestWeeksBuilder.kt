@@ -10,7 +10,7 @@ class TestWeeksBuilder {
     fun testSetRange() {
         val weeks = WeeksBuilder()
             .setRange(1, 12)
-            .getNumberOfWeeks()
+            .getWeeks()
 
         val expected = (1..12).toIntArray()
         assertTrue(expected.contentEquals(weeks.weeks))
@@ -20,21 +20,21 @@ class TestWeeksBuilder {
     fun testSetInvalidStartRange() {
         WeeksBuilder()
             .setRange(-2, 4)
-            .getNumberOfWeeks()
+            .getWeeks()
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun testSetInvalidEndRange() {
         WeeksBuilder()
             .setRange(1, -1)
-            .getNumberOfWeeks()
+            .getWeeks()
     }
 
     @Test(expected = InvalidRangeException::class)
     fun testSetInvalidRange() {
         WeeksBuilder()
             .setRange(6, 3)
-            .getNumberOfWeeks()
+            .getWeeks()
     }
 
     @Test
@@ -42,7 +42,7 @@ class TestWeeksBuilder {
         val expected = (1..12).toIntArray()
         val weeks = WeeksBuilder()
             .setWeeks(expected)
-            .getNumberOfWeeks()
+            .getWeeks()
 
         assertTrue(expected.contentEquals(weeks.weeks))
     }
@@ -52,14 +52,14 @@ class TestWeeksBuilder {
         val weeks = (-2..5).toIntArray()
         WeeksBuilder()
             .setWeeks(weeks)
-            .getNumberOfWeeks()
+            .getWeeks()
     }
 
     @Test
     fun testSetRangeFromString() {
         val weeks = WeeksBuilder()
             .setFromString("1-12")
-            .getNumberOfWeeks()
+            .getWeeks()
 
         val expected = (1..12).toIntArray()
         assertTrue(expected.contentEquals(weeks.weeks))
@@ -69,7 +69,7 @@ class TestWeeksBuilder {
     fun testSetListFromString() {
         val weeks = WeeksBuilder()
             .setFromString("1,2,3,4,5,6,7,8,9,10,11,12")
-            .getNumberOfWeeks()
+            .getWeeks()
 
         val expected = (1..12).toIntArray()
         assertTrue(expected.contentEquals(weeks.weeks))
