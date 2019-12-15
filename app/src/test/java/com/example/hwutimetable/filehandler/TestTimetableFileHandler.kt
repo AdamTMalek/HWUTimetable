@@ -1,6 +1,7 @@
 package com.example.hwutimetable.filehandler
 
 import com.example.hwutimetable.parser.*
+import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.junit.After
 import org.junit.AfterClass
@@ -43,7 +44,7 @@ class TestTimetableFileHandler {
     @After
     fun deleteAllStoredTimetables() {
         val files = test_dir.listFiles()
-        files?.forEach {file ->
+        files?.forEach { file ->
             file.delete()
         }
     }
@@ -72,7 +73,8 @@ class TestTimetableFileHandler {
     fun testGetTimetable() {
         val actualTimetable = Timetable(
             ByteArray(0),
-            generateTimetableDays()
+            generateTimetableDays(),
+            Semester(LocalDate.now())
         )
 
         val timetableInfo = TimetableInfo("code", "name")
@@ -134,7 +136,11 @@ class TestTimetableFileHandler {
 
 
     private fun saveTimetable(code: String = "xxx"): TimetableInfo {
-        val timetable = Timetable(ByteArray(0), generateTimetableDays())
+        val timetable = Timetable(
+            ByteArray(0),
+            generateTimetableDays(),
+            Semester(LocalDate.now())
+        )
         val info = TimetableInfo(code, "xxx")
         fileHandler.save(timetable, info)
         return info
@@ -167,7 +173,9 @@ class TestTimetableFileHandler {
             ItemType("type"),
             LocalTime.MIDNIGHT,
             LocalTime.MIDNIGHT,
-            "0"
+            WeeksBuilder()
+                .setRange(1, 1)
+                .getWeeks()
         )
     }
 }

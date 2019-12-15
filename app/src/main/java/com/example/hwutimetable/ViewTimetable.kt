@@ -1,21 +1,29 @@
 package com.example.hwutimetable
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.ScrollView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import androidx.fragment.app.FragmentStatePagerAdapter
+import androidx.viewpager.widget.PagerAdapter
+import com.example.hwutimetable.parser.Clashes
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
+import org.joda.time.LocalDate
 import java.util.*
 
-class ViewTimetable : AppCompatActivity() {
+class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /**
      * The [androidx.viewpager.widget.PagerAdapter] that will provide
@@ -26,6 +34,7 @@ class ViewTimetable : AppCompatActivity() {
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private lateinit var wholeTimetable: Timetable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,13 +42,42 @@ class ViewTimetable : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        var timetable = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
-        timetable = timetable as Timetable
-        mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
+        wholeTimetable = getTimetable(intent)
 
-        // Set up the ViewPager with the sections adapter.
-        container.adapter = mSectionsPagerAdapter
-        container.currentItem = getCurrentDayIndex()
+        val currentWeek = wholeTimetable.semester.getWeek(LocalDate.now())
+        populateSpinner(currentWeek)
+        displayTimetableForWeek(currentWeek, true)
+    }
+
+    private fun displayTimetableForWeek(week: Int, showToday: Boolean) {
+        val timetable = wholeTimetable.getForWeek(week)
+        val clashes = timetable.getClashes(week)
+        if (!clashes.isEmpty())
+            displayClashesDialog(clashes)
+
+        val currentPage = container.currentItem
+
+        if (mSectionsPagerAdapter == null) {
+            mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
+            container.adapter = mSectionsPagerAdapter
+        }
+
+        with(container.adapter!! as SectionsPagerAdapter) {
+            this.timetable = timetable
+            this.notifyDataSetChanged()
+        }
+
+        if (showToday)
+            container.currentItem = getCurrentDayIndex()
+        else
+            container.currentItem = currentPage
+    }
+
+    private fun getTimetable(intent: Intent): Timetable {
+        val timetable = intent.extras?.get("timetable")
+            ?: throw Exception("Timetable (Intent Extra) has not been passed")
+
+        return timetable as Timetable
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -61,6 +99,44 @@ class ViewTimetable : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    private fun populateSpinner(currentWeek: Int) {
+        val weeks = (1..12).toList()
+        val adapter = ArrayAdapter<Int>(this, android.R.layout.simple_spinner_item, weeks)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        weeks_spinner.adapter = adapter
+        weeks_spinner.setSelection(weeks.indexOf(currentWeek))
+        weeks_spinner.onItemSelectedListener = this
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        val containerId = parent?.id ?: return
+        if (containerId != weeks_spinner.id) {
+            return
+        }
+
+        val selectedWeek = weeks_spinner.selectedItem as Int
+        displayTimetableForWeek(selectedWeek, false)
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+    }
+
+    private fun displayClashesDialog(clashes: Clashes) {
+        val builder = AlertDialog.Builder(this)
+        val daysOfClashes = clashes.getClashes()
+            .groupBy { it.day }.keys
+            .joinToString(prefix = "", postfix = "", separator = ",")
+        builder.setTitle("Clashes")
+            .setMessage("There are clashes for the following days: $daysOfClashes")
+            .setCancelable(false)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.cancel()
+            }
+
+        val dialog = builder.create()
+        dialog.show()
+    }
+
     private fun getCurrentDayIndex(): Int {
         val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
 
@@ -79,13 +155,17 @@ class ViewTimetable : AppCompatActivity() {
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    inner class SectionsPagerAdapter(fm: FragmentManager, private val timetable: Timetable) :
-        FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    inner class SectionsPagerAdapter(fm: FragmentManager, var timetable: Timetable) :
+        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             return PlaceholderFragment.newInstance(position + 1, timetable.days[position])
+        }
+
+        override fun getItemPosition(`object`: Any): Int {
+            return PagerAdapter.POSITION_NONE
         }
 
         override fun getCount(): Int {

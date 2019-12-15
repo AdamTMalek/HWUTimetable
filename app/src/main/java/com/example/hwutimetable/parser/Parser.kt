@@ -1,15 +1,17 @@
 package com.example.hwutimetable.parser
 
+import com.example.hwutimetable.parser.exceptions.ParserException
+import org.joda.time.LocalTime
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
-import org.joda.time.LocalTime
 
 
 /**
  * This class is used to parse the given (time)[table] and store the results as a list of timetable items
  * @param table: Jsoup document with a Jsoup parser
  */
-class Parser(private val table: Document) {
+class Parser(private var table: Document) {
     private val timetableDays: Array<TimetableDay> = arrayOf(
         TimetableDay(Day.MONDAY, arrayListOf()),
         TimetableDay(Day.TUESDAY, arrayListOf()),
@@ -24,7 +26,7 @@ class Parser(private val table: Document) {
      * @param dayIndex: Index of the day of interest (0 - Monday, 1 - Tuesday etc.)
      * @return List of rows belonging to the day
      */
-    private fun findRowsOfDay(dayIndex: Int) : List<Element> {
+    private fun findRowsOfDay(dayIndex: Int): List<Element> {
         // Get all the children of tbody (trs) and remove the first row
         // because it contains time information that we don't need
         val rows = table.selectFirst("tbody").children().drop(1)
@@ -70,10 +72,10 @@ class Parser(private val table: Document) {
      * Calculates the time by using the column (td) index.
      * @param colIndex: Column index
      */
-    private fun getTime(colIndex: Int) : LocalTime {
+    private fun getTime(colIndex: Int): LocalTime {
         var time = LocalTime(9, 15)
         // colIndex 0 is the day column, 1 corresponds to 9:15.
-        colIndex.downTo(2).forEach { _ -> time = time.plusMinutes(15)}
+        colIndex.downTo(2).forEach { _ -> time = time.plusMinutes(15) }
         return time
     }
 
@@ -83,7 +85,7 @@ class Parser(private val table: Document) {
      * @param tdCounter: td index at which the item appears
      * @return Colspan width of the item
      */
-    private fun addLecture(td: Element, tdCounter: Int, dayIndex: Int) : Int {
+    private fun addLecture(td: Element, tdCounter: Int, dayIndex: Int): Int {
         val colspan = td.attr("colspan").toInt()  // Colspan tells us the duration of the lecture
         val startTime = getTime(tdCounter)
         val endTime = getTime(tdCounter + colspan)
@@ -103,16 +105,20 @@ class Parser(private val table: Document) {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableDays[dayIndex].items.add(TimetableItem(
-            name = name,
-            code = code,
-            room = room,
-            lecturer = lecturer,
-            type = ItemType(type),
-            start = startTime,
-            end = endTime,
-            weeks = weeks
-        ))
+        timetableDays[dayIndex].items.add(
+            TimetableItem(
+                name = name,
+                code = code,
+                room = room,
+                lecturer = lecturer,
+                type = ItemType(type),
+                start = startTime,
+                end = endTime,
+                weeks = WeeksBuilder()
+                    .setFromString(weeks)
+                    .getWeeks()
+            )
+        )
 
         return colspan
     }
@@ -122,11 +128,11 @@ class Parser(private val table: Document) {
      * @param rows: List of rows
      */
     private fun addLecturesFromRows(rows: List<Element>, day: Int) {
-        rows.forEachIndexed{ index, row ->
+        rows.forEachIndexed { index, row ->
             val columns = row.children()  // Children are the tds of the row
             var tdCounter = -1  // Current td
 
-            columns.forEach {column ->
+            columns.forEach { column ->
                 tdCounter++
 
                 if (tdCounter == 0) {
@@ -147,6 +153,24 @@ class Parser(private val table: Document) {
     }
 
     /**
+     * Get start date of the semester (timetable)
+     */
+    private fun getSemester(): Semester {
+        val dateString = table.selectFirst("span.header-2-2-3").text()
+
+        val regex = Regex("((\\d+\\s\\w+\\s\\d+)(?=-\\d+\\s\\w+\\s\\d+))")
+        val dates = regex.find(dateString)
+            ?: throw ParserException("Parser was not able to parse the start date of the semester ($dateString)")
+
+        val startDate = dates.groups[0]
+            ?: throw ParserException("Parser was not able to parse the start date of the semester ($dateString)")
+
+        return SemesterBuilder()
+            .setFromString(startDate.value)
+            .getSemester()
+    }
+
+    /**
      * Checks if the [table] has a parser
      * @return true if it does, false if it does not
      */
@@ -156,21 +180,19 @@ class Parser(private val table: Document) {
      * Parses the timetable and return the timetable items
      * @return List of timetable items
      */
-    fun parse() : Timetable {
+    fun parse(): Timetable {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
+        val semester = getSemester()
+
+        table = Jsoup.parse(table.selectFirst("table.grid-border-args").outerHtml())
         for (day in 0..4) {
             val rows = findRowsOfDay(day)
             addLecturesFromRows(rows, day)
         }
 
-        // TODO: Find the hash of the timetable
-        timetable = Timetable(Hash.get(this.table), timetableDays)
+        timetable = Timetable(Hash.get(this.table), timetableDays, semester)
         return timetable!!
-    }
-
-    fun getTimetable(): Timetable {
-        return timetable ?: throw ParserException("The timetable document has not been parsed!")
     }
 }

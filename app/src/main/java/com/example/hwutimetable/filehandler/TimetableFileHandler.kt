@@ -1,11 +1,13 @@
 package com.example.hwutimetable.filehandler
 
 import com.example.hwutimetable.parser.Timetable
+import com.fatboyindustrial.gsonjodatime.LocalDateConverter
 import com.fatboyindustrial.gsonjodatime.LocalTimeConverter
 import com.fatboyindustrial.gsonjodatime.PeriodConverter
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.io.IOException
+import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.joda.time.Period
 import java.io.File
@@ -101,11 +103,11 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
     }
 
     private fun getGson(): Gson {
-        return GsonBuilder().registerTypeAdapter(
-            LocalTime::class.java, LocalTimeConverter()
-        ).registerTypeAdapter(
-            Period::class.java, PeriodConverter()
-        ).create()
+        return GsonBuilder()
+            .registerTypeAdapter(LocalDate::class.java, LocalDateConverter())
+            .registerTypeAdapter(LocalTime::class.java, LocalTimeConverter())
+            .registerTypeAdapter(Period::class.java, PeriodConverter())
+            .create()
     }
 
     private fun getFilename(timetableInfo: TimetableInfo) = "${timetableInfo.code}.json"

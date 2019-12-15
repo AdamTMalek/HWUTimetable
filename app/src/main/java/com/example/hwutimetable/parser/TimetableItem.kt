@@ -17,7 +17,7 @@ open class TimetableItem(
     val type: ItemType,
     val start: LocalTime,
     val end: LocalTime,
-    val weeks: String
+    val weeks: Weeks
 ) : Parcelable {
 
     val duration: Period = Period.minutes(Minutes.minutesBetween(start, end).minutes)
@@ -30,7 +30,9 @@ open class TimetableItem(
         type = ItemType(parcel.readString()!!),
         start = LocalTime.parse(parcel.readString()),
         end = LocalTime.parse(parcel.readString()),
-        weeks = parcel.readString()!!
+        weeks = WeeksBuilder()
+            .setFromString(parcel.readString()!!)
+            .getWeeks()
     )
 
     override fun writeToParcel(dest: Parcel?, flags: Int) {
@@ -43,7 +45,7 @@ open class TimetableItem(
             writeString(type.name)
             writeString(start.toString())
             writeString(end.toString())
-            writeString(weeks)
+            writeString(weeks.toString())
         }
     }
 

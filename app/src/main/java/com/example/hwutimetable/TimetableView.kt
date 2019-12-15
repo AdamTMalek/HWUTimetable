@@ -10,6 +10,10 @@ import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import com.example.hwutimetable.TimetableView.createItemGridLayout
+import com.example.hwutimetable.TimetableView.createItemLinearLayout
+import com.example.hwutimetable.TimetableView.createMainGridLayout
+import com.example.hwutimetable.TimetableView.createScrollView
 import com.example.hwutimetable.parser.TimetableDay
 import com.example.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
@@ -113,7 +117,7 @@ object TimetableView {
         val gridLayout = createItemGridLayout(context)
 
         val code = createItemTextView(context, item.code, Gravity.LEFT)
-        val weeks = createItemTextView(context, item.weeks, Gravity.CENTER_HORIZONTAL)
+        val weeks = createItemTextView(context, item.weeks.toString(), Gravity.CENTER_HORIZONTAL)
         val room = createItemTextView(context, item.room, Gravity.RIGHT)
         val name = createItemTextView(context, item.name, Gravity.CENTER_HORIZONTAL)
         val lecturer = createItemTextView(context, item.lecturer, Gravity.LEFT)
