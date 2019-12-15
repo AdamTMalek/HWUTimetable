@@ -41,11 +41,8 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
     fun getClashes(week: Int): Clashes {
         val clashes = Clashes()
         for (i in 0 until (items.size - 1)) {
-            val clash = getClash(i, week)
-            if (clash != null)
-                clashes.addClash(clash)
+            clashes.addClashes(getClashes(i, week))
         }
-
         return clashes
     }
 
@@ -53,22 +50,42 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
      * Finds a clash for the item at index [index] for the given [week]
      * @return [Clash] if a clash exists, null otherwise.
      */
-    private fun getClash(index: Int, week: Int): Clash? {
+    private fun getClashes(index: Int, week: Int): Clashes {
         val item = items[index]
-
+        val clashes = Clashes()
         for (i in (index + 1) until items.size) {
             val itemToCompare = items[i]
 
-            // Check if there is a time overlap
-            if (Minutes.minutesBetween(item.end, itemToCompare.start).minutes >= 0)
-                continue // If there's no overlap - continue, there won't be any clash
+            if (!overlapExists(item, itemToCompare))
+                continue // If there's no overlap - continue
 
             val commonWeeks = item.weeks.getCommon(itemToCompare.weeks)
-            if (commonWeeks.isNotEmpty() && !commonWeeks.contains(week))
-                return Clash(this.day, item, itemToCompare)
+            if (commonWeeks.contains(week))
+                clashes.addClash(Clash(this.day, item, itemToCompare))
         }
 
-        return null
+        return clashes
+    }
+
+    /**
+     * Checks if there is an overlap between item1 and item2.
+     * @return true if overlap exists, false otherwise.
+     */
+    private fun overlapExists(item1: TimetableItem, item2: TimetableItem): Boolean {
+        // Find the minutes between the end of item 1 and start of item 2
+        var minutes = Minutes.minutesBetween(item1.end, item2.start).minutes
+        if (minutes >= 0)
+            return false  // No overlap
+
+        // Now, we know that item 2 start comes before the end of item 1
+        // We need to check if item 2 finishes before item 1 starts.
+        // We do exactly the same as before, except swap item 1 and item 2
+        minutes = Minutes.minutesBetween(item2.end, item1.start).minutes
+        if (minutes >= 0)
+            return false
+
+        // Here, we know that overlap exists
+        return true
     }
 
     override fun equals(other: Any?): Boolean {
