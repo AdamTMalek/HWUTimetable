@@ -15,6 +15,7 @@ import com.example.hwutimetable.parser.TimetableDay
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
+import org.joda.time.LocalDate
 import java.util.*
 
 class ViewTimetable : AppCompatActivity() {
@@ -35,9 +36,14 @@ class ViewTimetable : AppCompatActivity() {
 
         setSupportActionBar(toolbar)
 
-        var timetable = intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
+        var timetable =
+            intent.extras?.get("timetable") ?: throw Exception("Timetable (Intent Extra) has not been passed")
         timetable = timetable as Timetable
-        val clashes = timetable.getClashes()
+
+        val currentWeek = getCurrentWeek(timetable)
+        timetable = timetable.getForWeek(currentWeek)
+
+        val clashes = timetable.getClashes(currentWeek)
         if (!clashes.isEmpty())
             displayClashesDialog(clashes)
 
@@ -46,6 +52,11 @@ class ViewTimetable : AppCompatActivity() {
         // Set up the ViewPager with the sections adapter.
         container.adapter = mSectionsPagerAdapter
         container.currentItem = getCurrentDayIndex()
+    }
+
+    private fun getCurrentWeek(timetable: Timetable): Int {
+        val currentDate = LocalDate.now()
+        return timetable.semester.getCurrentWeek(currentDate)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

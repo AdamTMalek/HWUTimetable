@@ -6,16 +6,56 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester: Semester) : Parcelable {
+
+    /**
+     * Get total items in the timetable (includes clashes - if they exists
+     */
     fun getTotalItems() = days.sumBy { it.items.size }
 
-    fun getClashes(): Clashes {
+    /**
+     * For the given week, the algorithm finds if there are any clashes between items
+     * @return [Clashes] which may or may not contain clashes
+     */
+    fun getClashes(week: Int): Clashes {
+        val weekToDisplay = getWeek(week)
+
         val clashes = Clashes()
-        // TODO: Find current week and decide if there's a clash during the week
-        val week = 1
         days.forEach { day ->
-            clashes.addClashes(day.getClashes(week))
+            clashes.addClashes(day.getClashes(weekToDisplay))
         }
+
         return clashes
+    }
+
+    /**
+     * Generates a timetable for the given week.
+     * Using this method the timetable will filter out items (lectures, labs etc.) that only happen in the given week.
+     * @return [Timetable] for the given week.
+     */
+    fun getForWeek(week: Int): Timetable {
+        val weekToDisplay = getWeek(week)
+
+        val days = mutableListOf<TimetableDay>()
+        this.days.forEach { day ->
+            days.add(day.getForWeek(weekToDisplay))
+        }
+
+        return Timetable(this.hash, days.toTypedArray(), this.semester)
+    }
+
+    /**
+     * Get the displayable week by the timetable.
+     * If the passed week is within the range [1,12] then the same week will be returned as the one passed.
+     * Otherwise, if it's out of range then the method will return the lower boundary (1) if the week is
+     * less than 1, and upper boundary if the week is greater than 12.
+     * @return [Int] between 1 and 12
+     */
+    private fun getWeek(week: Int): Int {
+        return when {
+            week <= 1 -> 1
+            week >= 12 -> 12
+            else -> week
+        }
     }
 
     override fun equals(other: Any?): Boolean {

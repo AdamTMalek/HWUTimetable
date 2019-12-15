@@ -52,7 +52,7 @@ class TimetableTest {
             ),
             Semester(LocalDate.now())
         )
-        assertTrue(timetable.getClashes().isEmpty())
+        assertTrue(timetable.getClashes(1).isEmpty())
     }
 
     @Test
@@ -81,7 +81,7 @@ class TimetableTest {
             Semester(LocalDate.now())
         )
 
-        assertTrue(timetable.getClashes().isEmpty())
+        assertTrue(timetable.getClashes(1).isEmpty())
     }
 
     @Test
@@ -110,7 +110,7 @@ class TimetableTest {
             Semester(LocalDate.now())
         )
 
-        assertFalse(timetable.getClashes().isEmpty())
+        assertFalse(timetable.getClashes(1).isEmpty())
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {

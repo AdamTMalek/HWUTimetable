@@ -25,6 +25,19 @@ enum class Day(val index: Int) {
 @Parcelize
 data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Parcelable {
 
+    /**
+     * Get new object that contains only items that happen in the given week
+     */
+    fun getForWeek(week: Int): TimetableDay {
+        return TimetableDay(
+            this.day,
+            ArrayList(items.filter { item -> item.weeks.contains(week) })
+        )
+    }
+
+    /**
+     * Get clashes (if they exist) for the given week
+     */
     fun getClashes(week: Int): Clashes {
         val clashes = Clashes()
         for (i in 0 until (items.size - 1)) {
@@ -36,6 +49,10 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
         return clashes
     }
 
+    /**
+     * Finds a clash for the item at index [index] for the given [week]
+     * @return [Clash] if a clash exists, null otherwise.
+     */
     private fun getClash(index: Int, week: Int): Clash? {
         val item = items[index]
 

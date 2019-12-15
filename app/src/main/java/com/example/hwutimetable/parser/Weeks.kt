@@ -19,6 +19,12 @@ class Weeks(val weeks: IntArray) {
     fun getCommon(weeks: Weeks) = this.weeks.intersect(weeks.weeks.toList())
 
     /**
+     * Check if the weeks contains the given week
+     * @return True if it contains the given week
+     */
+    fun contains(week: Int) = weeks.contains(week)
+
+    /**
      * If weeks are rangeable we can represent them with hyphen instead of listing every week
      * @return true if rangeable
      */
