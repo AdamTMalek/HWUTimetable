@@ -1,10 +1,12 @@
 package com.example.hwutimetable.parser
 
 import com.example.hwutimetable.parser.exceptions.ParserException
+import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
-import org.junit.Test
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Before
+import org.junit.Test
 import java.io.File
 
 class ParserTest {
@@ -53,21 +55,18 @@ class ParserTest {
             listOf("F29SO-S1", "F29AI-S1", "F29SO-S1", "F29SO-S1")  // Friday
         )
 
-        timetable!!.days.forEachIndexed {index, day ->
+        timetable!!.days.forEachIndexed { index, _ ->
             val codes = timetable!!.days[index].items.map { it.code }
             assertTrue(expected[index].containsAll(codes))
             assertEquals(expected[index].size, timetable!!.days[index].items.size)
         }
     }
 
-    /**
-     * Tests if the document hash is the same as parsed timetable hash
-     * (i.e. does the timetable get the hash of the document)
-     */
     @Test
-    fun testHash() {
-        val docHash = Hash.get(document)
-        val timetableHash = timetable!!.hash
-        assertTrue(Hash.compare(docHash, timetableHash))
+    fun testSemester() {
+        val expectedStartDate = LocalDate(2019, 9, 16)
+        val actualStartDate = timetable!!.semester.startDate
+
+        assertEquals(expectedStartDate, actualStartDate)
     }
 }

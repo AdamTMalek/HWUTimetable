@@ -2,6 +2,7 @@ package com.example.hwutimetable.parser
 
 import com.example.hwutimetable.parser.exceptions.ParserException
 import org.joda.time.LocalTime
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 
@@ -10,7 +11,7 @@ import org.jsoup.nodes.Element
  * This class is used to parse the given (time)[table] and store the results as a list of timetable items
  * @param table: Jsoup document with a Jsoup parser
  */
-class Parser(private val table: Document) {
+class Parser(private var table: Document) {
     private val timetableDays: Array<TimetableDay> = arrayOf(
         TimetableDay(Day.MONDAY, arrayListOf()),
         TimetableDay(Day.TUESDAY, arrayListOf()),
@@ -152,6 +153,24 @@ class Parser(private val table: Document) {
     }
 
     /**
+     * Get start date of the semester (timetable)
+     */
+    private fun getSemester(): Semester {
+        val dateString = table.selectFirst("span.header-2-2-3").text()
+
+        val regex = Regex("((\\d+\\s\\w+\\s\\d+)(?=-\\d+\\s\\w+\\s\\d+))")
+        val dates = regex.find(dateString)
+            ?: throw ParserException("Parser was not able to parse the start date of the semester ($dateString)")
+
+        val startDate = dates.groups[0]
+            ?: throw ParserException("Parser was not able to parse the start date of the semester ($dateString)")
+
+        return SemesterBuilder()
+            .setFromString(startDate.value)
+            .getSemester()
+    }
+
+    /**
      * Checks if the [table] has a parser
      * @return true if it does, false if it does not
      */
@@ -165,17 +184,15 @@ class Parser(private val table: Document) {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
+        val semester = getSemester()
+
+        table = Jsoup.parse(table.selectFirst("table.grid-border-args").outerHtml())
         for (day in 0..4) {
             val rows = findRowsOfDay(day)
             addLecturesFromRows(rows, day)
         }
 
-        // TODO: Find the hash of the timetable
-        timetable = Timetable(Hash.get(this.table), timetableDays)
+        timetable = Timetable(Hash.get(this.table), timetableDays, semester)
         return timetable!!
-    }
-
-    fun getTimetable(): Timetable {
-        return timetable ?: throw ParserException("The timetable document has not been parsed!")
     }
 }

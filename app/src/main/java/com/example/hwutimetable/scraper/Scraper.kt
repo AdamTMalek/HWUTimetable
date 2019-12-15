@@ -1,8 +1,8 @@
 package com.example.hwutimetable.scraper
 
-import org.jsoup.*
+import org.jsoup.Connection
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.lang.IllegalStateException
 
 /**
  * ScraperState represents different state that the Scraper can be in
@@ -273,7 +273,7 @@ class Scraper {
         if (connection.statusCode() == 200)
             state = ScraperState.Finished
 
-        response = Jsoup.parse(connection.parse().selectFirst("table.grid-border-args").outerHtml())
+        response = Jsoup.parse(connection.parse().outerHtml())
         return response as Document
     }
 }
