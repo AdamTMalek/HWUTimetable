@@ -1,5 +1,6 @@
 package com.example.hwutimetable.parser
 
+import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.junit.Assert.*
 import org.junit.Test
@@ -9,7 +10,7 @@ class TimetableTest {
 
     @Test
     fun testEmptyTimetable() {
-        val timetable = Timetable(hash, arrayOf())
+        val timetable = Timetable(hash, arrayOf(), Semester(LocalDate.now()))
         assertEquals("Total items is 0?", 0, timetable.getTotalItems())
     }
 
@@ -22,7 +23,8 @@ class TimetableTest {
                 createTimetableDay(Day.WEDNESDAY, 3),
                 createTimetableDay(Day.THURSDAY, 4),
                 createTimetableDay(Day.FRIDAY, 5)
-            )
+            ),
+            Semester(LocalDate.now())
         )
 
         val expectedCount = (1..5).sum()
@@ -47,7 +49,8 @@ class TimetableTest {
                         )
                     )
                 )
-            )
+            ),
+            Semester(LocalDate.now())
         )
         assertTrue(timetable.getClashes().isEmpty())
     }
@@ -74,7 +77,8 @@ class TimetableTest {
                         )
                     )
                 )
-            )
+            ),
+            Semester(LocalDate.now())
         )
 
         assertTrue(timetable.getClashes().isEmpty())
@@ -102,7 +106,8 @@ class TimetableTest {
                         )
                     )
                 )
-            )
+            ),
+            Semester(LocalDate.now())
         )
 
         assertFalse(timetable.getClashes().isEmpty())

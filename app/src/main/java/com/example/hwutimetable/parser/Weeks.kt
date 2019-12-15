@@ -10,7 +10,13 @@ class Weeks(val weeks: IntArray) {
      * Check if there are any common weeks in this weeks object and the one passed to the function
      * @return true if there is/are common week(s)
      */
-    fun hasCommon(weeks: Weeks) = this.weeks.intersect(weeks.weeks.toList()).isEmpty().not()
+    fun hasCommon(weeks: Weeks) = getCommon(weeks).isNotEmpty()
+
+    /**
+     * Return common weeks appearing in this object and the one passed to the function
+     * @return Weeks that are common in both objects
+     */
+    fun getCommon(weeks: Weeks) = this.weeks.intersect(weeks.weeks.toList())
 
     /**
      * If weeks are rangeable we can represent them with hyphen instead of listing every week

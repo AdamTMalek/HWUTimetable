@@ -25,10 +25,10 @@ enum class Day(val index: Int) {
 @Parcelize
 data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Parcelable {
 
-    fun getClashes(): Clashes {
+    fun getClashes(week: Int): Clashes {
         val clashes = Clashes()
         for (i in 0 until (items.size - 1)) {
-            val clash = getClash(i)
+            val clash = getClash(i, week)
             if (clash != null)
                 clashes.addClash(clash)
         }
@@ -36,7 +36,7 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
         return clashes
     }
 
-    private fun getClash(index: Int): Clash? {
+    private fun getClash(index: Int, week: Int): Clash? {
         val item = items[index]
 
         for (i in (index + 1) until items.size) {
@@ -46,7 +46,8 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
             if (Minutes.minutesBetween(item.end, itemToCompare.start).minutes >= 0)
                 continue // If there's no overlap - continue, there won't be any clash
 
-            if (item.weeks.hasCommon(items[i].weeks))
+            val commonWeeks = item.weeks.getCommon(itemToCompare.weeks)
+            if (commonWeeks.isNotEmpty() && !commonWeeks.contains(week))
                 return Clash(this.day, item, itemToCompare)
         }
 

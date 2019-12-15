@@ -5,13 +5,15 @@ import kotlinx.android.parcel.Parcelize
 
 
 @Parcelize
-class Timetable(val hash: ByteArray, val days: Array<TimetableDay>) : Parcelable {
+class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester: Semester) : Parcelable {
     fun getTotalItems() = days.sumBy { it.items.size }
 
     fun getClashes(): Clashes {
         val clashes = Clashes()
+        // TODO: Find current week and decide if there's a clash during the week
+        val week = 1
         days.forEach { day ->
-            clashes.addClashes(day.getClashes())
+            clashes.addClashes(day.getClashes(week))
         }
         return clashes
     }
