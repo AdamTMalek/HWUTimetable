@@ -2,7 +2,7 @@ package com.example.hwutimetable.parser
 
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class TimetableTest {
@@ -29,88 +29,6 @@ class TimetableTest {
 
         val expectedCount = (1..5).sum()
         assertEquals(expectedCount, timetable.getTotalItems())
-    }
-
-    @Test
-    fun testNoClashDifferentTimes() {
-        val timetable = Timetable(
-            hash, arrayOf(
-                TimetableDay(
-                    Day.MONDAY, arrayListOf(
-                        createTimetableItem(
-                            LocalTime(9, 15),
-                            LocalTime(10, 15),
-                            WeeksBuilder().setRange(1, 1).getWeeks()
-                        ),
-                        createTimetableItem(
-                            LocalTime(10, 15),
-                            LocalTime(11, 15),
-                            WeeksBuilder().setRange(1, 1).getWeeks()
-                        )
-                    )
-                )
-            ),
-            Semester(LocalDate.now())
-        )
-        assertTrue(timetable.getClashes(1).isEmpty())
-    }
-
-    @Test
-    fun testNoClashDifferentWeeks() {
-        val timetable = Timetable(
-            hash, arrayOf(
-                TimetableDay(
-                    Day.MONDAY, arrayListOf(
-                        createTimetableItem(
-                            LocalTime(9, 15),
-                            LocalTime(10, 15),
-                            WeeksBuilder()
-                                .setRange(1, 7)
-                                .getWeeks()
-                        ),
-                        createTimetableItem(
-                            LocalTime(9, 15),
-                            LocalTime(10, 15),
-                            WeeksBuilder()
-                                .setRange(8, 12)
-                                .getWeeks()
-                        )
-                    )
-                )
-            ),
-            Semester(LocalDate.now())
-        )
-
-        assertTrue(timetable.getClashes(1).isEmpty())
-    }
-
-    @Test
-    fun testClash() {
-        val timetable = Timetable(
-            hash, arrayOf(
-                TimetableDay(
-                    Day.MONDAY, arrayListOf(
-                        createTimetableItem(
-                            LocalTime(9, 15),
-                            LocalTime(10, 15),
-                            WeeksBuilder()
-                                .setRange(1, 7)
-                                .getWeeks()
-                        ),
-                        createTimetableItem(
-                            LocalTime(9, 15),
-                            LocalTime(10, 15),
-                            WeeksBuilder()
-                                .setRange(7, 12)
-                                .getWeeks()
-                        )
-                    )
-                )
-            ),
-            Semester(LocalDate.now())
-        )
-
-        assertFalse(timetable.getClashes(8).isEmpty())
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
