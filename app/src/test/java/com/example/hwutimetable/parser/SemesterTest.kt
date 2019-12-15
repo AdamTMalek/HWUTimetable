@@ -11,7 +11,7 @@ class SemesterTest {
     @Test
     fun testGetFirstWeek() {
         val currentDate = LocalDate(2020, 1, 13)
-        val week = semester.getCurrentWeek(currentDate)
+        val week = semester.getWeek(currentDate)
 
         assertEquals(1, week)
     }
@@ -19,7 +19,7 @@ class SemesterTest {
     @Test
     fun testGetLastWeek() {
         val currentDate = LocalDate(2020, 4, 5)
-        val week = semester.getCurrentWeek(currentDate)
+        val week = semester.getWeek(currentDate)
 
         assertEquals(12, week)
     }
@@ -27,7 +27,7 @@ class SemesterTest {
     @Test
     fun testGetWeek5() {
         val currentDate = LocalDate(2020, 2, 12)
-        val week = semester.getCurrentWeek(currentDate)
+        val week = semester.getWeek(currentDate)
 
         assertEquals(5, week)
     }

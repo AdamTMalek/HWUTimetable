@@ -2,6 +2,7 @@ package com.example.hwutimetable.parser
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
+import org.joda.time.LocalDate
 
 
 @Parcelize
@@ -17,11 +18,9 @@ class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester
      * @return [Clashes] which may or may not contain clashes
      */
     fun getClashes(week: Int): Clashes {
-        val weekToDisplay = getWeek(week)
-
         val clashes = Clashes()
         days.forEach { day ->
-            clashes.addClashes(day.getClashes(weekToDisplay))
+            clashes.addClashes(day.getClashes(week))
         }
 
         return clashes
@@ -33,29 +32,17 @@ class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester
      * @return [Timetable] for the given week.
      */
     fun getForWeek(week: Int): Timetable {
-        val weekToDisplay = getWeek(week)
-
         val days = mutableListOf<TimetableDay>()
         this.days.forEach { day ->
-            days.add(day.getForWeek(weekToDisplay))
+            days.add(day.getForWeek(week))
         }
 
         return Timetable(this.hash, days.toTypedArray(), this.semester)
     }
 
-    /**
-     * Get the displayable week by the timetable.
-     * If the passed week is within the range [1,12] then the same week will be returned as the one passed.
-     * Otherwise, if it's out of range then the method will return the lower boundary (1) if the week is
-     * less than 1, and upper boundary if the week is greater than 12.
-     * @return [Int] between 1 and 12
-     */
-    private fun getWeek(week: Int): Int {
-        return when {
-            week <= 1 -> 1
-            week >= 12 -> 12
-            else -> week
-        }
+    fun getForDate(date: LocalDate): Timetable {
+        val week = semester.getWeek(date)
+        return getForWeek(week)
     }
 
     override fun equals(other: Any?): Boolean {

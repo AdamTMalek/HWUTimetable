@@ -101,7 +101,7 @@ class TimetableTest {
                             LocalTime(9, 15),
                             LocalTime(10, 15),
                             WeeksBuilder()
-                                .setRange(4, 12)
+                                .setRange(7, 12)
                                 .getWeeks()
                         )
                     )
@@ -110,7 +110,7 @@ class TimetableTest {
             Semester(LocalDate.now())
         )
 
-        assertFalse(timetable.getClashes(1).isEmpty())
+        assertFalse(timetable.getClashes(8).isEmpty())
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
