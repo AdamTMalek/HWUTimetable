@@ -55,9 +55,16 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             if (groupOption != null) {
                 requestedGroup = groupOption
                 val optionValue = groupOption.optionValue
-                asyncScraper.requestGroup(optionValue, 1, ::timetableRequestCallback)
+                val semester = getSemesterFromName((groupOption.text))
+                asyncScraper.requestGroup(optionValue, semester, ::timetableRequestCallback)
             }
         }
+    }
+
+    private fun getSemesterFromName(name: String): Int {
+        val regex = Regex("(?<=[Ss]emester )(\\d)")
+        val match = regex.find(name) ?: throw IllegalStateException("Semester match is null!")
+        return match.groups.first()!!.value.toInt()
     }
 
     /**
