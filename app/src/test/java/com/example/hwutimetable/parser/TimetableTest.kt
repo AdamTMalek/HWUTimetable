@@ -10,7 +10,7 @@ class TimetableTest {
 
     @Test
     fun testEmptyTimetable() {
-        val timetable = Timetable(hash, arrayOf(), Semester(LocalDate.now()))
+        val timetable = Timetable(hash, arrayOf(), Semester(LocalDate.now(), 1))
         assertEquals("Total items is 0?", 0, timetable.getTotalItems())
     }
 
@@ -24,7 +24,7 @@ class TimetableTest {
                 createTimetableDay(Day.THURSDAY, 4),
                 createTimetableDay(Day.FRIDAY, 5)
             ),
-            Semester(LocalDate.now())
+            Semester(LocalDate.now(), 1)
         )
 
         val expectedCount = (1..5).sum()

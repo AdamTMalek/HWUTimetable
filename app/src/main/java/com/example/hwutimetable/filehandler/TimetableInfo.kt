@@ -9,4 +9,4 @@ import kotlinx.serialization.Serializable
  * @param name: Readable name
  */
 @Serializable
-data class TimetableInfo(val code: String, val name: String)
+data class TimetableInfo(val code: String, val name: String, val semester: Int)

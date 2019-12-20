@@ -8,7 +8,7 @@ import java.io.Serializable
 
 
 @Parcelize
-class Semester(val startDate: LocalDate) : Parcelable, Serializable {
+class Semester(val startDate: LocalDate, val value: Int) : Parcelable, Serializable {
     /**
      * Get the semester week from the given date.
      * If the passed date is before the start date of the semester then the method will return 1.

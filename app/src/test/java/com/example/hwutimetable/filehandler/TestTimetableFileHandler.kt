@@ -74,10 +74,10 @@ class TestTimetableFileHandler {
         val actualTimetable = Timetable(
             ByteArray(0),
             generateTimetableDays(),
-            Semester(LocalDate.now())
+            Semester(LocalDate.now(), 1)
         )
 
-        val timetableInfo = TimetableInfo("code", "name")
+        val timetableInfo = TimetableInfo("code", "name", 1)
         fileHandler.save(actualTimetable, timetableInfo)
         val savedTimetable = fileHandler.getTimetable(timetableInfo)
 
@@ -86,7 +86,7 @@ class TestTimetableFileHandler {
 
     @Test(expected = FileNotFoundException::class)
     fun testGetCorrupted() {
-        val timetableInfo = TimetableInfo("xxx", "xxx")
+        val timetableInfo = TimetableInfo("xxx", "xxx", 1)
         fileHandler.getTimetable(timetableInfo)
     }
 
@@ -101,7 +101,7 @@ class TestTimetableFileHandler {
 
     @Test(expected = InfoNotFoundException::class)
     fun testDeleteCorrupted() {
-        val info = TimetableInfo("xxx", "xxx")
+        val info = TimetableInfo("xxx", "xxx", 1)
         fileHandler.deleteTimetable(info)
     }
 
@@ -139,9 +139,9 @@ class TestTimetableFileHandler {
         val timetable = Timetable(
             ByteArray(0),
             generateTimetableDays(),
-            Semester(LocalDate.now())
+            Semester(LocalDate.now(), 1)
         )
-        val info = TimetableInfo(code, "xxx")
+        val info = TimetableInfo(code, "xxx", 1)
         fileHandler.save(timetable, info)
         return info
     }
