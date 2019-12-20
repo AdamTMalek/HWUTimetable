@@ -7,7 +7,11 @@
 	<string name="submit">Get Timetable</string>
 	<string name="no_timetables">No timetables found</string>
 	<string name="title_activity_view_timetable">View Timetable</string>
-    <string name="delete_all">Delete all</string>
-    <string name="follow">Save on the device and \"follow\"</string>
-    <string name="viewing_week">Viewing Week:</string>
+	<string name="delete_all">Delete all</string>
+	<string name="follow">Save on the device and \"follow\"</string>
+	<string name="viewing_week">Viewing Week:</string>
+	<string name="update_notification_channel_name">Update notifications</string>
+	<string name="update_notification_channel_desc">
+		Update notifications appear whenever a stored timetable has been updated
+	</string>
 </resources>
