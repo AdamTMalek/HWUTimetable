@@ -25,11 +25,8 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     private val logTag = "UpdateService"
     private val notificationChannelId = "update_notifications"
     private val updater: UpdatePerformer = Updater(this.filesDir)
-    private lateinit var settings: UpdateSettings.Settings
 
     override fun onCreate() {
-        settings = UpdateSettings(this.filesDir).getSettings()
-
         if (checkNotificationChannelExists())
             createNotificationChannel()
 
