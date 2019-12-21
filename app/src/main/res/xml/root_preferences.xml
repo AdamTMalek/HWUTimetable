@@ -21,7 +21,7 @@
         <com.example.hwutimetable.TimePreference
                 app:key="time_preference"
                 app:title="Update time"
-                app:summary="Time summary"
+                app:summary="Click here to change the update time."
                 app:defaultValue="90"/>
     </PreferenceCategory>
 </PreferenceScreen>

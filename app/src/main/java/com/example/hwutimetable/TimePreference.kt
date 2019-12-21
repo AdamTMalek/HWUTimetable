@@ -2,14 +2,21 @@ package com.example.hwutimetable
 
 import android.content.Context
 import android.content.res.TypedArray
+import android.text.format.DateFormat
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import org.joda.time.LocalTime
+import org.joda.time.format.DateTimeFormat
 
 class TimePreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs) {
-    var time: Int = 0
+    var time: LocalTime? = null
         set(value) {
             field = value
-            persistInt(value)
+            if (value != null) {
+                val minutesAfterMidnight = (value.hourOfDay * 60) + value.minuteOfHour
+                persistInt(minutesAfterMidnight)
+            }
+            setSummary()
         }
 
     private val dialogLayoutResId = R.layout.time_pref_dialog
@@ -24,10 +31,28 @@ class TimePreference(context: Context?, attrs: AttributeSet?) : DialogPreference
     }
 
     override fun onSetInitialValue(defaultValue: Any?) {
-        if (defaultValue is Int) {
-            time = defaultValue
+        when (defaultValue) {
+            is LocalTime -> time = defaultValue
+            is Int -> time = LocalTime(defaultValue / 60, defaultValue % 60)
         }
     }
 
     override fun getDialogLayoutResource() = dialogLayoutResId
+
+    private fun setSummary() {
+        if (time == null) {
+            this.summary = "Update time not set"
+            return
+        }
+
+        val stringFormat = if (DateFormat.is24HourFormat(context)) {
+            "HH:mm"
+        } else {
+            "h:mm a"
+        }
+
+        val formatter = DateTimeFormat.forPattern(stringFormat)
+        val timeAsString = time!!.toString(formatter)
+        this.summary = "The update time is currently set to: $timeAsString. Click here to change it."
+    }
 }

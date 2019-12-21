@@ -5,6 +5,7 @@ import android.text.format.DateFormat
 import android.view.View
 import android.widget.TimePicker
 import androidx.preference.PreferenceDialogFragmentCompat
+import org.joda.time.LocalTime
 
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
     private var timePicker: TimePicker? = null
@@ -21,20 +22,17 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
 
         timePicker = view.findViewById(R.id.time_picker) as TimePicker
 
-        var minutesAfterMidnight: Int? = null
         if (preference is TimePreference) {
-            minutesAfterMidnight = (preference as TimePreference).time
-        }
-
-        if (minutesAfterMidnight != null) {
-            val hour = minutesAfterMidnight / 60
-            val minute = minutesAfterMidnight % 60
+            val time = (preference as TimePreference).time
             val is24Hour = DateFormat.is24HourFormat(context)
+
+            if (time == null)
+                return
 
             with(timePicker!!) {
                 setIs24HourView(is24Hour)
-                this.hour = hour
-                this.minute = minute
+                this.hour = time.hourOfDay
+                this.minute = time.minuteOfHour
             }
         }
     }
@@ -43,13 +41,11 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
         if (!positiveResult)
             return
 
-        val hour = timePicker!!.hour
-        val minute = timePicker!!.minute
-        val minutesAfterMidnight = (hour * 60) + minute
+        val time = LocalTime(timePicker!!.hour, timePicker!!.minute)
 
         if (preference is TimePreference) {
-            if (preference.callChangeListener(minutesAfterMidnight)) {
-                (preference as TimePreference).time = minutesAfterMidnight
+            if (preference.callChangeListener(time)) {
+                (preference as TimePreference).time = time
             }
         }
     }
