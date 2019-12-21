@@ -23,5 +23,11 @@
                 app:title="Update time"
                 app:summary="Click here to change the update time."
                 app:defaultValue="90"/>
+
+        <com.example.hwutimetable.settings.NumberPreference
+                app:key="number_preference"
+                app:title="Update frequency"
+                app:summary="Number of days between each update check"
+                app:defaultValue="1"/>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -2,7 +2,6 @@ package com.example.hwutimetable.settings
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.DialogFragment
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.example.hwutimetable.R
@@ -24,19 +23,24 @@ class SettingsActivity : AppCompatActivity() {
 
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onDisplayPreferenceDialog(preference: Preference?) {
-            var dialogFragment: DialogFragment? = null
-
-            if (preference is TimePreference) {
-                dialogFragment = TimePreferenceDialogFragmentCompat.newInstance(preference.key)
+            when (preference) {
+                is TimePreference -> displayTimePreference(preference)
+                is NumberPreference -> displayNumberPreference(preference)
+                else -> super.onDisplayPreferenceDialog(preference)
             }
+        }
 
-            if (dialogFragment != null) {
-                dialogFragment.let {
-                    it.setTargetFragment(this, 0)
-                    it.show(fragmentManager!!, "androidx.support.preference.PreferenceFragment.DIALOG")
-                }
-            } else {
-                super.onDisplayPreferenceDialog(preference)
+        private fun displayTimePreference(preference: Preference) {
+            TimePreferenceDialogFragmentCompat.newInstance(preference.key).let {
+                it.setTargetFragment(this, 0)
+                it.show(fragmentManager!!, "androidx.support.preference.PreferenceFragment.DIALOG")
+            }
+        }
+
+        private fun displayNumberPreference(preference: Preference) {
+            NumberPreferenceDialogFragmentCompat.newInstance(preference.key).let {
+                it.setTargetFragment(this, 0)
+                it.show(fragmentManager!!, "androidx.support.preference.PreferenceFragment.DIALOG")
             }
         }
 
