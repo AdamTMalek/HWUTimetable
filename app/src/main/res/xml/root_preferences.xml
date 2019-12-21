@@ -6,28 +6,32 @@
             app:title="Update checks">
 
         <SwitchPreferenceCompat
-                app:key="update"
+                app:key="enable_updates"
                 app:defaultValue="true"
                 app:title="Check for timetable updates"/>
 
         <CheckBoxPreference
                 app:key="allow_wifi"
-                app:title="Allow using WiFi to check for updates"/>
+                app:title="Allow using WiFi"
+                app:dependency="enable_updates"/>
 
         <CheckBoxPreference
                 app:key="allow_data"
-                app:title="Allow using mobile data to check for updates"/>
+                app:title="Allow using mobile data"
+                app:dependency="enable_updates"/>
 
         <com.example.hwutimetable.settings.TimePreference
                 app:key="time_preference"
                 app:title="Update time"
                 app:summary="Click here to change the update time."
-                app:defaultValue="90"/>
+                app:defaultValue="90"
+                app:dependency="enable_updates"/>
 
         <com.example.hwutimetable.settings.NumberPreference
-                app:key="number_preference"
+                app:key="frequency_preference"
                 app:title="Update frequency"
                 app:summary="Number of days between each update check"
-                app:defaultValue="1"/>
+                app:defaultValue="1"
+                app:dependency="enable_updates"/>
     </PreferenceCategory>
 </PreferenceScreen>
