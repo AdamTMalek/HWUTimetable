@@ -18,6 +18,7 @@ import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.FileNotFoundException

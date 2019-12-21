@@ -1,10 +1,11 @@
-package com.example.hwutimetable
+package com.example.hwutimetable.settings
 
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.View
 import android.widget.TimePicker
 import androidx.preference.PreferenceDialogFragmentCompat
+import com.example.hwutimetable.R
 import org.joda.time.LocalTime
 
 class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
@@ -13,7 +14,8 @@ class TimePreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
     companion object {
         fun newInstance(key: String): TimePreferenceDialogFragmentCompat {
             val bundle = Bundle(1).apply { putString(ARG_KEY, key) }
-            return TimePreferenceDialogFragmentCompat().apply { arguments = bundle }
+            return TimePreferenceDialogFragmentCompat()
+                .apply { arguments = bundle }
         }
     }
 

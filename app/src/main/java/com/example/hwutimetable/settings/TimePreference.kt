@@ -1,10 +1,11 @@
-package com.example.hwutimetable
+package com.example.hwutimetable.settings
 
 import android.content.Context
 import android.content.res.TypedArray
 import android.text.format.DateFormat
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import com.example.hwutimetable.R
 import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
 

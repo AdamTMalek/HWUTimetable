@@ -18,7 +18,7 @@
                 app:key="allow_data"
                 app:title="Allow using mobile data to check for updates"/>
 
-        <com.example.hwutimetable.TimePreference
+        <com.example.hwutimetable.settings.TimePreference
                 app:key="time_preference"
                 app:title="Update time"
                 app:summary="Click here to change the update time."
