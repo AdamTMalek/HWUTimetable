@@ -5,6 +5,9 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.scraper.Scraper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -16,21 +19,18 @@ import java.io.File
  */
 class Updater(filesDir: File) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
-    private val scraper = Scraper()
     private val notificationReceivers = mutableListOf<UpdateNotificationReceiver>()
-
+    private lateinit var timetablesToUpdate: MutableList<TimetableInfo>
     /**
      * Update all timetables stored on the device. This method will not return anything,
      * if you need to get a collection of updated timetables, implement [UpdateNotificationReceiver]
      * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
      */
-    override fun update() {
+    override fun update() = runBlocking {
         val timetables = getStoredTimetables()
         val updated = mutableListOf<TimetableInfo>()
-
         timetables.forEach { timetable ->
-            val scrapedDoc = scraper.getTimetable(timetable.code, timetable.semester)
-            val newTimetable = Parser(scrapedDoc).parse()
+            val newTimetable = getTimetable(timetable)
 
             if (isUpdated(timetable, newTimetable)) {
                 saveTimetable(newTimetable, timetable)
@@ -39,6 +39,14 @@ class Updater(filesDir: File) : UpdatePerformer {
         }
 
         notifyPostUpdate(updated)
+    }
+
+    private suspend fun getTimetable(info: TimetableInfo): Timetable {
+        return withContext(Dispatchers.IO) {
+            val scraper = Scraper()
+            val doc = scraper.getTimetable(info.code, info.semester)
+            Parser(doc).parse()
+        }
     }
 
     /**
