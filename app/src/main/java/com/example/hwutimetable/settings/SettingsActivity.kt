@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
+import com.example.hwutimetable.updater.UpdateManager
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -22,6 +24,15 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
+        private lateinit var updateManager: UpdateManager
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            updateManager = UpdateManager(context!!)
+            PreferenceManager.getDefaultSharedPreferences(context!!)
+                .registerOnSharedPreferenceChangeListener(updateManager)
+        }
+
         override fun onDisplayPreferenceDialog(preference: Preference?) {
             when (preference) {
                 is TimePreference -> displayTimePreference(preference)

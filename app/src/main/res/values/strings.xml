@@ -18,4 +18,10 @@
 	<string name="update_time">Update time:</string>
 	<string name="title_activity_settings">Settings</string>
 
+	<!-- Preference keys -->
+	<string name="wifi_pref_key">allow_wifi</string>
+	<string name="data_pref_key">allow_data</string>
+	<string name="time_pref_key">time</string>
+	<string name="frequency_pref_key">frequency</string>
+	<string name="updates_pref_key">enable_updates</string>
 </resources>

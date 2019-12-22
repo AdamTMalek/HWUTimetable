@@ -6,12 +6,16 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.IBinder
 import android.text.TextUtils
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableInfo
 
@@ -24,12 +28,13 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 class UpdateService : Service(), UpdateNotificationReceiver {
     private val logTag = "UpdateService"
     private val notificationChannelId = "update_notifications"
-    private val updater: UpdatePerformer = Updater(this.filesDir)
+    private lateinit var updater: UpdatePerformer
 
     override fun onCreate() {
         if (checkNotificationChannelExists())
             createNotificationChannel()
 
+        updater = Updater(this.filesDir)
         registerSelfAsReceiver()
     }
 
@@ -41,8 +46,52 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        updater.update()
+        // TODO: Delete after tested
+        val notification = createTestNotification()
+        showNotification(notification, 2)
+
+        if (canUpdate()) {
+            Log.i(logTag, "Update alarm has been triggered, starting the update process")
+            updater.update()
+        } else {
+            Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
+        }
         return START_STICKY
+    }
+
+    /**
+     * This method will check if the update service can start the update process.
+     * It will check if the currently enabled transport methods can be used
+     * to perform the update process. This is to ensure that update will not be performed
+     * via mobile data if the users do not want to use it for the process.
+     */
+    private fun canUpdate(): Boolean {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val activeNetwork = connectivityManager.activeNetwork
+        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+
+        if (isWifiEnabled(capabilities) && canUseWifi(preferences))
+            return true
+        else if (isMobileDataEnabled(capabilities) && canUseMobileData(preferences))
+            return true
+        return false
+    }
+
+    private fun canUseWifi(sharedPreferences: SharedPreferences): Boolean {
+        return sharedPreferences.getBoolean("allow_wifi", true)
+    }
+
+    private fun isWifiEnabled(networkCapabilities: NetworkCapabilities): Boolean {
+        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
+    }
+
+    private fun canUseMobileData(sharedPreferences: SharedPreferences): Boolean {
+        return sharedPreferences.getBoolean("allow_data", false)
+    }
+
+    private fun isMobileDataEnabled(networkCapabilities: NetworkCapabilities): Boolean {
+        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 
     /**
@@ -82,7 +131,7 @@ class UpdateService : Service(), UpdateNotificationReceiver {
         } else {
             Log.i(logTag, "Post-Update callback received. Updater updated $updated timetables")
             val notification = createNotification(updated)
-            showNotification(notification)
+            showNotification(notification, 1)
         }
         stopSelf()
     }
@@ -100,11 +149,20 @@ class UpdateService : Service(), UpdateNotificationReceiver {
             .setPriority(NotificationCompat.PRIORITY_HIGH).build()
     }
 
+    // TODO: Delete after tested
+    private fun createTestNotification(): Notification {
+        return NotificationCompat.Builder(this, notificationChannelId)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setContentTitle("Timetable Update")
+            .setContentText("Update in progress")
+            .setSmallIcon(R.mipmap.ic_launcher)
+            .setPriority(NotificationCompat.PRIORITY_MAX).build()
+    }
+
     /**
      * Show the notification to the user
      */
-    private fun showNotification(notification: Notification) {
-        val notificationId = 1
+    private fun showNotification(notification: Notification, notificationId: Int) {
         with(NotificationManagerCompat.from(this)) {
             notify(notificationId, notification)
         }
