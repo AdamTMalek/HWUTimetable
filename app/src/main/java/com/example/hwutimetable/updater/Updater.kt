@@ -6,7 +6,8 @@ import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -26,19 +27,21 @@ class Updater(filesDir: File) : UpdatePerformer {
      * if you need to get a collection of updated timetables, implement [UpdateNotificationReceiver]
      * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
      */
-    override fun update() = runBlocking {
-        val timetables = getStoredTimetables()
-        val updated = mutableListOf<TimetableInfo>()
-        timetables.forEach { timetable ->
-            val newTimetable = getTimetable(timetable)
+    override fun update() {
+        GlobalScope.launch {
+            val timetables = getStoredTimetables()
+            val updated = mutableListOf<TimetableInfo>()
+            timetables.forEach { timetable ->
+                val newTimetable = getTimetable(timetable)
 
-            if (isUpdated(timetable, newTimetable)) {
-                saveTimetable(newTimetable, timetable)
-                updated.add(timetable)
+                if (isUpdated(timetable, newTimetable)) {
+                    saveTimetable(newTimetable, timetable)
+                    updated.add(timetable)
+                }
             }
-        }
 
-        notifyPostUpdate(updated)
+            notifyPostUpdate(updated)
+        }
     }
 
     private suspend fun getTimetable(info: TimetableInfo): Timetable {
