@@ -29,6 +29,8 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     private val logTag = "UpdateService"
     private val notificationChannelId = "update_notifications"
     private lateinit var updater: UpdatePerformer
+    private val postUpdateNotificationId = 1
+    private val inProgressNotificationId = 0
 
     override fun onCreate() {
         if (checkNotificationChannelExists())
@@ -46,9 +48,7 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // TODO: Delete after tested
-        val notification = createTestNotification()
-        showNotification(notification, 2)
+        showInProgressNotification()
 
         if (canUpdate()) {
             Log.i(logTag, "Update alarm has been triggered, starting the update process")
@@ -56,7 +56,16 @@ class UpdateService : Service(), UpdateNotificationReceiver {
         } else {
             Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
         }
+
         return START_STICKY
+    }
+
+    /**
+     * Create and show "update in progress" notification to the user.
+     */
+    private fun showInProgressNotification() {
+        val updateInProgressNotification = createUpdateInProgressNotification()
+        showNotification(updateInProgressNotification, inProgressNotificationId)
     }
 
     /**
@@ -82,12 +91,12 @@ class UpdateService : Service(), UpdateNotificationReceiver {
         return sharedPreferences.getBoolean("allow_wifi", true)
     }
 
-    private fun isWifiEnabled(networkCapabilities: NetworkCapabilities): Boolean {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-    }
-
     private fun canUseMobileData(sharedPreferences: SharedPreferences): Boolean {
         return sharedPreferences.getBoolean("allow_data", false)
+    }
+
+    private fun isWifiEnabled(networkCapabilities: NetworkCapabilities): Boolean {
+        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
     }
 
     private fun isMobileDataEnabled(networkCapabilities: NetworkCapabilities): Boolean {
@@ -124,23 +133,29 @@ class UpdateService : Service(), UpdateNotificationReceiver {
      * Post-update callback received from the [updater]
      */
     override fun postUpdateCallback(updatedTimetables: Collection<TimetableInfo>) {
+        stopInProgressNotification()
+
         val updated = updatedTimetables.size
 
         if (updated == 0) {
             Log.i(logTag, "Post-Update callback received but no timetables were updated")
         } else {
             Log.i(logTag, "Post-Update callback received. Updater updated $updated timetables")
-            val notification = createNotification(updated)
-            showNotification(notification, 1)
+            val notification = createPostUpdateNotification(updated)
+            showNotification(notification, postUpdateNotificationId)
         }
         stopSelf()
     }
 
+    private fun stopInProgressNotification() {
+        NotificationManagerCompat.from(this).cancel(inProgressNotificationId)
+    }
+
     /**
-     * Create a notification that will be displayed to the user
+     * Create a notification that will be displayed to the user after the update process has finished
      * @param updated: Number of timetables that got updated
      */
-    private fun createNotification(updated: Int): Notification {
+    private fun createPostUpdateNotification(updated: Int): Notification {
         return NotificationCompat.Builder(this, notificationChannelId)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContentTitle("Timetable Update")
@@ -149,14 +164,19 @@ class UpdateService : Service(), UpdateNotificationReceiver {
             .setPriority(NotificationCompat.PRIORITY_HIGH).build()
     }
 
-    // TODO: Delete after tested
-    private fun createTestNotification(): Notification {
+    /**
+     * Update in progress notification is a notification with an indeterminate progress bar
+     * informing the user about ongoing update process
+     */
+    private fun createUpdateInProgressNotification(): Notification {
         return NotificationCompat.Builder(this, notificationChannelId)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setContentTitle("Timetable Update")
             .setContentText("Update in progress")
             .setSmallIcon(R.mipmap.ic_launcher)
-            .setPriority(NotificationCompat.PRIORITY_MAX).build()
+            .setOngoing(true)
+            .setProgress(0, 0, true)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT).build()
     }
 
     /**

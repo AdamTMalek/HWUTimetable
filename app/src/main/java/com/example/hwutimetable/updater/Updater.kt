@@ -21,13 +21,17 @@ import java.io.File
 class Updater(filesDir: File) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
     private val notificationReceivers = mutableListOf<UpdateNotificationReceiver>()
-    private lateinit var timetablesToUpdate: MutableList<TimetableInfo>
+
     /**
      * Update all timetables stored on the device. This method will not return anything,
      * if you need to get a collection of updated timetables, implement [UpdateNotificationReceiver]
      * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
      */
     override fun update() {
+        // Launch the coroutine and "forget" about it, in that way we can start the update process
+        // in the background (if it runs on the UI thread) and go back to rendering the UI. After
+        // the update process is finished, the method will notify the registered notification
+        // about the result.
         GlobalScope.launch {
             val timetables = getStoredTimetables()
             val updated = mutableListOf<TimetableInfo>()
