@@ -5,6 +5,7 @@ import android.content.res.TypedArray
 import android.text.format.DateFormat
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
 import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
@@ -25,6 +26,7 @@ class TimePreference(context: Context?, attrs: AttributeSet?) : DialogPreference
     init {
         setPositiveButtonText(android.R.string.ok)
         setNegativeButtonText(android.R.string.cancel)
+        setTimeOnInit()
     }
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
@@ -39,6 +41,13 @@ class TimePreference(context: Context?, attrs: AttributeSet?) : DialogPreference
     }
 
     override fun getDialogLayoutResource() = dialogLayoutResId
+
+
+    private fun setTimeOnInit() {
+        val default = LocalTime.now().let { (it.hourOfDay * 60) + it.minuteOfHour }
+        val persisted = PreferenceManager.getDefaultSharedPreferences(context).getInt(key, default)
+        time = LocalTime(persisted / 60, persisted % 60)
+    }
 
     private fun setSummary() {
         if (time == null) {

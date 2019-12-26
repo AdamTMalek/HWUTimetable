@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import androidx.preference.DialogPreference
+import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
 
 class NumberPreference(context: Context?, attrs: AttributeSet?) : DialogPreference(context, attrs) {
@@ -12,14 +13,15 @@ class NumberPreference(context: Context?, attrs: AttributeSet?) : DialogPreferen
     var value = minNumber
         set(value) {
             field = value
-            setSummary()
             persistInt(value)
+            setSummary()
         }
     private val dialogLayoutResId = R.layout.num_pref_dialog
 
     init {
         setPositiveButtonText(android.R.string.ok)
         setNegativeButtonText(android.R.string.cancel)
+        setNumberOnInit()
     }
 
     override fun onGetDefaultValue(a: TypedArray, index: Int): Any {
@@ -34,6 +36,11 @@ class NumberPreference(context: Context?, attrs: AttributeSet?) : DialogPreferen
 
     override fun getDialogLayoutResource() = dialogLayoutResId
 
+    private fun setNumberOnInit() {
+        val default = minNumber
+        value = PreferenceManager.getDefaultSharedPreferences(context).getInt(key, default)
+    }
+
     private fun setSummary() {
         val summary = "Update checks will be performed every".plus(
             when (value) {
@@ -41,6 +48,7 @@ class NumberPreference(context: Context?, attrs: AttributeSet?) : DialogPreferen
                 else -> " $value days"
             }
         ).plus(". Click here to change it.")
+
         this.summary = summary
     }
 }
