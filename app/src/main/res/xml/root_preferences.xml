@@ -32,6 +32,8 @@
                 app:title="Update frequency"
                 app:summary="Number of days between each update check"
                 app:defaultValue="1"
-                app:dependency="enable_updates"/>
+                app:dependency="enable_updates"
+                app:minValue="1"
+                app:maxValue="14"/>
     </PreferenceCategory>
 </PreferenceScreen>

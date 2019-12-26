@@ -1,12 +1,15 @@
 package com.example.hwutimetable.settings
 
 import android.os.Bundle
+import android.text.format.DateFormat
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
 import com.example.hwutimetable.updater.UpdateManager
+import org.joda.time.format.DateTimeFormat
+
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -31,6 +34,9 @@ class SettingsActivity : AppCompatActivity() {
             updateManager = UpdateManager(context!!)
             PreferenceManager.getDefaultSharedPreferences(context!!)
                 .registerOnSharedPreferenceChangeListener(updateManager)
+
+            setTimePreferenceSummaryProvider()
+            setIntervalPreferenceSummaryProvider()
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -38,6 +44,41 @@ class SettingsActivity : AppCompatActivity() {
                 is TimePreference -> displayTimePreference(preference)
                 is NumberPreference -> displayNumberPreference(preference)
                 else -> super.onDisplayPreferenceDialog(preference)
+            }
+        }
+
+        /**
+         * Set the summary provider of the update time preference control
+         */
+        private fun setTimePreferenceSummaryProvider() {
+            val timePreference: TimePreference? = findPreference("time_preference")
+
+            timePreference?.summaryProvider = Preference.SummaryProvider<TimePreference> { preference ->
+                val stringFormat = if (DateFormat.is24HourFormat(context)) {
+                    "HH:mm"
+                } else {
+                    "h:mm a"
+                }
+
+                val formatter = DateTimeFormat.forPattern(stringFormat)
+                val timeAsString = preference.time!!.toString(formatter)
+                "The update time is currently set to: $timeAsString. Click here to change it."
+            }
+        }
+
+        /**
+         * Set the summary provider of the interval (frequency) preference control
+         */
+        private fun setIntervalPreferenceSummaryProvider() {
+            val intervalPreference: NumberPreference? = findPreference("frequency_preference")
+
+            intervalPreference?.summaryProvider = Preference.SummaryProvider<NumberPreference> { preference ->
+                "Update checks will be performed every".plus(
+                    when (preference.value) {
+                        1 -> "day"
+                        else -> " ${preference.value} days"
+                    }
+                ).plus(". Click here to change it.")
             }
         }
 
