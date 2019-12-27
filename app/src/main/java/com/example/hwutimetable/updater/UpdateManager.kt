@@ -10,15 +10,27 @@ import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
 import java.util.*
 
+
+/**
+ * UpdateManager is a class responsible for enabling and disabling the alarm based on the preferences
+ * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
+ * therefore it will automatically be informed of any preference change and react appropriately.
+ */
 internal class UpdateManager(private val context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private val updaterIntent: PendingIntent
+    private val updaterIntent: PendingIntent  // UpdateService intent
     private val settings = Settings()
 
-    internal class Settings {
-        var enabled: Boolean = false
+    /**
+     * Storage for alarm settings. Note [interval] and [updateTimeInMillis] are different than the
+     * stored preferences.
+     */
+    private inner class Settings {
+        val enabled: Boolean
+            get() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), false)
+
         var interval: Long = 0
         var updateTimeInMillis: Long = 0L
     }
@@ -46,10 +58,6 @@ internal class UpdateManager(private val context: Context) : SharedPreferences.O
         }
     }
 
-    private fun setEnabled() {
-        settings.enabled = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), false)
-    }
-
     private fun setTime() {
         val minutesAfterMidnight = sharedPreferences.getInt(context.getString(R.string.time_pref_key), 0)
 
@@ -69,7 +77,6 @@ internal class UpdateManager(private val context: Context) : SharedPreferences.O
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when (key) {
-            context.getString(R.string.updates_pref_key) -> setEnabled()
             context.getString(R.string.time_pref_key) -> setTime()
             context.getString(R.string.frequency_pref_key) -> setFrequency()
         }
