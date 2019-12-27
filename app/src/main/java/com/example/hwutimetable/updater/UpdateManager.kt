@@ -2,9 +2,8 @@ package com.example.hwutimetable.updater
 
 import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
+import android.content.*
+import android.content.pm.PackageManager
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
@@ -16,7 +15,9 @@ import java.util.*
  * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
  * therefore it will automatically be informed of any preference change and react appropriately.
  */
-internal class UpdateManager(private val context: Context) : SharedPreferences.OnSharedPreferenceChangeListener {
+internal class UpdateManager(private val context: Context) :
+    BroadcastReceiver(), SharedPreferences.OnSharedPreferenceChangeListener {
+
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -45,6 +46,7 @@ internal class UpdateManager(private val context: Context) : SharedPreferences.O
 
     private fun setAlarm() {
         if (settings.enabled) {
+            enableBootReceiver()
             Log.d(logTag, "Enabling the alarm")
             alarmManager.setInexactRepeating(
                 AlarmManager.RTC_WAKEUP,
@@ -53,6 +55,7 @@ internal class UpdateManager(private val context: Context) : SharedPreferences.O
                 updaterIntent
             )
         } else {
+            disableBootReceiver()
             Log.d(logTag, "Disabling the alarm")
             alarmManager.cancel(updaterIntent)
         }
@@ -82,5 +85,37 @@ internal class UpdateManager(private val context: Context) : SharedPreferences.O
         }
 
         setAlarm()
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == "android.intent.action.BOOT_COMPLETED") {
+            setTime()
+            setFrequency()
+            setAlarm()
+        }
+    }
+
+    /**
+     * Enables this receiver to receive BOOT_COMPLETED intents which are disabled by default
+     */
+    private fun enableBootReceiver() {
+        val receiver = ComponentName(context, this::class.java)
+        context.packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+            PackageManager.DONT_KILL_APP
+        )
+    }
+
+    /**
+     * Disable this BOOT_COMPLETED receiver
+     */
+    private fun disableBootReceiver() {
+        val receiver = ComponentName(context, this::class.java)
+        context.packageManager.setComponentEnabledSetting(
+            receiver,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 }
