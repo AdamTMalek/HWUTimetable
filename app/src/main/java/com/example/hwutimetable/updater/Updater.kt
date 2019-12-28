@@ -28,6 +28,8 @@ class Updater(filesDir: File) : UpdatePerformer {
      * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
      */
     override fun update() {
+        notifyUpdateInProgress()
+
         // Launch the coroutine and "forget" about it, in that way we can start the update process
         // in the background (if it runs on the UI thread) and go back to rendering the UI. After
         // the update process is finished, the method will notify the registered notification
@@ -44,7 +46,8 @@ class Updater(filesDir: File) : UpdatePerformer {
                 }
             }
 
-            notifyPostUpdate(updated)
+            notifyUpdateFinished()
+            notifyUpdateFinished(updated)
         }
     }
 
@@ -91,12 +94,24 @@ class Updater(filesDir: File) : UpdatePerformer {
     }
 
     /**
+     * Inform all registered [UpdateNotificationReceiver] receivers taht the update process has started
+     */
+    override fun notifyUpdateInProgress() {
+        notificationReceivers.forEach { it.onUpdateInProgress() }
+    }
+
+    /**
+     * Inform all registered [UpdateNotificationReceiver] receivers that the update process has finished
+     */
+    override fun notifyUpdateFinished() {
+        notificationReceivers.forEach { it.onUpdateFinished() }
+    }
+
+    /**
      * After performing the update, this method will be used to notify any registered [UpdateNotificationReceiver].
      * @param updated: Collection of updated timetables
      */
-    override fun notifyPostUpdate(updated: Collection<TimetableInfo>) {
-        notificationReceivers.forEach { receiver ->
-            receiver.postUpdateCallback(updated)
-        }
+    override fun notifyUpdateFinished(updated: Collection<TimetableInfo>) {
+        notificationReceivers.forEach { it.onUpdateFinished(updated) }
     }
 }
