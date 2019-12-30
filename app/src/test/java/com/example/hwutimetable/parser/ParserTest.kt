@@ -13,13 +13,13 @@ class ParserTest {
     private val document: Document = org.jsoup.Jsoup.parse(
         File("src/test/sampleTimetables/tt1.html"), "UTF-8"
     )
-    private val parser: Parser = Parser(document)
+    private val parser: Parser = Parser().setDocument(document)
 
     private var timetable: Timetable? = null
 
     @Before
     fun runParser() {
-        timetable = parser.parse()
+        timetable = parser.setDocument(document).getTimetable()
     }
 
     /**
@@ -27,7 +27,7 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser(Document("src/test/sampleTimetables/tt1.html")).parse()
+        Parser().setDocument(Document("src/test/sampleTimetables/tt1.html")).getTimetable()
     }
 
     @Test

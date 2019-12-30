@@ -2,9 +2,9 @@ package com.example.hwutimetable.updater
 
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
-import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
-import com.example.hwutimetable.scraper.Scraper
+import com.example.hwutimetable.parser.TimetableParser
+import com.example.hwutimetable.scraper.TimetableScraper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -18,7 +18,11 @@ import java.io.File
  * If object invoking the [update] method runs on the UI thread, the [update] will throw the
  * [android.os.NetworkOnMainThreadException] during scraping.
  */
-class Updater(filesDir: File) : UpdatePerformer {
+class Updater(
+    filesDir: File,
+    private val parser: TimetableParser,
+    private val scraper: TimetableScraper
+) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
     private val notificationReceivers = mutableListOf<UpdateNotificationReceiver>()
 
@@ -53,9 +57,8 @@ class Updater(filesDir: File) : UpdatePerformer {
 
     private suspend fun getTimetable(info: TimetableInfo): Timetable {
         return withContext(Dispatchers.IO) {
-            val scraper = Scraper()
             val doc = scraper.getTimetable(info.code, info.semester)
-            Parser(doc).parse()
+            parser.setDocument(doc).getTimetable()
         }
     }
 

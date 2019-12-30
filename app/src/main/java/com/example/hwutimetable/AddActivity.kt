@@ -135,7 +135,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         checkNotNull(document) { return }
         checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
 
-        val timetable = Parser(document).parse()
+        val timetable = Parser().setDocument(document).getTimetable()
         val timetableInfo = TimetableInfo(
             requestedGroup!!.optionValue,
             requestedGroup!!.text,

@@ -10,6 +10,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.scraper.Scraper
 
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
@@ -64,7 +66,7 @@ class UpdateService : Service(), UpdateNotificationReceiver {
         updater.addNotificationReceiver(notifier)
     }
 
-    private fun getDefaultUpdater() = Updater(this.filesDir)
+    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper())
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 
