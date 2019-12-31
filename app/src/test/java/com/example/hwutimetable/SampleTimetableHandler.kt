@@ -21,7 +21,7 @@ object SampleTimetableHandler {
     }
 
     private fun getJsonTimetable(file: File): Timetable? {
-        val code = file.nameWithoutExtension
+        val code = Regex("(#\\w+)").find(file.name)!!.groups.first()!!.value
         val info = InfoFile(file.parentFile!!).getInfoByCode(code) ?: return null
         return TimetableFileHandler(file.parentFile!!).getTimetable(info)
     }
