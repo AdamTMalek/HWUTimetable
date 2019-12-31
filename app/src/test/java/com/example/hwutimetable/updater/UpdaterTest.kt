@@ -9,6 +9,7 @@ import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.TimetableScraper
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Test
 import org.mockito.Mockito
@@ -25,6 +26,14 @@ class UpdaterTest {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
         val savedTimetable = SampleTimetableHandler.getTimetable(savedTimetableFile)
         parser = ParserForTest(savedTimetable as Timetable)
+    }
+
+    @After
+    fun replaceWithCopy() {
+        val original = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
+        val copy = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0-COPY.json")
+
+        original.writeText(copy.readText())
     }
 
     @Test

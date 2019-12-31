@@ -1,6 +1,5 @@
 package com.example.hwutimetable
 
-import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.parser.Timetable
@@ -21,9 +20,8 @@ object SampleTimetableHandler {
     }
 
     private fun getJsonTimetable(file: File): Timetable? {
-        val code = Regex("(#\\w+)").find(file.name)!!.groups.first()!!.value
-        val info = InfoFile(file.parentFile!!).getInfoByCode(code) ?: return null
-        return TimetableFileHandler(file.parentFile!!).getTimetable(info)
+        val gson = TimetableFileHandler.getGson()
+        return gson.fromJson(file.readText(), Timetable::class.java)
     }
 
     fun getTimetable(file: File): Timetable? {
