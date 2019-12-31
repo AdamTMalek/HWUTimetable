@@ -48,6 +48,7 @@ dependencies {
     implementation 'com.fatboyindustrial.gson-jodatime-serialisers:gson-jodatime-serialisers:1.8.0'
     implementation 'androidx.preference:preference:1.1.0'
     testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:3.2.0'
     androidTestImplementation 'androidx.test:runner:1.3.0-alpha03'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0-alpha03'
 }

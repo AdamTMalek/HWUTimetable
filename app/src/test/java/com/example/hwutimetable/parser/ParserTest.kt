@@ -11,9 +11,9 @@ import java.io.File
 
 class ParserTest {
     private val document: Document = org.jsoup.Jsoup.parse(
-        File("src/test/sampleTimetables/tt1.html"), "UTF-8"
+        File("src/test/resources/sampleTimetables/tt1.html"), "UTF-8"
     )
-    private val parser: Parser = Parser().setDocument(document)
+    private val parser: Parser = Parser()
 
     private var timetable: Timetable? = null
 
