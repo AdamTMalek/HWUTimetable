@@ -24,4 +24,26 @@ class SemesterBuilderTest {
 
         assertEquals(expected, semester.startDate)
     }
+
+    @Test
+    fun testBuildSemesterValue() {
+        val date = LocalDate(2020, 1, 13)
+        val expectedSemesterValue = 1
+
+        val semester = SemesterBuilder()
+            .setFromLocalDate(date)
+            .setSemesterValue(expectedSemesterValue)
+
+        assertEquals(expectedSemesterValue, semester.value)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testBuildSemesterIllegalNegValue() {
+        val date = LocalDate(2020, 1, 13)
+        val expectedSemesterValue = 3
+
+        SemesterBuilder()
+            .setFromLocalDate(date)
+            .setSemesterValue(expectedSemesterValue)
+    }
 }

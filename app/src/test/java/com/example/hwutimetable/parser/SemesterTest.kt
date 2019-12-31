@@ -6,7 +6,7 @@ import org.junit.Test
 
 
 class SemesterTest {
-    private val semester = Semester(LocalDate(2020, 1, 13))
+    private val semester = Semester(LocalDate(2020, 1, 13), 1)
 
     @Test
     fun testGetFirstWeek() {

@@ -8,10 +8,11 @@ import org.jsoup.nodes.Element
 
 
 /**
- * This class is used to parse the given (time)[table] and store the results as a list of timetable items
- * @param table: Jsoup document with a Jsoup parser
+ * This class is used to parse the given html timetable document.
+ * To use the parser set the HTML document [setDocument] and then
+ * use [getTimetable] to get the parsed timetable.
  */
-class Parser(private var table: Document) {
+class Parser : TimetableParser {
     private val timetableDays: Array<TimetableDay> = arrayOf(
         TimetableDay(Day.MONDAY, arrayListOf()),
         TimetableDay(Day.TUESDAY, arrayListOf()),
@@ -19,7 +20,7 @@ class Parser(private var table: Document) {
         TimetableDay(Day.THURSDAY, arrayListOf()),
         TimetableDay(Day.FRIDAY, arrayListOf())
     )
-    private var timetable: Timetable? = null
+    private lateinit var document: Document
 
     /**
      * Finds the rows of the day and returns the list of them
@@ -29,7 +30,7 @@ class Parser(private var table: Document) {
     private fun findRowsOfDay(dayIndex: Int): List<Element> {
         // Get all the children of tbody (trs) and remove the first row
         // because it contains time information that we don't need
-        val rows = table.selectFirst("tbody").children().drop(1)
+        val rows = document.selectFirst("tbody").children().drop(1)
 
         var currentDay = -1  // Current day index
         val dayRows = mutableListOf<Element>()  // List of rows that will be returned
@@ -156,7 +157,7 @@ class Parser(private var table: Document) {
      * Get start date of the semester (timetable)
      */
     private fun getSemester(): Semester {
-        val dateString = table.selectFirst("span.header-2-2-3").text()
+        val dateString = document.selectFirst("span.header-2-2-3").text()
 
         val regex = Regex("((\\d+\\s\\w+\\s\\d+)(?=-\\d+\\s\\w+\\s\\d+))")
         val dates = regex.find(dateString)
@@ -171,28 +172,37 @@ class Parser(private var table: Document) {
     }
 
     /**
-     * Checks if the [table] has a parser
+     * Checks if the [document] has a parser
      * @return true if it does, false if it does not
      */
-    private fun documentHasParser() = this.table.parser() != null
+    private fun documentHasParser() = this.document.parser() != null
+
+    /**
+     * Sets the document that will be parsed on the next call of
+     * [getTimetable]
+     */
+    override fun setDocument(document: Document): Parser {
+        this.document = document
+        return this
+    }
 
     /**
      * Parses the timetable and return the timetable items
-     * @return List of timetable items
+     * @return Timetable
      */
-    fun parse(): Timetable {
+    @Throws(ParserException::class)
+    override fun getTimetable(): Timetable {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
         val semester = getSemester()
 
-        table = Jsoup.parse(table.selectFirst("table.grid-border-args").outerHtml())
+        document = Jsoup.parse(document.selectFirst("table.grid-border-args").outerHtml())
         for (day in 0..4) {
             val rows = findRowsOfDay(day)
             addLecturesFromRows(rows, day)
         }
 
-        timetable = Timetable(Hash.get(this.table), timetableDays, semester)
-        return timetable!!
+        return Timetable(timetableDays, semester)
     }
 }

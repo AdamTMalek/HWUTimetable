@@ -4,18 +4,7 @@ import org.jsoup.Connection
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
-/**
- * ScraperState represents different state that the Scraper can be in
- */
-enum class ScraperState {
-    OnLoginSite,
-    LoggedIn,
-    OnTimetablesSite,
-    Filtered, // Department and/or level filter has been applied
-    Finished  // Finished scraping
-}
-
-class Scraper {
+class Scraper : TimetableScraper {
     private val loginUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
     private val defaultUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
 
@@ -105,7 +94,7 @@ class Scraper {
      * Get a list of the departments from the Student Group Timetables site
      * @return List of department options
      */
-    fun getDepartments() = response?.selectFirst("#dlFilter2")
+    override fun getDepartments() = response?.selectFirst("#dlFilter2")
         ?.select("option")
         ?.map {
             Option(it.`val`(), it.text())
@@ -115,7 +104,7 @@ class Scraper {
      * Get a list of the levels from the Student Group Timetables site
      * @return List of level options
      */
-    fun getLevels() = response?.selectFirst("#dlFilter")
+    override fun getLevels() = response?.selectFirst("#dlFilter")
         ?.select("option")
         ?.map {
             Option(it.`val`(), it.text())
@@ -211,7 +200,7 @@ class Scraper {
      * @param level level option's value (not text)
      * @return List of group options
      */
-    fun getGroups(department: String, level: String): List<Option>? {
+    override fun getGroups(department: String, level: String): List<Option>? {
         check(state == ScraperState.OnTimetablesSite || state == ScraperState.Filtered) {
             throw IllegalStateException("Illegal state for getGroups. Must be OnTimetablesSite or Filter.")
         }
@@ -236,7 +225,7 @@ class Scraper {
      * @param semester Integer 1 or 2
      * @return HTML document with the timetable
      */
-    fun getTimetable(group: String, semester: Int): Document {
+    override fun getTimetable(group: String, semester: Int): Document {
         if (state == ScraperState.Finished)
             return response as Document  // We have finished scraping - result is the timetable
 
@@ -275,5 +264,16 @@ class Scraper {
 
         response = Jsoup.parse(connection.parse().outerHtml())
         return response as Document
+    }
+
+    /**
+     * ScraperState represents different state that the Scraper can be in
+     */
+    private enum class ScraperState {
+        OnLoginSite,
+        LoggedIn,
+        OnTimetablesSite,
+        Filtered, // Department and/or level filter has been applied
+        Finished  // Finished scraping
     }
 }

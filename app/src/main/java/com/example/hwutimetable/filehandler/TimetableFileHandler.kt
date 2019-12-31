@@ -16,6 +16,16 @@ import java.io.FileNotFoundException
 class TimetableFileHandler(private val directory: File) : TimetableHandler {
     private val infoFile = InfoFile(directory)
 
+    companion object {
+        fun getGson(): Gson {
+            return GsonBuilder()
+                .registerTypeAdapter(LocalDate::class.java, LocalDateConverter())
+                .registerTypeAdapter(LocalTime::class.java, LocalTimeConverter())
+                .registerTypeAdapter(Period::class.java, PeriodConverter())
+                .create()
+        }
+    }
+
     @Throws(IOException::class)
     /**
      * Saves the given timetable and its info
@@ -100,14 +110,6 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
             name.endsWith(".json", true)
                 .and(!name.endsWith(InfoFile.FILENAME))
         } ?: return emptyArray()
-    }
-
-    private fun getGson(): Gson {
-        return GsonBuilder()
-            .registerTypeAdapter(LocalDate::class.java, LocalDateConverter())
-            .registerTypeAdapter(LocalTime::class.java, LocalTimeConverter())
-            .registerTypeAdapter(Period::class.java, PeriodConverter())
-            .create()
     }
 
     private fun getFilename(timetableInfo: TimetableInfo) = "${timetableInfo.code}.json"

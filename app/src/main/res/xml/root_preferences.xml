@@ -1,0 +1,39 @@
+
+<PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+            app:title="Update checks">
+
+        <SwitchPreferenceCompat
+                app:key="enable_updates"
+                app:defaultValue="true"
+                app:title="Check for timetable updates"/>
+
+        <CheckBoxPreference
+                app:key="allow_wifi"
+                app:title="Allow using WiFi"
+                app:dependency="enable_updates"/>
+
+        <CheckBoxPreference
+                app:key="allow_data"
+                app:title="Allow using mobile data"
+                app:dependency="enable_updates"/>
+
+        <com.example.hwutimetable.settings.TimePreference
+                app:key="time_preference"
+                app:title="Update time"
+                app:summary="Click here to change the update time."
+                app:defaultValue="90"
+                app:dependency="enable_updates"/>
+
+        <com.example.hwutimetable.settings.NumberPreference
+                app:key="frequency_preference"
+                app:title="Update frequency"
+                app:summary="Number of days between each update check"
+                app:defaultValue="1"
+                app:dependency="enable_updates"
+                app:minValue="1"
+                app:maxValue="14"/>
+    </PreferenceCategory>
+</PreferenceScreen>
