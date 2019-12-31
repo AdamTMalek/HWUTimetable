@@ -72,7 +72,6 @@ class TestTimetableFileHandler {
     @Test
     fun testGetTimetable() {
         val actualTimetable = Timetable(
-            ByteArray(0),
             generateTimetableDays(),
             Semester(LocalDate.now(), 1)
         )
@@ -137,7 +136,6 @@ class TestTimetableFileHandler {
 
     private fun saveTimetable(code: String = "xxx"): TimetableInfo {
         val timetable = Timetable(
-            ByteArray(0),
             generateTimetableDays(),
             Semester(LocalDate.now(), 1)
         )

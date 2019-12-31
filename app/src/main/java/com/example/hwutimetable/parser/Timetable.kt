@@ -6,7 +6,7 @@ import org.joda.time.LocalDate
 
 
 @Parcelize
-class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester: Semester) : Parcelable {
+class Timetable(val days: Array<TimetableDay>, val semester: Semester) : Parcelable {
 
     /**
      * Get total items in the timetable (includes clashes - if they exists
@@ -37,7 +37,7 @@ class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester
             days.add(day.getForWeek(week))
         }
 
-        return Timetable(this.hash, days.toTypedArray(), this.semester)
+        return Timetable(days.toTypedArray(), this.semester)
     }
 
     fun getForDate(date: LocalDate): Timetable {
@@ -51,16 +51,14 @@ class Timetable(val hash: ByteArray, val days: Array<TimetableDay>, val semester
 
         other as Timetable
 
-        if (!hash.contentEquals(other.hash)) return false
         if (!days.contentEquals(other.days)) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = hash.contentHashCode()
-        result = 31 * result + days.contentHashCode()
+        var result = days.contentHashCode()
+        result = 31 * result + semester.hashCode()
         return result
     }
-
 }

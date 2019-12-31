@@ -203,6 +203,6 @@ class Parser : TimetableParser {
             addLecturesFromRows(rows, day)
         }
 
-        return Timetable(Hash.get(this.document), timetableDays, semester)
+        return Timetable(timetableDays, semester)
     }
 }

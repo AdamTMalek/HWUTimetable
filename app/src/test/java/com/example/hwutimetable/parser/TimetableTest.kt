@@ -8,18 +8,16 @@ import org.junit.Test
 import java.io.File
 
 class TimetableTest {
-    private val hash = ByteArray(1) { 0 }
-
     @Test
     fun testEmptyTimetable() {
-        val timetable = Timetable(hash, arrayOf(), Semester(LocalDate.now(), 1))
+        val timetable = Timetable(arrayOf(), Semester(LocalDate.now(), 1))
         assertEquals("Total items is 0?", 0, timetable.getTotalItems())
     }
 
     @Test
     fun testNotEmptyTimetable() {
         val timetable = Timetable(
-            hash, arrayOf(
+            arrayOf(
                 createTimetableDay(Day.MONDAY, 1),
                 createTimetableDay(Day.TUESDAY, 2),
                 createTimetableDay(Day.WEDNESDAY, 3),
