@@ -22,6 +22,7 @@ import com.example.hwutimetable.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.FileNotFoundException
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private val infoList = mutableListOf<TimetableInfo>()
@@ -80,14 +81,42 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addTouchCallbacksHandler() {
-        val callback = object : SwipeToDeleteCallback(applicationContext) {
+        val dragCallback = object : ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.START or ItemTouchHelper.END,
+            0
+        ) {
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder
+            ): Boolean {
+                val from = viewHolder.adapterPosition
+                val to = target.adapterPosition
+                Collections.swap(infoList, from, to)
+                recyclerView.adapter?.notifyItemMoved(from, to)
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                return
+            }
+
+            override fun isLongPressDragEnabled(): Boolean {
+                return true
+            }
+        }
+
+        val dragTouchHelper = ItemTouchHelper(dragCallback)
+        dragTouchHelper.attachToRecyclerView(recycler_view)
+
+        val swipeToDeleteCallback = object : SwipeToDeleteCallback(applicationContext) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 viewHolder.setIsRecyclable(false)
                 onItemSwiped(viewHolder.adapterPosition)
             }
         }
 
-        val touchHelper = ItemTouchHelper(callback)
+        val touchHelper = ItemTouchHelper(swipeToDeleteCallback)
         touchHelper.attachToRecyclerView(recycler_view)
         recycler_view.addOnItemTouchListener(
             RecyclerItemClickListener(applicationContext, recycler_view,
