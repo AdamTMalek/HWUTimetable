@@ -6,7 +6,7 @@ import kotlinx.serialization.list
 import java.io.File
 
 /**
- * This object/singleton handles the tt_dict.json file responsible
+ * This class handles the tt_dict.json file responsible
  * for storing information ([TimetableInfo]) about stored documents/timetables.
  */
 class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
