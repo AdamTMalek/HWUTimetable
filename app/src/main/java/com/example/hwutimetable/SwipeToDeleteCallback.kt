@@ -10,14 +10,14 @@ import androidx.recyclerview.widget.RecyclerView
 
 abstract class SwipeToDeleteCallback(val context: Context) :
     ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
     private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete_forever_white_24dp)
         ?: throw Resources.NotFoundException("Delete icon was not found")
-
     private val intrinsicWidth = deleteIcon.intrinsicWidth
     private val intrinsicHeight = deleteIcon.intrinsicHeight
     private val background = ColorDrawable()
     private val backgroundColor = Color.RED
-    private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR )}
+    private val clearPaint = Paint().apply { xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR) }
 
     override fun onMove(
         recyclerView: RecyclerView,
@@ -43,8 +43,10 @@ abstract class SwipeToDeleteCallback(val context: Context) :
         val isCancelled = dX == 0f && !isCurrentlyActive
 
         if (isCancelled) {
-            clearCanvas(c, itemView.right + dX, itemView.top.toFloat(),
-                itemView.right.toFloat(), itemView.bottom.toFloat())
+            clearCanvas(
+                c, itemView.right + dX, itemView.top.toFloat(),
+                itemView.right.toFloat(), itemView.bottom.toFloat()
+            )
             super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
             return
         }
@@ -63,7 +65,7 @@ abstract class SwipeToDeleteCallback(val context: Context) :
         val iconMargin = (itemHeight - intrinsicHeight) / 2
 
         val iconTop = itemView.top + iconMargin
-        val iconRight =  itemView.right - iconMargin
+        val iconRight = itemView.right - iconMargin
         val iconLeft = iconRight - intrinsicWidth
         val iconBottom = iconTop + intrinsicHeight
 

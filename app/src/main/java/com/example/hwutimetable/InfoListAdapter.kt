@@ -15,17 +15,17 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 class InfoListAdapter(private val infoList: MutableList<TimetableInfo>) :
     RecyclerView.Adapter<InfoListAdapter.InfoListViewHolder>() {
 
-    class InfoListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val textView = view as TextView
-
+    class InfoListViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bind(timetableInfo: TimetableInfo) {
+            val textView = view.findViewById<TextView>(R.id.title)
             textView.text = timetableInfo.name
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): InfoListViewHolder {
         return InfoListViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.list_text_view, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.timetable_list_item, parent, false)
+
         )
     }
 
