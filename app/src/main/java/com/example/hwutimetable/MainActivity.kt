@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getTextFromRecyclerViewItem(position: Int): String {
         return recycler_view.findViewHolderForAdapterPosition(position)!!
-            .itemView.findViewById<TextView>(R.id.list_text_view).text as String
+            .itemView.findViewById<TextView>(R.id.title).text as String
     }
 
     private fun getTimetablesInfoList(): List<TimetableInfo> {
@@ -238,5 +238,10 @@ class MainActivity : AppCompatActivity() {
 
         listAdapter.notifyDataSetChanged()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onStop() {
+        infoFile.saveAll(infoList) // By doing this we keep the order set by the user
+        super.onStop()
     }
 }
