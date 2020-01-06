@@ -19,7 +19,7 @@ import java.io.File
 class UpdaterTest {
     private val parser: ParserForTest
     private val testDir = File("src/test/resources/sampleTimetables", "/parsed")
-    private val updateWaitingTime = 100L
+    private val updateWaitingTime = 500L
     private val sampleTimetablePath = "src/test/resources/sampleTimetables/tt1.html"
 
     init {
