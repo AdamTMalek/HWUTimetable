@@ -11,13 +11,6 @@
             android:rowCount="1"
             android:columnCount="3"
             android:useDefaultMargins="true">
-        <TextView android:layout_column="0"
-                  android:id="@+id/year_circle"
-                  android:textSize="18sp"
-                  android:fontFamily="sans-serif-black"
-                  android:gravity="center"
-                  android:layout_gravity="center_vertical"
-                  android:background="@drawable/semester_circle"/>
         <TextView android:layout_column="1"
                   android:id="@+id/semester_circle"
                   android:fontFamily="sans-serif-black"
