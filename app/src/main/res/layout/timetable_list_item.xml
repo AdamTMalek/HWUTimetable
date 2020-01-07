@@ -3,14 +3,30 @@
                                                    xmlns:app="http://schemas.android.com/apk/res-auto"
                                                    android:orientation="vertical"
                                                    android:layout_width="match_parent"
-                                                   android:layout_height="@dimen/list_item_size"
+                                                   android:layout_height="wrap_content"
                                                    android:background="#FFFFFF">
-    <TextView
-            android:id="@+id/title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/list_text_size"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"/>
+    <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:rowCount="1"
+            android:columnCount="3"
+            android:useDefaultMargins="true">
+        <TextView android:layout_column="1"
+                  android:id="@+id/semester_circle"
+                  android:fontFamily="sans-serif-black"
+                  android:textSize="18sp"
+                  android:gravity="center"
+                  android:layout_gravity="center_vertical"
+                  android:background="@drawable/semester_circle"/>
+        <TextView
+                android:id="@+id/timetable_title"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:layout_columnWeight="1"
+                android:textSize="@dimen/list_text_size"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"/>
+    </GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

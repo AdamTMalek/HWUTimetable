@@ -206,7 +206,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getTextFromRecyclerViewItem(position: Int): String {
         return recycler_view.findViewHolderForAdapterPosition(position)!!
-            .itemView.findViewById<TextView>(R.id.title).text as String
+            .itemView.findViewById<TextView>(R.id.timetable_title).text as String
     }
 
     private fun getTimetablesInfoList(): List<TimetableInfo> {
