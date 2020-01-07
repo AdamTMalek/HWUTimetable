@@ -25,6 +25,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private var selectedDepartment: Option? = null
     private var selectedLevel: Option? = null
     private var requestedGroup: Option? = null
+    private var semester: Int = -1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +56,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             if (groupOption != null) {
                 requestedGroup = groupOption
                 val optionValue = groupOption.optionValue
-                val semester = getSemesterFromName((groupOption.text))
+                semester = getSemesterFromName((groupOption.text))
                 asyncScraper.requestGroup(optionValue, semester, ::timetableRequestCallback)
             }
         }
@@ -139,7 +140,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val timetableInfo = TimetableInfo(
             requestedGroup!!.optionValue,
             requestedGroup!!.text,
-            timetable.semester.value
+            semester
         )
         val directory = applicationContext.filesDir
 
