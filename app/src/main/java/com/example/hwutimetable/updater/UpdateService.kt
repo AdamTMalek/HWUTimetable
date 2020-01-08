@@ -12,6 +12,8 @@ import androidx.preference.PreferenceManager
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
@@ -34,17 +36,18 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        configurePerformer(intent)
-        configureNotifier(intent)
-        registerSelfAsReceiver()
+        GlobalScope.launch {
+            configurePerformer(intent)
+            configureNotifier(intent)
+            registerSelfAsReceiver()
 
-        if (canUpdate()) {
-            Log.i(logTag, "Update alarm has been triggered, starting the update process")
-            updater.update()
-        } else {
-            Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
+            if (canUpdate()) {
+                Log.i(logTag, "Update alarm has been triggered, starting the update process")
+                updater.update()
+            } else {
+                Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
+            }
         }
-
         return START_STICKY
     }
 
