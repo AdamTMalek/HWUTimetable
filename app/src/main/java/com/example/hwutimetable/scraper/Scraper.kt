@@ -67,7 +67,7 @@ class Scraper : TimetableScraper {
      * @return status code after transition
      */
     fun goToProgrammesTimetables(): Int {
-        check(state == ScraperState.LoggedIn) {
+        if (state != ScraperState.LoggedIn && state != ScraperState.Finished) {
             throw IllegalStateException("Cannot perform this action when not logged in")
         }
 
@@ -226,8 +226,12 @@ class Scraper : TimetableScraper {
      * @return HTML document with the timetable
      */
     override fun getTimetable(group: String, semester: Int): Document {
-        if (state == ScraperState.Finished)
-            return response as Document  // We have finished scraping - result is the timetable
+        if (state == ScraperState.Finished) {
+            cookies.clear()
+            response = null
+            login()
+            goToProgrammesTimetables()
+        }
 
         // We have to apply filters even though we know the group option value
         // Otherwise we will get an error "No items have been selected for your request"

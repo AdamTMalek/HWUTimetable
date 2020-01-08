@@ -13,14 +13,12 @@ import org.jsoup.nodes.Element
  * use [getTimetable] to get the parsed timetable.
  */
 class Parser : TimetableParser {
-    private val timetableDays: Array<TimetableDay> = arrayOf(
-        TimetableDay(Day.MONDAY, arrayListOf()),
-        TimetableDay(Day.TUESDAY, arrayListOf()),
-        TimetableDay(Day.WEDNESDAY, arrayListOf()),
-        TimetableDay(Day.THURSDAY, arrayListOf()),
-        TimetableDay(Day.FRIDAY, arrayListOf())
-    )
+    private lateinit var timetableDays: Array<TimetableDay>
     private lateinit var document: Document
+
+    init {
+        initTimetableDays()
+    }
 
     /**
      * Finds the rows of the day and returns the list of them
@@ -183,7 +181,18 @@ class Parser : TimetableParser {
      */
     override fun setDocument(document: Document): Parser {
         this.document = document
+        initTimetableDays()
         return this
+    }
+
+    private fun initTimetableDays() {
+        this.timetableDays = arrayOf(
+            TimetableDay(Day.MONDAY, arrayListOf()),
+            TimetableDay(Day.TUESDAY, arrayListOf()),
+            TimetableDay(Day.WEDNESDAY, arrayListOf()),
+            TimetableDay(Day.THURSDAY, arrayListOf()),
+            TimetableDay(Day.FRIDAY, arrayListOf())
+        )
     }
 
     /**
