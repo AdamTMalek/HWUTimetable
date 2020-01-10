@@ -2,6 +2,7 @@ package com.example.hwutimetable.settings
 
 import android.os.Bundle
 import android.text.format.DateFormat
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
@@ -24,6 +25,15 @@ class SettingsActivity : AppCompatActivity() {
             )
             .commit()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed(); true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
