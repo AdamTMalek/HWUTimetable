@@ -37,6 +37,7 @@ timetables. You will see how it works after we add the first timetable.
 Click the circle add button to add your timetable. This will take you to another screen where you need to choose
 the department, the level and the group. There is no need to choose the semester like on the website - this will
 be done automatically by the app.
+
 ![adding](https://user-images.githubusercontent.com/23484014/72175464-1fee0f80-33d4-11ea-855f-8f695356961c.png)
 
 
