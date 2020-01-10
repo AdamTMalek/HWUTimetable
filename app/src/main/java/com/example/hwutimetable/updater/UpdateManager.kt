@@ -32,7 +32,7 @@ internal class UpdateManager(private val context: Context) :
         val enabled: Boolean
             get() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), false)
 
-        var interval: Long = 0
+        var interval: Long = 0L
         var updateTimeInMillis: Long = 0L
     }
 
@@ -41,6 +41,8 @@ internal class UpdateManager(private val context: Context) :
             PendingIntent.getService(context, 0, intent, 0)
         }
 
+        setTime()
+        setFrequency()
         setAlarm()
     }
 
@@ -63,14 +65,37 @@ internal class UpdateManager(private val context: Context) :
 
     private fun setTime() {
         val minutesAfterMidnight = sharedPreferences.getInt(context.getString(R.string.time_pref_key), 0)
+        settings.updateTimeInMillis = getTriggerTimeInMillis(minutesAfterMidnight)
+    }
 
-        val updateTimeInMillis = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, minutesAfterMidnight / 60)
-            set(Calendar.MINUTE, minutesAfterMidnight % 60)
+    /**
+     * This method will return the trigger time of the alarm in milliseconds.
+     * As the documentation of the alarms says, if we specify the trigger time that is in the past
+     * the alarm will be triggered immediately.
+     * Therefore, this method will check if the specified [minutesAfterMidnight] is in the past or not.
+     * If it is in the past, it will return the time for the next day, otherwise the time will be for the
+     * current day.
+     *
+     * **See Also:** [Alarm Documentation](https://developer.android.com/training/scheduling/alarms.html#set)
+     */
+    private fun getTriggerTimeInMillis(minutesAfterMidnight: Int): Long {
+        val hourOfDay = minutesAfterMidnight / 60
+        val minuteOfHour = minutesAfterMidnight % 60
+
+        val calendar = Calendar.getInstance().apply { timeInMillis = System.currentTimeMillis() }
+
+        val currentTime = calendar.timeInMillis
+        var triggerTime = calendar.apply {
+            set(Calendar.HOUR, hourOfDay)
+            set(Calendar.MINUTE, minuteOfHour)
         }.timeInMillis
 
-        settings.updateTimeInMillis = updateTimeInMillis
+        val dayInMillis = 86_400_000
+        if (currentTime >= triggerTime) {
+            triggerTime += dayInMillis  // The time is in the past. Add 24 hour "delay".
+        }
+
+        return triggerTime
     }
 
     private fun setFrequency() {
