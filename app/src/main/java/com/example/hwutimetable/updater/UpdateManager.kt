@@ -86,7 +86,7 @@ internal class UpdateManager(private val context: Context) :
 
         val currentTime = calendar.timeInMillis
         var triggerTime = calendar.apply {
-            set(Calendar.HOUR, hourOfDay)
+            set(Calendar.HOUR_OF_DAY, hourOfDay)
             set(Calendar.MINUTE, minuteOfHour)
         }.timeInMillis
 
