@@ -5,7 +5,7 @@ import com.example.hwutimetable.parser.exceptions.InvalidRangeException
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class TestWeeksBuilder {
+class WeeksBuilderTest {
     @Test
     fun testSetRange() {
         val weeks = WeeksBuilder()
