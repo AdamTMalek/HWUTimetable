@@ -11,7 +11,7 @@ import org.junit.Test
 import java.io.File
 import java.io.FileNotFoundException
 
-class TestTimetableFileHandler {
+class TimetableFileHandlerTest {
     companion object {
         private val dir_path: String = System.getProperty("user.dir") + "/tfh_test_dir"
         private val test_dir = File(dir_path)

@@ -4,7 +4,7 @@ import com.example.hwutimetable.extensions.toIntArray
 import org.junit.Assert.*
 import org.junit.Test
 
-class TestWeeks {
+class WeeksTest {
     @Test
     fun testDurationOneWeek() {
         val weeks = Weeks(intArrayOf(1))
