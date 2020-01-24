@@ -2,6 +2,7 @@ package com.example.hwutimetable
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
@@ -234,6 +235,7 @@ object TimetableView {
             this.height = getTimeLabelHeight(context)
             this.width = 0
             this.gravity = gravity
+            this.setTextColor(Color.WHITE)
         }
     }
 
