@@ -21,7 +21,7 @@ interface TimetableScraper {
      * @param level level option's value (not text)
      * @return List of group options
      */
-    fun getGroups(department: String, level: String): List<Option>?
+    suspend fun getGroups(department: String, level: String): List<Option>?
 
     /**
      * Get the timetable document from the website with the given [group] id (option value)
@@ -30,5 +30,5 @@ interface TimetableScraper {
      * @param semester Integer 1 or 2
      * @return HTML document with the timetable
      */
-    fun getTimetable(group: String, semester: Int): Document
+    suspend fun getTimetable(group: String, semester: Int): Document
 }

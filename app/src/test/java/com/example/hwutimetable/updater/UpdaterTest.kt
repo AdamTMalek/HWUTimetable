@@ -148,11 +148,11 @@ class UpdaterTest {
             return null
         }
 
-        override fun getGroups(department: String, level: String): List<Option>? {
+        override suspend fun getGroups(department: String, level: String): List<Option>? {
             return null
         }
 
-        override fun getTimetable(group: String, semester: Int): Document {
+        override suspend fun getTimetable(group: String, semester: Int): Document {
             return document
         }
     }

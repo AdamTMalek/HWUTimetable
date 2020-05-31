@@ -11,14 +11,17 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
-import com.example.hwutimetable.scraper.AsyncScraper
 import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.android.synthetic.main.activity_add.*
-import org.jsoup.nodes.Document
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
-    private var asyncScraper = AsyncScraper()
+    private val mainScope = MainScope()
+    private val scraper = Scraper()
     private var departments: List<Option>? = null
     private var levels: List<Option>? = null
     private var groups: List<Option>? = null
@@ -34,8 +37,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setItemSelectedListener()
         setButtonClickListener()
 
-        asyncScraper.initialise(::scraperInitCallback)
-        changeProgressBarVisibility(true)
+        mainScope.launch {
+            populateDepartmentsAndLevels()
+        }
     }
 
     /**
@@ -48,16 +52,19 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun setButtonClickListener() {
         submit_button.setOnClickListener {
-            changeProgressBarVisibility(true)
             val groupOption = groups?.find {
                 it.text == groups_spinner.selectedItem.toString()
             }
 
             if (groupOption != null) {
                 requestedGroup = groupOption
-                val optionValue = groupOption.optionValue
                 semester = getSemesterFromName((groupOption.text))
-                asyncScraper.requestGroup(optionValue, semester, ::timetableRequestCallback)
+
+                mainScope.launch {
+                    changeProgressBarVisibility(true)
+                    getTimetable()
+                    changeProgressBarVisibility(false)
+                }
             }
         }
     }
@@ -71,27 +78,28 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     /**
      * Initialisation callback for AsyncScraper initialisation
      */
-    private fun scraperInitCallback(scraper: Scraper?) {
-        changeProgressBarVisibility(false)
+    private suspend fun populateDepartmentsAndLevels() {
+        changeProgressBarVisibility(true)
 
-        scraper ?: return
+        scraper.setup()
         departments = scraper.getDepartments()
         levels = scraper.getLevels()
 
         // Put the data we just got to the Spinners
         departments?.map { it.text }?.let { applyAdapterFromList(departments_spinner, it) }
         levels?.map { it.text }?.let { applyAdapterFromList(levels_spinner, it) }
+
+        changeProgressBarVisibility(false)
     }
 
     /**
      * getGroups callback for AsyncScraper
      */
-    private fun groupsCallback(options: List<Option>?) {
-        changeProgressBarVisibility(false)
-        groups = options
+    private suspend fun getGroups() {
+        groups = scraper.getGroups(selectedDepartment!!.optionValue, selectedLevel!!.optionValue)
 
-        if (options != null) {
-            applyAdapterFromList(groups_spinner, options.map { it.text })
+        if (groups != null) {
+            applyAdapterFromList(groups_spinner, groups!!.map { it.text })
             submit_button.isEnabled = true
         }
     }
@@ -124,18 +132,20 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         if (selectedDepartment!!.text == "(Any Department)" || selectedLevel!!.text == "(Any Level)")
             return // We require both filters
 
-        // Both filters applied - get the groups
-        changeProgressBarVisibility(true)
-        asyncScraper.filter(selectedDepartment!!.optionValue, selectedLevel!!.optionValue, ::groupsCallback)
+        mainScope.launch {
+            changeProgressBarVisibility(true)
+            getGroups()
+            changeProgressBarVisibility(false)
+        }
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
     }
 
-    private fun timetableRequestCallback(document: Document?) {
-        checkNotNull(document) { return }
-        checkNotNull(requestedGroup) { throw NullPointerException("requestedGroup cannot be null") }
+    private suspend fun getTimetable() {
+        checkNotNull(requestedGroup) { "requestedGroup cannot be null" }
 
+        val document = scraper.getTimetable(requestedGroup!!.optionValue, semester)
         val timetable = Parser().setDocument(document).getTimetable()
         val timetableInfo = TimetableInfo(
             requestedGroup!!.optionValue,
@@ -145,8 +155,10 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val directory = applicationContext.filesDir
 
         if (saveTimetable()) {
-            val fileHandler = TimetableFileHandler(directory)
-            fileHandler.save(timetable, timetableInfo)
+            withContext(Dispatchers.IO) {
+                val fileHandler = TimetableFileHandler(directory)
+                fileHandler.save(timetable, timetableInfo)
+            }
         }
 
         changeProgressBarVisibility(false)
