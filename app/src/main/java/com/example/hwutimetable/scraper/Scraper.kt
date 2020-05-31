@@ -113,10 +113,15 @@ class Scraper : TimetableScraper {
             "Cannot perform this action when not logged in"
         }
 
-        val formData = getRequiredFormData()
-        formData["tLinkType"] = "information"
-        formData["__EVENTARGUMENT"] = ""
-        formData["__EVENTTARGET"] = "LinkBtn_studentsets"
+        val formData = getRequiredFormData().apply {
+            putAll(
+                mapOf(
+                    "tLinkType" to "information",
+                    "__EVENTARGUMENT" to "",
+                    "__EVENTTARGET" to "LinkBtn_studentsets"
+                )
+            )
+        }
 
         val connection = submitForm(defaultUrl, formData)
         state = ScraperState.OnTimetablesSite
@@ -136,21 +141,35 @@ class Scraper : TimetableScraper {
      * Get a list of the departments from the Student Group Timetables site
      * @return List of department options
      */
-    override fun getDepartments() = response?.selectFirst("#dlFilter2")
-        ?.select("option")
-        ?.map {
-            Option(it.`val`(), it.text())
+    @Throws(ScraperException::class)
+    override fun getDepartments(): List<Option> {
+        check(state == ScraperState.OnTimetablesSite) {
+            "Departments can only be gotten from the programmes timetables site"
         }
+
+        return response!!.selectFirst("#dlFilter2")
+            ?.select("option")
+            ?.map {
+                Option(it.`val`(), it.text())
+            } ?: throw ScraperException("Could not find department options")
+    }
 
     /**
      * Get a list of the levels from the Student Group Timetables site
      * @return List of level options
      */
-    override fun getLevels() = response?.selectFirst("#dlFilter")
-        ?.select("option")
-        ?.map {
-            Option(it.`val`(), it.text())
+    @Throws(ScraperException::class)
+    override fun getLevels(): List<Option> {
+        check(state == ScraperState.OnTimetablesSite) {
+            "Levels can only be gotten from the programmes timetables site"
         }
+
+        return response!!.selectFirst("#dlFilter")
+            ?.select("option")
+            ?.map {
+                Option(it.`val`(), it.text())
+            } ?: throw ScraperException("Could not find level options")
+    }
 
     /**
      * The Student Group Timetables POST requests require some additional form data
@@ -165,18 +184,18 @@ class Scraper : TimetableScraper {
             else -> throw IllegalArgumentException("semester must be either 1 or 2")
         }
 
-        val data = getRequiredFormData()
-        data.putAll(
-            mapOf(
-                "tLinkType" to "studentsets",
-                "tWildcard" to "",
-                "lbWeeks" to weeks,
-                "lbDays" to "1-5",
-                "dlPeriod" to "6-41",
-                "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
+        return getRequiredFormData().apply {
+            putAll(
+                mapOf(
+                    "tLinkType" to "studentsets",
+                    "tWildcard" to "",
+                    "lbWeeks" to weeks,
+                    "lbDays" to "1-5",
+                    "dlPeriod" to "6-41",
+                    "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
+                )
             )
-        )
-        return data
+        }
     }
 
     /**
@@ -201,6 +220,10 @@ class Scraper : TimetableScraper {
             return submitForm(defaultUrl, formData).statusCode()
         }
 
+        check(state == ScraperState.OnTimetablesSite) {
+            "Cannot apply filters unless on timetables site"
+        }
+
         filterByDepartment(department)
         val formData = getTimetableFormData().apply {
             putAll(
@@ -222,7 +245,7 @@ class Scraper : TimetableScraper {
      * @param level level option's value (not text)
      * @return List of group options
      */
-    override suspend fun getGroups(department: String, level: String): List<Option>? {
+    override suspend fun getGroups(department: String, level: String): List<Option> {
         check(state == ScraperState.OnTimetablesSite || state == ScraperState.Filtered) {
             "Illegal state for getGroups. Must be OnTimetablesSite or Filter."
         }
@@ -237,7 +260,7 @@ class Scraper : TimetableScraper {
             ?.select("option")
             ?.map {
                 Option(it.`val`(), it.text())
-            }
+            } ?: throw ScraperException("Could not find group options")
     }
 
     /**
