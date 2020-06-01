@@ -236,7 +236,9 @@ class Scraper : TimetableScraper {
             )
         }
 
-        return submitForm(defaultUrl, formData).statusCode()
+        val responseCode = submitForm(defaultUrl, formData).statusCode()
+        state = ScraperState.Filtered
+        return responseCode
     }
 
     /**
