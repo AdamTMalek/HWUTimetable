@@ -132,7 +132,7 @@ class Scraper : TimetableScraper {
     /**
      * Performs login and goes to programmes timetables (Student Groups)
      */
-    suspend fun setup() {
+    override suspend fun setup() {
         login()
         goToProgrammesTimetables()
     }
