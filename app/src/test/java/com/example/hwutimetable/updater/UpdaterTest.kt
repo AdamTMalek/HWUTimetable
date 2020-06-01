@@ -140,16 +140,20 @@ class UpdaterTest {
     }
 
     private class ScraperForTest(private val document: Document) : TimetableScraper {
-        override fun getDepartments(): List<Option>? {
-            return null
+        override suspend fun setup() {
+            // Not required for testing
         }
 
-        override fun getLevels(): List<Option>? {
-            return null
+        override fun getDepartments(): List<Option> {
+            return emptyList()
         }
 
-        override suspend fun getGroups(department: String, level: String): List<Option>? {
-            return null
+        override fun getLevels(): List<Option> {
+            return emptyList()
+        }
+
+        override suspend fun getGroups(department: String, level: String): List<Option> {
+            return emptyList()
         }
 
         override suspend fun getTimetable(group: String, semester: Int): Document {
