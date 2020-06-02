@@ -29,9 +29,12 @@ class Scraper : TimetableScraper {
     /**
      * Searches for the input with the given [id] in the response document and returns its value
      * @param id input id
-     * @return value as String, empty String if the input has no value
+     * @return value as String
      */
-    private fun getInputValue(id: String) = response?.selectFirst("#$id")?.`val`() ?: ""
+    private fun getInputValue(id: String): String {
+        checkNotNull(response) { "Response cannot be null" }
+        return response!!.selectFirst("#$id")?.`val`() ?: throw ScraperException("No element with id #$id")
+    }
 
     /**
      * Every form data must have __VIEWSTATE __VIEWSTATEGENERATOR and __EVENTVALIDATION fields
@@ -262,7 +265,7 @@ class Scraper : TimetableScraper {
         this.department = department
         this.level = level
 
-        return response?.selectFirst("#dlObject")
+        return response!!.selectFirst("#dlObject")
             ?.select("option")
             ?.map {
                 Option(it.`val`(), it.text())
