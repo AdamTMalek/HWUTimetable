@@ -3,6 +3,7 @@ package com.example.hwutimetable.scraper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.jsoup.Connection
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -50,18 +51,19 @@ class Scraper : TimetableScraper {
      * the [response] is set.
      *
      * @return Response from the server
-     * @throws ScraperException when response code is not HTTP 200 (OK)
+     * @throws HttpStatusException when response code is not HTTP 200 (OK)
      */
-    @Throws(ScraperException::class)
+    @Throws(HttpStatusException::class)
     private suspend fun getSite(url: String) = withContext(Dispatchers.IO) {
         Jsoup.connect(url)
+            .ignoreHttpErrors(true)
             .execute()
             .also {
                 cookies.putAll(it.cookies())
                 response = it.parse()
 
                 if (it.statusCode() != 200)
-                    throw ScraperException("URL $url responded with HTTP code ${it.statusCode()} after GET request")
+                    throw HttpStatusException("HTTP error fetching URL", it.statusCode(), it.url().toString())
             }
     }
 
@@ -71,10 +73,12 @@ class Scraper : TimetableScraper {
      * After the request is executed, [cookies] and [response] are updated.
      *
      * @return Response from the server
-     * @throws ScraperException when response code is not HTTP 200 (OK)
+     * @throws HttpStatusException when response code is not HTTP 200 (OK)
      */
+    @Throws(HttpStatusException::class)
     private suspend fun submitForm(url: String, formData: Map<String, String>) = withContext(Dispatchers.IO) {
         Jsoup.connect(url)
+            .ignoreHttpErrors(true)
             .data(formData)
             .cookies(cookies)
             .method(Connection.Method.POST)
@@ -84,7 +88,7 @@ class Scraper : TimetableScraper {
                 response = it.parse()
 
                 if (it.statusCode() != 200)
-                    throw ScraperException("URL $url responded with HTTP code ${it.statusCode()} after POST request")
+                    throw HttpStatusException("HTTP error fetching URL", it.statusCode(), it.url().toString())
             }
     }
 
