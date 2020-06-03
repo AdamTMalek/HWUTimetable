@@ -12,9 +12,6 @@ import java.io.File
 
 /**
  * This class performs updating of the timetables that are stored on the device.
- * Important - updating will be performed on the thread that invokes the [update] method.
- * If object invoking the [update] method runs on the UI thread, the [update] will throw the
- * [android.os.NetworkOnMainThreadException] during scraping.
  */
 class Updater(
     filesDir: File,
