@@ -35,5 +35,9 @@
                 app:dependency="enable_updates"
                 app:minValue="1"
                 app:maxValue="14"/>
+
+        <Preference app:title="Check for updates now"
+                    app:key="check_updates"
+                    app:summary="Forces the update check process to start immediately."/>
     </PreferenceCategory>
 </PreferenceScreen>
