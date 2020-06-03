@@ -25,11 +25,6 @@ interface UpdatePerformer {
     fun notifyUpdateInProgress()
 
     /**
-     * Notifies all registered [UpdateNotificationReceiver] receivers that the update process has finished
-     */
-    fun notifyUpdateFinished()
-
-    /**
      * After performing the update, this method will be used to notify any registered [UpdateNotificationReceiver].
      * @param updated: Collection of updated timetables
      */

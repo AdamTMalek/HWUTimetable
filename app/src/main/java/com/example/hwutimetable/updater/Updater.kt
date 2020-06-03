@@ -47,7 +47,6 @@ class Updater(
                 }
             }
 
-            notifyUpdateFinished()
             notifyUpdateFinished(updated)
         }
     }
@@ -96,13 +95,6 @@ class Updater(
      */
     override fun notifyUpdateInProgress() {
         notificationReceivers.forEach { it.onUpdateInProgress() }
-    }
-
-    /**
-     * Inform all registered [UpdateNotificationReceiver] receivers that the update process has finished
-     */
-    override fun notifyUpdateFinished() {
-        notificationReceivers.forEach { it.onUpdateFinished() }
     }
 
     /**

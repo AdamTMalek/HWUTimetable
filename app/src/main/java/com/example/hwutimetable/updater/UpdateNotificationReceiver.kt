@@ -12,11 +12,6 @@ interface UpdateNotificationReceiver {
     fun onUpdateInProgress()
 
     /**
-     * Called after the update service has finished its work
-     */
-    fun onUpdateFinished()
-
-    /**
      * This method will be invoked by a [UpdatePerformer] object that updates the stored timetables
      * The performer will send a notification to any registered [UpdateNotificationReceiver]
      * by invoking this method and passing the collection of updated timetables

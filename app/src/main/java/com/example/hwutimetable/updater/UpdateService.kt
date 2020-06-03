@@ -121,10 +121,6 @@ class UpdateService : Service(), UpdateNotificationReceiver {
         stopSelf()
     }
 
-    override fun onUpdateFinished() {
-        return
-    }
-
     override fun onUpdateInProgress() {
         return
     }

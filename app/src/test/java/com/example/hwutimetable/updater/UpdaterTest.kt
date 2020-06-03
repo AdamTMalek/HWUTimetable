@@ -49,7 +49,7 @@ class UpdaterTest {
         Thread.sleep(updateWaitingTime)
 
         // If onUpdateFinished gets called then the receiver was successfully attached to the updater.
-        Mockito.verify(receiver, times(1)).onUpdateFinished()
+        Mockito.verify(receiver, times(1)).onUpdateFinished(emptyList())
     }
 
     @Test
@@ -117,10 +117,6 @@ class UpdaterTest {
      */
     private class NotificationReceiver : UpdateNotificationReceiver {
         override fun onUpdateInProgress() {
-            return
-        }
-
-        override fun onUpdateFinished() {
             return
         }
 
