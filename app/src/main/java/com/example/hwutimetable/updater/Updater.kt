@@ -92,7 +92,7 @@ class Updater(
     }
 
     /**
-     * Inform all registered [UpdateNotificationReceiver] receivers taht the update process has started
+     * Inform all registered [UpdateNotificationReceiver] receivers that the update process has started
      */
     override fun notifyUpdateInProgress() {
         notificationReceivers.forEach { it.onUpdateInProgress() }
