@@ -5,10 +5,8 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.TimetableScraper
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -39,6 +37,8 @@ class Updater(
         // the update process is finished, the method will notify the registered notification
         // about the result.
         GlobalScope.launch {
+            scraper.setup()
+
             val timetables = getStoredTimetables()
             val updated = mutableListOf<TimetableInfo>()
             timetables.forEach { timetable ->
@@ -56,10 +56,8 @@ class Updater(
     }
 
     private suspend fun getTimetable(info: TimetableInfo): Timetable {
-        return withContext(Dispatchers.IO) {
-            val doc = scraper.getTimetable(info.code, info.semester)
-            parser.setDocument(doc).getTimetable()
-        }
+        val doc = scraper.getTimetable(info.code, info.semester)
+        return parser.setDocument(doc).getTimetable()
     }
 
     /**
