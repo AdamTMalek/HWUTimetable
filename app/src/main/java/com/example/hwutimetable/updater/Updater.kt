@@ -5,8 +5,10 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.TimetableScraper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -47,7 +49,9 @@ class Updater(
                 }
             }
 
-            notifyUpdateFinished(updated)
+            withContext(Dispatchers.Main) {
+                notifyUpdateFinished(updated)
+            }
         }
     }
 
