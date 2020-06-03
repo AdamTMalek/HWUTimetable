@@ -45,7 +45,7 @@ class UpdateService : Service(), UpdateNotificationReceiver {
                 Log.i(logTag, "Update alarm has been triggered, starting the update process")
                 updater.update()
             } else {
-                Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
+                Log.i(logTag, "Update alarm has been triggered but Internet connection was not present.")
             }
         }
         return START_STICKY
