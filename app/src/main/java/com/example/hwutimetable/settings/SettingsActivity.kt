@@ -3,12 +3,19 @@ package com.example.hwutimetable.settings
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.example.hwutimetable.R
+import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.scraper.Scraper
 import com.example.hwutimetable.updater.UpdateManager
+import com.example.hwutimetable.updater.UpdateNotificationReceiver
+import com.example.hwutimetable.updater.UpdateNotifier
+import com.example.hwutimetable.updater.Updater
 import org.joda.time.format.DateTimeFormat
 
 
@@ -36,7 +43,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PreferenceFragmentCompat(), UpdateNotificationReceiver {
         private lateinit var updateManager: UpdateManager
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +54,7 @@ class SettingsActivity : AppCompatActivity() {
 
             setTimePreferenceSummaryProvider()
             setIntervalPreferenceSummaryProvider()
+            setUpdateButtonHandler()
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -106,8 +114,44 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+        private fun setUpdateButtonHandler() {
+            val button = findPreference<Preference>(getString(R.string.update_now))
+            button!!.setOnPreferenceClickListener {
+                startUpdate()
+                return@setOnPreferenceClickListener true
+            }
+        }
+
+        /**
+         * Starts the update-check process using [Scraper] and [Parser], as well as [UpdateNotifier]
+         * to show "update in progress" notification.
+         */
+        private fun startUpdate() {
+            val activity = this.activity!!
+            val context = activity.applicationContext
+            val updater = Updater(activity.filesDir, Parser(), Scraper())
+            val notifier = UpdateNotifier(context)
+
+            updater.addNotificationReceiver(notifier)
+            updater.addNotificationReceiver(this)
+            updater.update()
+        }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        }
+
+        override fun onUpdateInProgress() {
+            return  // Notifier will give users feedback, no need to do anything else.
+        }
+
+        override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+            val message = when (updated.isEmpty()) {
+                true -> "All timetables are up-to-date"
+                false -> "Updated ${updated.size} timetable(s)"
+            }
+
+            Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show()
         }
     }
 }

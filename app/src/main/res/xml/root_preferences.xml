@@ -37,7 +37,7 @@
                 app:maxValue="14"/>
 
         <Preference app:title="Check for updates now"
-                    app:key="check_updates"
+                    app:key="@string/update_now"
                     app:summary="Forces the update check process to start immediately."/>
     </PreferenceCategory>
 </PreferenceScreen>
