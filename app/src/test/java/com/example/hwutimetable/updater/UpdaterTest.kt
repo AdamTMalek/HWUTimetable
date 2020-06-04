@@ -7,6 +7,9 @@ import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.TimetableScraper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.setMain
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.After
@@ -16,6 +19,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.io.File
 
+@ExperimentalCoroutinesApi
 class UpdaterTest {
     private val parser: ParserForTest
     private val testDir = File("src/test/resources/sampleTimetables", "/parsed")
@@ -26,6 +30,9 @@ class UpdaterTest {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
         val savedTimetable = SampleTimetableHandler.getTimetable(savedTimetableFile)
         parser = ParserForTest(savedTimetable as Timetable)
+
+        // For coroutines
+        Dispatchers.setMain(Dispatchers.Unconfined)
     }
 
     @After
