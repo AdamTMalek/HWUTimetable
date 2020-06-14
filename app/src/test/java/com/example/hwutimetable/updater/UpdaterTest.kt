@@ -48,7 +48,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -64,7 +65,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -85,7 +87,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(savedDocument)
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -110,7 +113,8 @@ class UpdaterTest {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         val parser = Parser()
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -122,7 +126,7 @@ class UpdaterTest {
      * This class will be mocked by Mockito. We don't need to implement the methods
      * we will just check if they get invoked.
      */
-    private class NotificationReceiver : UpdateNotificationReceiver {
+    private class NotificationReceiver : OnUpdateInProgressListener, OnUpdateFinishedListener {
         override fun onUpdateInProgress() {
             return
         }

@@ -11,15 +11,15 @@ import com.example.hwutimetable.filehandler.TimetableInfo
 
 
 /**
- * This class is an implementation of [UpdateNotificationReceiver]. It is responsible for creating
- * and delivering (i.e. displaying) notifications about ongoing and/or finished update process.
+ * This class is responsible for creating and delivering (i.e. displaying) notifications
+ * about ongoing and/or finished update process.
  */
-internal class UpdateNotifier(val context: Context) : UpdateNotificationReceiver {
+internal class UpdateNotifier(val context: Context) : OnUpdateInProgressListener, OnUpdateFinishedListener {
     companion object {
         const val LOG_TAG = "update_notifier"
         const val CHANNEL_ID = "update_notifications"  // Notification channel ID
         private const val IN_PROGRESS_ID = 0  // ID of the "in-progress" notification.
-        private const val POST_UPDATE_ID = 1  // Id of the "update finished" notification
+        private const val POST_UPDATE_ID = 1  // ID of the "update finished" notification
     }
 
     init {

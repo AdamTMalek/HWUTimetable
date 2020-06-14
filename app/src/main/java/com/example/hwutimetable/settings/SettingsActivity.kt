@@ -12,8 +12,8 @@ import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
+import com.example.hwutimetable.updater.OnUpdateFinishedListener
 import com.example.hwutimetable.updater.UpdateManager
-import com.example.hwutimetable.updater.UpdateNotificationReceiver
 import com.example.hwutimetable.updater.UpdateNotifier
 import com.example.hwutimetable.updater.Updater
 import org.joda.time.format.DateTimeFormat
@@ -43,7 +43,7 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat(), UpdateNotificationReceiver {
+    class SettingsFragment : PreferenceFragmentCompat(), OnUpdateFinishedListener {
         private lateinit var updateManager: UpdateManager
 
         override fun onCreate(savedInstanceState: Bundle?) {
@@ -132,17 +132,14 @@ class SettingsActivity : AppCompatActivity() {
             val updater = Updater(activity.filesDir, Parser(), Scraper())
             val notifier = UpdateNotifier(context)
 
-            updater.addNotificationReceiver(notifier)
-            updater.addNotificationReceiver(this)
+            updater.addInProgressListener(notifier)
+            updater.addFinishedListener(notifier)
+            updater.addFinishedListener(this)
             updater.update()
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
-        }
-
-        override fun onUpdateInProgress() {
-            return  // Notifier will give users feedback, no need to do anything else.
         }
 
         override fun onUpdateFinished(updated: Collection<TimetableInfo>) {

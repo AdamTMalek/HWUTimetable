@@ -21,12 +21,13 @@ class Updater(
     private val scraper: TimetableScraper
 ) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
-    private val notificationReceivers = mutableListOf<UpdateNotificationReceiver>()
+    private val inProgressListeners = mutableListOf<OnUpdateInProgressListener>()
+    private val finishedListeners = mutableListOf<OnUpdateFinishedListener>()
 
     /**
      * Update all timetables stored on the device. This method will not return anything,
-     * if you need to get a collection of updated timetables, implement [UpdateNotificationReceiver]
-     * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
+     * if you need to get a collection of updated timetables, implement [OnUpdateFinishedListener]
+     * in your class and use [addFinishedListener] to add the object as a notification receiver.
      */
     override fun update() {
         notifyUpdateInProgress()
@@ -86,26 +87,26 @@ class Updater(
         return fileHandler.getStoredTimetables()
     }
 
-    /**
-     * Add notification receiver that will get the notification when (and what) timetables
-     * were updated after running the [update()] method.
-     */
-    override fun addNotificationReceiver(receiver: UpdateNotificationReceiver) {
-        notificationReceivers.add(receiver)
+    override fun addInProgressListener(receiver: OnUpdateInProgressListener) {
+        inProgressListeners.add(receiver)
+    }
+
+    override fun addFinishedListener(receiver: OnUpdateFinishedListener) {
+        finishedListeners.add(receiver)
     }
 
     /**
-     * Inform all registered [UpdateNotificationReceiver] receivers that the update process has started
+     * Inform all registered [OnUpdateInProgressListener] receivers that the update process has started
      */
     override fun notifyUpdateInProgress() {
-        notificationReceivers.forEach { it.onUpdateInProgress() }
+        inProgressListeners.forEach { it.onUpdateInProgress() }
     }
 
     /**
-     * After performing the update, this method will be used to notify any registered [UpdateNotificationReceiver].
+     * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
     override fun notifyUpdateFinished(updated: Collection<TimetableInfo>) {
-        notificationReceivers.forEach { it.onUpdateFinished(updated) }
+        finishedListeners.forEach { it.onUpdateFinished(updated) }
     }
 }

@@ -18,10 +18,10 @@ import kotlinx.coroutines.launch
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
  * (using [Updater]), even if the app is not currently open. The service will register another notification
- * receiver (i.e. [UpdateNotificationReceiver]) if it is specified in the intent extras. This extra receiver
+ * receiver (i.e. [OnUpdateFinishedListener]) if it is specified in the intent extras. This extra receiver
  * may be used to create Android notifications informing the user about ongoing update or the result of it.
  */
-class UpdateService : Service(), UpdateNotificationReceiver {
+class UpdateService : Service(), OnUpdateFinishedListener {
     private val logTag = "UpdateService"
     private lateinit var updater: UpdatePerformer
 
@@ -29,10 +29,10 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     }
 
     /**
-     * Register this object as an [UpdateNotificationReceiver] to the [updater]
+     * Register this object as an [OnUpdateFinishedListener] to the [updater]
      */
     private fun registerSelfAsReceiver() {
-        updater.addNotificationReceiver(this)
+        updater.addFinishedListener(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -61,12 +61,13 @@ class UpdateService : Service(), UpdateNotificationReceiver {
 
     private fun configureNotifier(intent: Intent?) {
         if (intent == null || intent.extras == null) {
-            updater.addNotificationReceiver(getDefaultNotifier())
+            updater.addFinishedListener(getDefaultNotifier())
             return
         }
 
-        val notifier = intent.extras!!.get("notifier") as UpdateNotificationReceiver? ?: getDefaultNotifier()
-        updater.addNotificationReceiver(notifier)
+        val notifier = intent.extras!!.get("notifier") ?: getDefaultNotifier()
+        updater.addInProgressListener(notifier as OnUpdateInProgressListener)
+        updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
     private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper())
@@ -119,10 +120,6 @@ class UpdateService : Service(), UpdateNotificationReceiver {
 
         Log.i(logTag, logMessage)
         stopSelf()
-    }
-
-    override fun onUpdateInProgress() {
-        return
     }
 
     override fun onBind(intent: Intent): IBinder? = null
