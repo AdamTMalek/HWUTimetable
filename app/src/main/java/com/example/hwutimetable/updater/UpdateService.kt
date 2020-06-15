@@ -70,7 +70,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
         updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
-    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper())
+    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper(), this)
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 

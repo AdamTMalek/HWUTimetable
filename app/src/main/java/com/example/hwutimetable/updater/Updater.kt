@@ -1,5 +1,7 @@
 package com.example.hwutimetable.updater
 
+import android.content.Context
+import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Timetable
@@ -9,6 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
 import java.io.File
 
 
@@ -18,11 +21,19 @@ import java.io.File
 class Updater(
     filesDir: File,
     private val parser: TimetableParser,
-    private val scraper: TimetableScraper
+    private val scraper: TimetableScraper,
+    private val context: Context?
 ) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
     private val inProgressListeners = mutableListOf<OnUpdateInProgressListener>()
     private val finishedListeners = mutableListOf<OnUpdateFinishedListener>()
+
+    constructor(filesDir: File, parser: TimetableParser, scraper: TimetableScraper) : this(
+        filesDir,
+        parser,
+        scraper,
+        null
+    )
 
     /**
      * Update all timetables stored on the device. This method will not return anything,
@@ -50,6 +61,7 @@ class Updater(
                 }
             }
 
+            saveUpdateDate()
             withContext(Dispatchers.Main) {
                 notifyUpdateFinished(updated)
             }
@@ -100,6 +112,23 @@ class Updater(
      */
     override fun notifyUpdateInProgress() {
         inProgressListeners.forEach { it.onUpdateInProgress() }
+    }
+
+    /**
+     * Updates (saves) the current date and time as a SharedPreference.
+     * This method will be executed after the update checks have been performed.
+     */
+    private fun saveUpdateDate() {
+        if (context == null)
+            return
+
+        val timestamp = (DateTime().millis / 1000).toInt()
+        val preferencesName = context.getString(R.string.update_details)
+        val preferences = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+        with(preferences.edit()) {
+            putInt(context.getString(R.string.last_update), timestamp)
+            commit()
+        }
     }
 
     /**

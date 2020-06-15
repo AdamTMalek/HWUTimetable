@@ -25,4 +25,6 @@
 	<string name="frequency_pref_key">frequency_preference</string>
 	<string name="updates_pref_key">enable_updates</string>
 	<string name="update_now">update_now</string>
+	<string name="last_update">last_update</string>
+	<string name="update_details">update_details</string>
 </resources>
