@@ -7,6 +7,9 @@ import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.TimetableScraper
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.setMain
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.After
@@ -16,6 +19,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.io.File
 
+@ExperimentalCoroutinesApi
 class UpdaterTest {
     private val parser: ParserForTest
     private val testDir = File("src/test/resources/sampleTimetables", "/parsed")
@@ -26,6 +30,9 @@ class UpdaterTest {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
         val savedTimetable = SampleTimetableHandler.getTimetable(savedTimetableFile)
         parser = ParserForTest(savedTimetable as Timetable)
+
+        // For coroutines
+        Dispatchers.setMain(Dispatchers.Unconfined)
     }
 
     @After
@@ -41,7 +48,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -49,7 +57,7 @@ class UpdaterTest {
         Thread.sleep(updateWaitingTime)
 
         // If onUpdateFinished gets called then the receiver was successfully attached to the updater.
-        Mockito.verify(receiver, times(1)).onUpdateFinished()
+        Mockito.verify(receiver, times(1)).onUpdateFinished(emptyList())
     }
 
     @Test
@@ -57,7 +65,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -78,7 +87,8 @@ class UpdaterTest {
         val scraper = ScraperForTest(savedDocument)
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -103,7 +113,8 @@ class UpdaterTest {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         val parser = Parser()
         Updater(testDir, parser, scraper).apply {
-            addNotificationReceiver(receiver)
+            addInProgressListener(receiver)
+            addFinishedListener(receiver)
             update()
         }
 
@@ -115,12 +126,8 @@ class UpdaterTest {
      * This class will be mocked by Mockito. We don't need to implement the methods
      * we will just check if they get invoked.
      */
-    private class NotificationReceiver : UpdateNotificationReceiver {
+    private class NotificationReceiver : OnUpdateInProgressListener, OnUpdateFinishedListener {
         override fun onUpdateInProgress() {
-            return
-        }
-
-        override fun onUpdateFinished() {
             return
         }
 

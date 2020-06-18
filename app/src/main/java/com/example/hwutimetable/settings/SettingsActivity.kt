@@ -1,15 +1,30 @@
 package com.example.hwutimetable.settings
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
+import android.net.NetworkRequest
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
+import com.example.hwutimetable.NetworkUtilities
 import com.example.hwutimetable.R
+import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.scraper.Scraper
+import com.example.hwutimetable.updater.OnUpdateFinishedListener
 import com.example.hwutimetable.updater.UpdateManager
+import com.example.hwutimetable.updater.UpdateNotifier
+import com.example.hwutimetable.updater.Updater
 import org.joda.time.format.DateTimeFormat
+import java.util.*
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -36,17 +51,67 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat() {
+    class SettingsFragment : PreferenceFragmentCompat(), OnUpdateFinishedListener {
         private lateinit var updateManager: UpdateManager
+        private val networkUtilities: NetworkUtilities by lazy {
+            NetworkUtilities(this.context!!)
+        }
+        private val updateNowPreference: Preference by lazy {
+            findPreference<Preference>(getString(R.string.update_now))!!
+        }
+        private val connectivityManager: ConnectivityManager by lazy {
+            context!!.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        }
+
+        private val availableNetworks = mutableListOf<Network>()
+
+        private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+
+            override fun onLost(network: Network) {
+                availableNetworks.remove(network)
+                if (availableNetworks.isEmpty()) {
+                    this@SettingsFragment.activity!!.runOnUiThread {
+                        onInternetConnectionLost()
+                    }
+                }
+
+
+            }
+
+            override fun onAvailable(network: Network) {
+                availableNetworks.add(network)
+                this@SettingsFragment.activity!!.runOnUiThread {
+                    onInternetConnectionAvailable()
+                }
+            }
+        }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
+            registerNetworkChangeReceiver()
+
             updateManager = UpdateManager(context!!)
             PreferenceManager.getDefaultSharedPreferences(context!!)
                 .registerOnSharedPreferenceChangeListener(updateManager)
 
             setTimePreferenceSummaryProvider()
             setIntervalPreferenceSummaryProvider()
+            setUpdateButtonHandler()
+            setUpdateSummary()
+
+            if (!networkUtilities.hasInternetConnection())
+                onInternetConnectionLost()
+
+            availableNetworks.addAll(connectivityManager.allNetworks)
+        }
+
+        private fun registerNetworkChangeReceiver() {
+            val networkRequest = NetworkRequest.Builder()
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
+                .build()
+
+            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -106,8 +171,75 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+        private fun setUpdateButtonHandler() {
+            val button = findPreference<Preference>(getString(R.string.update_now))
+            button!!.setOnPreferenceClickListener {
+                startUpdate()
+                return@setOnPreferenceClickListener true
+            }
+        }
+
+        private fun setUpdateSummary() {
+            val preference = findPreference<SwitchPreferenceCompat>("enable_updates")!!
+            val preferencesName = context!!.getString(R.string.update_details)
+            val sharedPreferences = activity!!.getSharedPreferences(preferencesName, Context.MODE_PRIVATE) ?: return
+            val lastUpdateTimestamp = sharedPreferences.getInt(getString(R.string.last_update), 0)
+
+            val summary = if (lastUpdateTimestamp != 0) {
+                val date = Date(lastUpdateTimestamp.toLong() * 1000)
+                val dateFormat = DateFormat.getDateFormat(context!!)
+                val timeFormat = DateFormat.getTimeFormat(context!!)
+                "Last checked on ${dateFormat.format(date)} at ${timeFormat.format(date)}"
+            } else {
+                "No update checks have been performed yet"
+            }
+
+            preference.summary = summary
+        }
+
+        /**
+         * Starts the update-check process using [Scraper] and [Parser], as well as [UpdateNotifier]
+         * to show "update in progress" notification.
+         */
+        private fun startUpdate() {
+            val activity = this.activity!!
+            val context = activity.applicationContext
+            val updater = Updater(activity.filesDir, Parser(), Scraper(), activity)
+            val notifier = UpdateNotifier(context)
+
+            updater.addInProgressListener(notifier)
+            updater.addFinishedListener(notifier)
+            updater.addFinishedListener(this)
+            updater.update()
+        }
+
+        private fun onInternetConnectionAvailable() {
+            updateNowPreference.isEnabled = true
+            updateNowPreference.summary = getString(R.string.update_now_enabled_summary)
+        }
+
+        private fun onInternetConnectionLost() {
+            updateNowPreference.isEnabled = false
+            updateNowPreference.summary = getString(R.string.update_now_disabled_summary)
+        }
+
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
+        }
+
+        override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+            val message = when (updated.isEmpty()) {
+                true -> "All timetables are up-to-date"
+                false -> "Updated ${updated.size} timetable(s)"
+            }
+
+            Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show()
+            setUpdateSummary()
+        }
+
+        override fun onDestroy() {
+            connectivityManager.unregisterNetworkCallback(networkCallback)
+            super.onDestroy()
         }
     }
 }

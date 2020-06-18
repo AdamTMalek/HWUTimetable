@@ -1,33 +1,44 @@
 package com.example.hwutimetable.updater
 
+import android.content.Context
+import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.TimetableScraper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import org.joda.time.DateTime
 import java.io.File
 
 
 /**
  * This class performs updating of the timetables that are stored on the device.
- * Important - updating will be performed on the thread that invokes the [update] method.
- * If object invoking the [update] method runs on the UI thread, the [update] will throw the
- * [android.os.NetworkOnMainThreadException] during scraping.
  */
 class Updater(
     filesDir: File,
     private val parser: TimetableParser,
-    private val scraper: TimetableScraper
+    private val scraper: TimetableScraper,
+    private val context: Context?
 ) : UpdatePerformer {
     private val fileHandler = TimetableFileHandler(filesDir)
-    private val notificationReceivers = mutableListOf<UpdateNotificationReceiver>()
+    private val inProgressListeners = mutableListOf<OnUpdateInProgressListener>()
+    private val finishedListeners = mutableListOf<OnUpdateFinishedListener>()
+
+    constructor(filesDir: File, parser: TimetableParser, scraper: TimetableScraper) : this(
+        filesDir,
+        parser,
+        scraper,
+        null
+    )
 
     /**
      * Update all timetables stored on the device. This method will not return anything,
-     * if you need to get a collection of updated timetables, implement [UpdateNotificationReceiver]
-     * in your class and use [addNotificationReceiver] to add the object as a notification receiver.
+     * if you need to get a collection of updated timetables, implement [OnUpdateFinishedListener]
+     * in your class and use [addFinishedListener] to add the object as a notification receiver.
      */
     override fun update() {
         notifyUpdateInProgress()
@@ -50,8 +61,10 @@ class Updater(
                 }
             }
 
-            notifyUpdateFinished()
-            notifyUpdateFinished(updated)
+            saveUpdateDate()
+            withContext(Dispatchers.Main) {
+                notifyUpdateFinished(updated)
+            }
         }
     }
 
@@ -86,33 +99,43 @@ class Updater(
         return fileHandler.getStoredTimetables()
     }
 
-    /**
-     * Add notification receiver that will get the notification when (and what) timetables
-     * were updated after running the [update()] method.
-     */
-    override fun addNotificationReceiver(receiver: UpdateNotificationReceiver) {
-        notificationReceivers.add(receiver)
+    override fun addInProgressListener(receiver: OnUpdateInProgressListener) {
+        inProgressListeners.add(receiver)
+    }
+
+    override fun addFinishedListener(receiver: OnUpdateFinishedListener) {
+        finishedListeners.add(receiver)
     }
 
     /**
-     * Inform all registered [UpdateNotificationReceiver] receivers taht the update process has started
+     * Inform all registered [OnUpdateInProgressListener] receivers that the update process has started
      */
     override fun notifyUpdateInProgress() {
-        notificationReceivers.forEach { it.onUpdateInProgress() }
+        inProgressListeners.forEach { it.onUpdateInProgress() }
     }
 
     /**
-     * Inform all registered [UpdateNotificationReceiver] receivers that the update process has finished
+     * Updates (saves) the current date and time as a SharedPreference.
+     * This method will be executed after the update checks have been performed.
      */
-    override fun notifyUpdateFinished() {
-        notificationReceivers.forEach { it.onUpdateFinished() }
+    private fun saveUpdateDate() {
+        if (context == null)
+            return
+
+        val timestamp = (DateTime().millis / 1000).toInt()
+        val preferencesName = context.getString(R.string.update_details)
+        val preferences = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+        with(preferences.edit()) {
+            putInt(context.getString(R.string.last_update), timestamp)
+            commit()
+        }
     }
 
     /**
-     * After performing the update, this method will be used to notify any registered [UpdateNotificationReceiver].
+     * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
     override fun notifyUpdateFinished(updated: Collection<TimetableInfo>) {
-        notificationReceivers.forEach { it.onUpdateFinished(updated) }
+        finishedListeners.forEach { it.onUpdateFinished(updated) }
     }
 }

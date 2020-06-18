@@ -17,11 +17,15 @@
 	<string name="update_settings">Update settings</string>
 	<string name="update_time">Update time:</string>
 	<string name="title_activity_settings">Settings</string>
-
+	<string name="update_now_enabled_summary">Forces the update check process to start immediately.</string>
+	<string name="update_now_disabled_summary">No connection to the Internet</string>
 	<!-- Preference keys -->
 	<string name="wifi_pref_key">allow_wifi</string>
 	<string name="data_pref_key">allow_data</string>
 	<string name="time_pref_key">time_preference</string>
 	<string name="frequency_pref_key">frequency_preference</string>
 	<string name="updates_pref_key">enable_updates</string>
+	<string name="update_now">update_now</string>
+	<string name="last_update">last_update</string>
+	<string name="update_details">update_details</string>
 </resources>

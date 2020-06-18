@@ -1,14 +1,12 @@
 package com.example.hwutimetable.updater
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.example.hwutimetable.NetworkUtilities
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
@@ -18,10 +16,10 @@ import kotlinx.coroutines.launch
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
  * (using [Updater]), even if the app is not currently open. The service will register another notification
- * receiver (i.e. [UpdateNotificationReceiver]) if it is specified in the intent extras. This extra receiver
+ * receiver (i.e. [OnUpdateFinishedListener]) if it is specified in the intent extras. This extra receiver
  * may be used to create Android notifications informing the user about ongoing update or the result of it.
  */
-class UpdateService : Service(), UpdateNotificationReceiver {
+class UpdateService : Service(), OnUpdateFinishedListener {
     private val logTag = "UpdateService"
     private lateinit var updater: UpdatePerformer
 
@@ -29,10 +27,10 @@ class UpdateService : Service(), UpdateNotificationReceiver {
     }
 
     /**
-     * Register this object as an [UpdateNotificationReceiver] to the [updater]
+     * Register this object as an [OnUpdateFinishedListener] to the [updater]
      */
     private fun registerSelfAsReceiver() {
-        updater.addNotificationReceiver(this)
+        updater.addFinishedListener(this)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -45,7 +43,7 @@ class UpdateService : Service(), UpdateNotificationReceiver {
                 Log.i(logTag, "Update alarm has been triggered, starting the update process")
                 updater.update()
             } else {
-                Log.i(logTag, "Update alarm has been triggered but was no allowed transport method was available.")
+                Log.i(logTag, "Update alarm has been triggered but Internet connection was not present.")
             }
         }
         return START_STICKY
@@ -61,15 +59,16 @@ class UpdateService : Service(), UpdateNotificationReceiver {
 
     private fun configureNotifier(intent: Intent?) {
         if (intent == null || intent.extras == null) {
-            updater.addNotificationReceiver(getDefaultNotifier())
+            updater.addFinishedListener(getDefaultNotifier())
             return
         }
 
-        val notifier = intent.extras!!.get("notifier") as UpdateNotificationReceiver? ?: getDefaultNotifier()
-        updater.addNotificationReceiver(notifier)
+        val notifier = intent.extras!!.get("notifier") ?: getDefaultNotifier()
+        updater.addInProgressListener(notifier as OnUpdateInProgressListener)
+        updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
-    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper())
+    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper(), this)
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 
@@ -81,13 +80,11 @@ class UpdateService : Service(), UpdateNotificationReceiver {
      */
     private fun canUpdate(): Boolean {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        val utilities = NetworkUtilities(this)
 
-        if (isWifiEnabled(capabilities) && canUseWifi(preferences))
+        if (utilities.isWifiEnabled() && canUseWifi(preferences))
             return true
-        else if (isMobileDataEnabled(capabilities) && canUseMobileData(preferences))
+        else if (utilities.isMobileDataEnabled() && canUseMobileData(preferences))
             return true
         return false
     }
@@ -98,14 +95,6 @@ class UpdateService : Service(), UpdateNotificationReceiver {
 
     private fun canUseMobileData(sharedPreferences: SharedPreferences): Boolean {
         return sharedPreferences.getBoolean("allow_data", false)
-    }
-
-    private fun isWifiEnabled(networkCapabilities: NetworkCapabilities): Boolean {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-    }
-
-    private fun isMobileDataEnabled(networkCapabilities: NetworkCapabilities): Boolean {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 
     /**
@@ -119,14 +108,6 @@ class UpdateService : Service(), UpdateNotificationReceiver {
 
         Log.i(logTag, logMessage)
         stopSelf()
-    }
-
-    override fun onUpdateFinished() {
-        return
-    }
-
-    override fun onUpdateInProgress() {
-        return
     }
 
     override fun onBind(intent: Intent): IBinder? = null
