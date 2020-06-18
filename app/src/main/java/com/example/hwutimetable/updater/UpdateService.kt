@@ -1,14 +1,12 @@
 package com.example.hwutimetable.updater
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.ConnectivityManager
-import android.net.NetworkCapabilities
 import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
+import com.example.hwutimetable.NetworkUtilities
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
@@ -82,13 +80,11 @@ class UpdateService : Service(), OnUpdateFinishedListener {
      */
     private fun canUpdate(): Boolean {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val activeNetwork = connectivityManager.activeNetwork
-        val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+        val utilities = NetworkUtilities(this)
 
-        if (isWifiEnabled(capabilities) && canUseWifi(preferences))
+        if (utilities.isWifiEnabled() && canUseWifi(preferences))
             return true
-        else if (isMobileDataEnabled(capabilities) && canUseMobileData(preferences))
+        else if (utilities.isMobileDataEnabled() && canUseMobileData(preferences))
             return true
         return false
     }
@@ -99,14 +95,6 @@ class UpdateService : Service(), OnUpdateFinishedListener {
 
     private fun canUseMobileData(sharedPreferences: SharedPreferences): Boolean {
         return sharedPreferences.getBoolean("allow_data", false)
-    }
-
-    private fun isWifiEnabled(networkCapabilities: NetworkCapabilities): Boolean {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-    }
-
-    private fun isMobileDataEnabled(networkCapabilities: NetworkCapabilities): Boolean {
-        return networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
     }
 
     /**
