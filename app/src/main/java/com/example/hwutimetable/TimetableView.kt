@@ -2,16 +2,15 @@ package com.example.hwutimetable
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import com.example.hwutimetable.TimetableView.createItemGridLayout
 import com.example.hwutimetable.TimetableView.createItemLinearLayout
 import com.example.hwutimetable.TimetableView.createMainGridLayout
 import com.example.hwutimetable.TimetableView.createScrollView
@@ -38,7 +37,7 @@ import org.joda.time.Period
  *
  * An item is made up of [LinearLayout] created by [createItemLinearLayout]
  * this creates the background for the item. Inside it there's a
- * 3 by 3 [GridLayout] (created by [createItemGridLayout]) holding all TextViews
+ * 3 by 3 [GridLayout] holding all TextViews
  * that contain information regarding the item (type, lecturer, room etc.).
  */
 object TimetableView {
@@ -115,26 +114,16 @@ object TimetableView {
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
     private fun createItem(context: Context, item: TimetableItem): LinearLayout {
         val linearLayout = createItemLinearLayout(context, item.type.getBackground(context))
-        val gridLayout = createItemGridLayout(context)
-
-        val code = createItemTextView(context, item.code, Gravity.LEFT)
-        val weeks = createItemTextView(context, item.weeks.toString(), Gravity.CENTER_HORIZONTAL)
-        val room = createItemTextView(context, item.room, Gravity.RIGHT)
-        val name = createItemTextView(context, item.name, Gravity.CENTER_HORIZONTAL)
-        val lecturer = createItemTextView(context, item.lecturer, Gravity.LEFT)
-        val type = createItemTextView(context, item.type.name, Gravity.RIGHT)
+        val inflater = LayoutInflater.from(context)
+        val gridLayout = inflater.inflate(R.layout.timetable_item, linearLayout, false)
 
         with(gridLayout) {
-            addView(code, getLayoutParams(0, 0, columnWeight = 0.2f))
-            addView(weeks, getLayoutParams(0, 1, columnWeight = 0.6f))
-            addView(room, getLayoutParams(0, 2, columnWeight = 0.2f))
-
-            // Spread the item name across the whole row
-            addView(name, getLayoutParams(1, 0, columnSpan = 3))
-
-            addView(lecturer, getLayoutParams(2, 0, columnWeight = 0.5f))
-            addView(type, getLayoutParams(2, 2, columnSpan = 1, columnWeight = 0.5f))
-
+            findViewById<TextView>(R.id.item_code).text = item.code
+            findViewById<TextView>(R.id.item_weeks).text = item.weeks.toString()
+            findViewById<TextView>(R.id.item_room).text = item.room
+            findViewById<TextView>(R.id.item_name).text = item.name
+            findViewById<TextView>(R.id.item_lecturer).text = item.lecturer
+            findViewById<TextView>(R.id.item_type).text = item.type.name
         }
 
         linearLayout.addView(gridLayout)
@@ -184,8 +173,7 @@ object TimetableView {
     }
 
     /**
-     * Creates linear layout that acts as a container for the
-     * grid layout that created by [createItemGridLayout].
+     * Creates linear layout that acts as a container for the grid layout.
      * @param background: [Drawable] background of the item
      */
     private fun createItemLinearLayout(context: Context, background: Drawable): LinearLayout {
@@ -197,45 +185,6 @@ object TimetableView {
             )
             it.gravity = Gravity.CENTER_VERTICAL
             it.background = background
-        }
-    }
-
-    /**
-     * Creates grid layout for a timetable item.
-     * Inside the grid layout there should text views created by [createItemTextView]
-     * @return 3x3 [GridLayout]
-     */
-    private fun createItemGridLayout(context: Context): GridLayout {
-        return GridLayout(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                getTimeLabelHeight(context) * 4  // spreads the information across one full hour
-            ).also {
-                it.setMargins(
-                    context.resources.getDimensionPixelSize(R.dimen.item_grid_margin),
-                    0,
-                    context.resources.getDimensionPixelSize(R.dimen.item_grid_margin),
-                    0
-                )
-            }
-            orientation = GridLayout.HORIZONTAL
-            columnCount = 3
-            rowCount = 3
-        }
-    }
-
-    /**
-     * Creates [TextView] object for an item
-     * @param text: Text to appear in the text view
-     * @param gravity: Gravity of the text view
-     */
-    private fun createItemTextView(context: Context, text: String, gravity: Int): TextView {
-        return TextView(context).apply {
-            this.text = text
-            this.height = getTimeLabelHeight(context)
-            this.width = 0
-            this.gravity = gravity
-            this.setTextColor(Color.WHITE)
         }
     }
 
