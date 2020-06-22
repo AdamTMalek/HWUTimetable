@@ -41,17 +41,20 @@ import org.joda.time.Period
  * that contain information regarding the item (type, lecturer, room etc.).
  */
 object TimetableView {
+    private var emptyRows = (0..36).toMutableList()
 
     /**
      * Constructs the [ScrollView] with all the [timetable] information inserted
      * @return [ScrollView] with the timetable items
      */
     fun getTimetableItemView(context: Context, timetable: TimetableDay): ScrollView {
+        emptyRows = (0..36).toMutableList()
         val scrollView = createScrollView(context)
         val gridLayout = createMainGridLayout(context)
         addHourLabels(context, gridLayout)
         addItems(context, gridLayout, timetable)
         scrollView.addView(gridLayout)
+        fillBlankCells(context, gridLayout)
         return scrollView
     }
 
@@ -104,6 +107,8 @@ object TimetableView {
                 createItem(context, item),
                 getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = rowspan)
             )
+            val lastRow = row + rowspan - 1
+            emptyRows.removeAll { it in (row..lastRow) }
         }
     }
 
@@ -149,12 +154,13 @@ object TimetableView {
      * created by [createScrollView] method.
      */
     private fun createMainGridLayout(context: Context): GridLayout {
+        val sideMargins = context.resources.getDimensionPixelSize(R.dimen.timetable_left_margin)
         return GridLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
-            )
+            ).apply { leftMargin = sideMargins; rightMargin = sideMargins }
             it.columnCount = 2
             it.orientation = GridLayout.HORIZONTAL
             it.useDefaultMargins = true
@@ -170,6 +176,7 @@ object TimetableView {
             it.text = text
             it.width = 0
             it.height = getTimeLabelHeight(context)
+            it.background = context.resources.getDrawable(R.drawable.top_line, context.theme)
         }
     }
 
@@ -190,7 +197,23 @@ object TimetableView {
     }
 
     /**
-     * Gets GridLayout parameters
+     * Goes through each empty row and adds an empty linear layout with the top line background
+     * which acts as a separator for each hour.
+     */
+    private fun fillBlankCells(context: Context, gridLayout: GridLayout) {
+        emptyRows.forEach { row ->
+            val layoutParams = getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = 1)
+            gridLayout.addView(
+                createItemLinearLayout(
+                    context,
+                    context.resources.getDrawable(R.drawable.top_line, context.theme)
+                ), layoutParams
+            )
+        }
+    }
+
+    /**
+     * Gets GridLayout parameters with 0 margins
      * @param row: Row index
      * @param column: Column Index
      * @param rowWeight: Optional (1f by default), weight of the row
@@ -207,7 +230,12 @@ object TimetableView {
     ) = GridLayout.LayoutParams(
         GridLayout.spec(row, rowSpan, rowWeight),
         GridLayout.spec(column, columnSpan, columnWeight)
-    )
+    ).apply {
+        leftMargin = 0
+        rightMargin = 0
+        bottomMargin = 0
+        topMargin = 0
+    }
 
     /**
      * Gets the time label height in pixels from the dimensions resources
