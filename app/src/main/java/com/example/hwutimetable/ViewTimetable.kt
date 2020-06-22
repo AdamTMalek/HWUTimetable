@@ -178,6 +178,9 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      */
     class PlaceholderFragment : Fragment() {
         private var gridLayout: ScrollView? = null
+        private val viewGenerator by lazy {
+            TimetableViewGenerator(context!!)
+        }
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -196,7 +199,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
                 ?: throw Exception("TimetableItem list must not be null")
 
-            val timetableView = TimetableView.getTimetableItemView(context!!, list)
+            val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
 
             with(rootView.findViewById(R.id.constraintLayout) as ViewGroup) {

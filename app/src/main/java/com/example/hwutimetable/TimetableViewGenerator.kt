@@ -11,9 +11,6 @@ import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
-import com.example.hwutimetable.TimetableView.createItemLinearLayout
-import com.example.hwutimetable.TimetableView.createMainGridLayout
-import com.example.hwutimetable.TimetableView.createScrollView
 import com.example.hwutimetable.parser.TimetableDay
 import com.example.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
@@ -21,8 +18,7 @@ import org.joda.time.Period
 
 
 /**
- * The TimetableView object is a singleton that constructs the whole view
- * for the given timetable ([TimetableDay]).
+ * The TimetableView constructs the whole view for the given timetable ([TimetableDay]).
  *
  * The view as a whole is constructed of many views nested in each other.
  * The main outer view is a [ScrollView] created by [createScrollView].
@@ -40,21 +36,22 @@ import org.joda.time.Period
  * 3 by 3 [GridLayout] holding all TextViews
  * that contain information regarding the item (type, lecturer, room etc.).
  */
-object TimetableView {
-    private var emptyRows = (0..36).toMutableList()
+class TimetableViewGenerator(private val context: Context) {
+    private lateinit var emptyRows: MutableList<Int>
 
     /**
      * Constructs the [ScrollView] with all the [timetable] information inserted
      * @return [ScrollView] with the timetable items
      */
-    fun getTimetableItemView(context: Context, timetable: TimetableDay): ScrollView {
+    fun getTimetableItemView(timetable: TimetableDay): ScrollView {
         emptyRows = (0..36).toMutableList()
-        val scrollView = createScrollView(context)
-        val gridLayout = createMainGridLayout(context)
-        addHourLabels(context, gridLayout)
-        addItems(context, gridLayout, timetable)
+
+        val scrollView = createScrollView()
+        val gridLayout = createMainGridLayout()
+        addHourLabels(gridLayout)
+        addItems(gridLayout, timetable)
         scrollView.addView(gridLayout)
-        fillBlankCells(context, gridLayout)
+        fillBlankCells(gridLayout)
         return scrollView
     }
 
@@ -62,12 +59,12 @@ object TimetableView {
      * Creates and adds hour labels to the given [gridLayout]
      * @param gridLayout: [GridLayout] created by [createMainGridLayout]
      */
-    private fun addHourLabels(context: Context, gridLayout: GridLayout) {
+    private fun addHourLabels(gridLayout: GridLayout) {
         // From 9:15 till 18:00 there are 36 labels
         for (i in 0..36) {
             val text = getHourLabelText(i)
             gridLayout.addView(
-                createTimeTextView(context, text),
+                createTimeTextView(text),
                 getLayoutParams(i, 0, columnWeight = 0.2f)
             )
         }
@@ -99,12 +96,12 @@ object TimetableView {
      * @param gridLayout: Grid layout created by [createMainGridLayout]
      * @param timetable: Timetable to display
      */
-    private fun addItems(context: Context, gridLayout: GridLayout, timetable: TimetableDay) {
+    private fun addItems(gridLayout: GridLayout, timetable: TimetableDay) {
         for (item in timetable.items) {
             val row = getRowIndexByTime(item.start)
             val rowspan = getRowspanByPeriod(item.duration)
             gridLayout.addView(
-                createItem(context, item),
+                createItem(item),
                 getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = rowspan)
             )
             val lastRow = row + rowspan - 1
@@ -117,8 +114,8 @@ object TimetableView {
      * @return [LinearLayout] object with children that represent the item
      */
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
-    private fun createItem(context: Context, item: TimetableItem): LinearLayout {
-        val linearLayout = createItemLinearLayout(context, item.type.getBackground(context))
+    private fun createItem(item: TimetableItem): LinearLayout {
+        val linearLayout = createItemLinearLayout(item.type.getBackground(context))
         val inflater = LayoutInflater.from(context)
         val gridLayout = inflater.inflate(R.layout.timetable_item, linearLayout, false)
 
@@ -138,7 +135,7 @@ object TimetableView {
     /**
      * Creates scroll view. This is the most outer container of the view.
      */
-    private fun createScrollView(context: Context): ScrollView {
+    private fun createScrollView(): ScrollView {
         return ScrollView(context).also {
             it.id = View.generateViewId()
             it.layoutParams = ViewGroup.LayoutParams(
@@ -153,7 +150,7 @@ object TimetableView {
      * This grid layout will go inside a [ScrollView] object that will be
      * created by [createScrollView] method.
      */
-    private fun createMainGridLayout(context: Context): GridLayout {
+    private fun createMainGridLayout(): GridLayout {
         val sideMargins = context.resources.getDimensionPixelSize(R.dimen.timetable_left_margin)
         return GridLayout(context).also {
             it.id = View.generateViewId()
@@ -170,12 +167,12 @@ object TimetableView {
     /**
      * Creates time text view (label)
      */
-    private fun createTimeTextView(context: Context, text: String): TextView {
+    private fun createTimeTextView(text: String): TextView {
         return TextView(context).also {
             it.id = View.generateViewId()
             it.text = text
             it.width = 0
-            it.height = getTimeLabelHeight(context)
+            it.height = getTimeLabelHeight()
             it.background = context.resources.getDrawable(R.drawable.top_line, context.theme)
         }
     }
@@ -184,7 +181,7 @@ object TimetableView {
      * Creates linear layout that acts as a container for the grid layout.
      * @param background: [Drawable] background of the item
      */
-    private fun createItemLinearLayout(context: Context, background: Drawable): LinearLayout {
+    private fun createItemLinearLayout(background: Drawable): LinearLayout {
         return LinearLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
@@ -200,12 +197,11 @@ object TimetableView {
      * Goes through each empty row and adds an empty linear layout with the top line background
      * which acts as a separator for each hour.
      */
-    private fun fillBlankCells(context: Context, gridLayout: GridLayout) {
+    private fun fillBlankCells(gridLayout: GridLayout) {
         emptyRows.forEach { row ->
             val layoutParams = getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = 1)
             gridLayout.addView(
                 createItemLinearLayout(
-                    context,
                     context.resources.getDrawable(R.drawable.top_line, context.theme)
                 ), layoutParams
             )
@@ -241,7 +237,7 @@ object TimetableView {
      * Gets the time label height in pixels from the dimensions resources
      * @return Label height in pixels
      */
-    private fun getTimeLabelHeight(context: Context): Int {
+    private fun getTimeLabelHeight(): Int {
         return context.resources.getDimensionPixelSize(R.dimen.hour_label_height)
     }
 
