@@ -157,6 +157,7 @@ object TimetableView {
             )
             it.columnCount = 2
             it.orientation = GridLayout.HORIZONTAL
+            it.useDefaultMargins = true
         }
     }
 
