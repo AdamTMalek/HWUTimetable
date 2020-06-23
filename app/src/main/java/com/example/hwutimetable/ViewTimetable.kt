@@ -100,7 +100,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     private fun populateSpinner(currentWeek: Int) {
         val weeks = (1..12).toList()
-        val adapter = ArrayAdapter<Int>(this, android.R.layout.simple_spinner_item, weeks)
+        val adapter = ArrayAdapter<Int>(this, R.layout.weeks_spinner_item, weeks)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         weeks_spinner.adapter = adapter
         weeks_spinner.setSelection(weeks.indexOf(currentWeek))
