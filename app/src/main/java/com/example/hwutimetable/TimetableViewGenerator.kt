@@ -43,16 +43,14 @@ class TimetableViewGenerator(private val context: Context) {
      * Constructs the [ScrollView] with all the [timetable] information inserted
      * @return [ScrollView] with the timetable items
      */
-    fun getTimetableItemView(timetable: TimetableDay): ScrollView {
+    fun getTimetableItemView(timetable: TimetableDay): ViewGroup {
         emptyRows = (0..36).toMutableList()
 
-        val scrollView = createScrollView()
         val gridLayout = createMainGridLayout()
         addHourLabels(gridLayout)
         addItems(gridLayout, timetable)
-        scrollView.addView(gridLayout)
         fillBlankCells(gridLayout)
-        return scrollView
+        return gridLayout
     }
 
     /**

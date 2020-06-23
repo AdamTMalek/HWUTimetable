@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ScrollView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintSet
@@ -177,7 +176,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * A placeholder fragment containing a simple view.
      */
     class PlaceholderFragment : Fragment() {
-        private var gridLayout: ScrollView? = null
+        private lateinit var gridLayout: ViewGroup
         private val viewGenerator by lazy {
             TimetableViewGenerator(context!!)
         }
@@ -202,7 +201,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
 
-            with(rootView.findViewById(R.id.constraintLayout) as ViewGroup) {
+            with(rootView.findViewById(R.id.scroll_view) as ViewGroup) {
                 addView(timetableView)
             }
 
@@ -216,7 +215,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun addConstraints() {
             val constraintSet = ConstraintSet()
-            val gridId = gridLayout!!.id
+            val gridId = gridLayout.id
 
             constraintSet.clone(context, R.layout.fragment_view_timetable)
             constraintSet.connect(gridId, ConstraintSet.TOP, R.id.section_label, ConstraintSet.BOTTOM)
