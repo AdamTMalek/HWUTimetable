@@ -174,6 +174,7 @@ class MainActivity : AppCompatActivity() {
 
         val timetable = timetableHandler.getTimetable(info)
         intent.putExtra("timetable", timetable)
+        intent.putExtra("name", info.name)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 

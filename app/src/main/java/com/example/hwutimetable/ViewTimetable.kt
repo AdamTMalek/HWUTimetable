@@ -2,12 +2,16 @@ package com.example.hwutimetable
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -41,11 +45,27 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         setSupportActionBar(toolbar)
 
-        wholeTimetable = getTimetable(intent)
+        val name = getTimetableName(intent)
+        setTimetableTitle(name)
 
+        wholeTimetable = getTimetable(intent)
         val currentWeek = wholeTimetable.semester.getWeek(LocalDate.now())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
+    }
+
+    private fun setTimetableTitle(name: String) {
+        with(findViewById<Toolbar>(R.id.toolbar)) {
+            title = name
+
+            children.forEach { child ->
+                if (child is TextView) {
+                    child.ellipsize = TextUtils.TruncateAt.MARQUEE
+                    child.isSelected = true
+                    child.marqueeRepeatLimit = -1
+                }
+            }
+        }
     }
 
     private fun displayTimetableForWeek(week: Int, showToday: Boolean) {
@@ -77,6 +97,13 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             ?: throw Exception("Timetable (Intent Extra) has not been passed")
 
         return timetable as Timetable
+    }
+
+    private fun getTimetableName(intent: Intent): String {
+        val info = intent.extras?.get("name")
+            ?: throw Exception("Timetable name (Intent Extra) has not been passed")
+
+        return info as String
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
