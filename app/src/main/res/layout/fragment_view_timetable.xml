@@ -11,6 +11,16 @@
 
 	<!-- Ignore Hardcoded Text for this component because the text will be set programmatically -->
 	<TextView
+			android:id="@+id/previous_day_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="[PREV DAY]"
+			android:layout_marginLeft="10dp"
+			app:layout_constraintLeft_toLeftOf="parent"
+			app:layout_constraintTop_toTopOf="@id/section_label"
+			app:layout_constraintBottom_toBottomOf="@id/section_label"
+			tools:ignore="HardcodedText,RtlHardcoded"/>
+	<TextView
 			android:id="@+id/section_label"
 			android:text="[DAY]"
 			android:textSize="@dimen/day_text_size"
@@ -26,6 +36,16 @@
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintTop_toTopOf="@+id/constraintLayout"
 			tools:ignore="HardcodedText"/>
+	<TextView
+			android:id="@+id/next_day_label"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="[NEXT DAY]"
+			android:layout_marginRight="10dp"
+			app:layout_constraintRight_toRightOf="parent"
+			app:layout_constraintTop_toTopOf="@id/section_label"
+			app:layout_constraintBottom_toBottomOf="@id/section_label"
+			tools:ignore="HardcodedText,RtlHardcoded"/>
 	<ScrollView
 			android:id="@+id/scroll_view"
 			android:layout_height="0dp"

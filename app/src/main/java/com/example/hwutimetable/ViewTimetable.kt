@@ -24,7 +24,6 @@ import com.example.hwutimetable.parser.TimetableDay
 import com.example.hwutimetable.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
-import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
 import org.joda.time.LocalDate
 import java.util.*
 
@@ -223,19 +222,17 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             TimetableViewGenerator(context!!)
         }
 
+        private lateinit var rootView: View
+
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            val rootView = inflater.inflate(R.layout.fragment_view_timetable, container, false)
-            rootView.section_label.text = when (arguments?.getInt(ARG_SECTION_NUMBER)) {
-                1 -> "Monday"
-                2 -> "Tuesday"
-                3 -> "Wednesday"
-                4 -> "Thursday"
-                5 -> "Friday"
-                else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 0 and 4")
-            }
+            rootView = inflater.inflate(R.layout.fragment_view_timetable, container, false)
+            val sectionNumber = arguments?.getInt(ARG_SECTION_NUMBER) ?: throw Exception("Missing section number")
+            setCurrentDayLabelText(sectionNumber)
+            setPreviousDayLabelText(sectionNumber)
+            setNextDayLabelText(sectionNumber)
 
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
                 ?: throw Exception("TimetableItem list must not be null")
@@ -248,6 +245,37 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             }
 
             return rootView
+        }
+
+        private fun setCurrentDayLabelText(currentDay: Int) {
+            rootView.findViewById<TextView>(R.id.section_label).text = getDay(currentDay)
+        }
+
+        private fun setPreviousDayLabelText(currentDay: Int) {
+            val dayIndex = currentDay - 1
+            rootView.findViewById<TextView>(R.id.previous_day_label).text = if (dayIndex >= 1) {
+                getDay(dayIndex)
+            } else {
+                ""
+            }
+        }
+
+        private fun setNextDayLabelText(currentDay: Int) {
+            val dayIndex = currentDay + 1
+            rootView.findViewById<TextView>(R.id.next_day_label).text = if (dayIndex <= 5) {
+                getDay(dayIndex)
+            } else {
+                ""
+            }
+        }
+
+        private fun getDay(sectionNumber: Int) = when (sectionNumber) {
+            1 -> "Monday"
+            2 -> "Tuesday"
+            3 -> "Wednesday"
+            4 -> "Thursday"
+            5 -> "Friday"
+            else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 1 and 5")
         }
 
         override fun onActivityCreated(savedInstanceState: Bundle?) {
