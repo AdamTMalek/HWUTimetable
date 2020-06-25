@@ -40,12 +40,16 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private lateinit var wholeTimetable: Timetable
+    private val toolbar: Toolbar by lazy {
+        findViewById<Toolbar>(R.id.toolbar)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_timetable)
 
         setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         val name = getTimetableName(intent)
         setTimetableTitle(name)
@@ -57,7 +61,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun setTimetableTitle(name: String) {
-        with(findViewById<Toolbar>(R.id.toolbar)) {
+        with(toolbar) {
             title = name
 
             children.forEach { child ->
@@ -118,14 +122,22 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-
-        if (id == R.id.action_settings) {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                openSettings()
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
+    }
 
-        return super.onOptionsItemSelected(item)
+    private fun openSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun populateSpinner(currentWeek: Int) {
