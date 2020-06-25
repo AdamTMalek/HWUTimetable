@@ -63,7 +63,7 @@ class TimetableViewGenerator(private val context: Context) {
             val text = getHourLabelText(i)
             gridLayout.addView(
                 createTimeTextView(text),
-                getLayoutParams(i, 0, columnWeight = 0.2f)
+                getLayoutParams(i, 0, columnWeight = 0.3f)
             )
         }
     }
@@ -100,7 +100,7 @@ class TimetableViewGenerator(private val context: Context) {
             val rowspan = getRowspanByPeriod(item.duration)
             gridLayout.addView(
                 createItem(item),
-                getLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = rowspan)
+                getLayoutParams(row, 1, columnWeight = 0.7f, rowSpan = rowspan)
             )
             val lastRow = row + rowspan - 1
             emptyRows.removeAll { it in (row..lastRow) }
