@@ -16,4 +16,5 @@
     <!-- Timetable View -->
     <dimen name="day_text_size">18sp</dimen>
     <dimen name="timetable_grid_top_margin">10dp</dimen>
+    <dimen name="weeks_text_size">16sp</dimen>
 </resources>

@@ -9,7 +9,7 @@
 	<string name="title_activity_view_timetable">View Timetable</string>
 	<string name="delete_all">Delete all</string>
 	<string name="follow">Save on the device and \"follow\"</string>
-	<string name="viewing_week">Week:</string>
+	<string name="viewing_week">Select Week:</string>
 	<string name="update_notification_channel_name">Update notifications</string>
 	<string name="update_notification_channel_desc">
 		Update notifications appear whenever a stored timetable has been updated
