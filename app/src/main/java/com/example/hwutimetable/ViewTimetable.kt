@@ -1,5 +1,6 @@
 package com.example.hwutimetable
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
@@ -20,6 +21,7 @@ import androidx.viewpager.widget.PagerAdapter
 import com.example.hwutimetable.parser.Clashes
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
+import com.example.hwutimetable.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
@@ -119,7 +121,8 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val id = item.itemId
 
         if (id == R.id.action_settings) {
-            return true
+            val intent = Intent(this, SettingsActivity::class.java)
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
         }
 
         return super.onOptionsItemSelected(item)
