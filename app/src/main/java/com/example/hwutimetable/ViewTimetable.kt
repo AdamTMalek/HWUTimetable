@@ -213,6 +213,14 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
+    private fun moveToPreviousDay() {
+        container.setCurrentItem(container.currentItem - 1, true)
+    }
+
+    private fun moveToNextDay() {
+        container.setCurrentItem(container.currentItem + 1, true)
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
@@ -244,6 +252,9 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
                 addView(timetableView)
             }
 
+            setPreviousDayClickListener()
+            setNextDayClickListener()
+
             return rootView
         }
 
@@ -260,12 +271,24 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             }
         }
 
+        private fun setPreviousDayClickListener() {
+            rootView.findViewById<TextView>(R.id.previous_day_label).setOnClickListener {
+                (activity as ViewTimetable).moveToPreviousDay()
+            }
+        }
+
         private fun setNextDayLabelText(currentDay: Int) {
             val dayIndex = currentDay + 1
             rootView.findViewById<TextView>(R.id.next_day_label).text = if (dayIndex <= 5) {
                 getDay(dayIndex)
             } else {
                 ""
+            }
+        }
+
+        private fun setNextDayClickListener() {
+            rootView.findViewById<TextView>(R.id.next_day_label).setOnClickListener {
+                (activity as ViewTimetable).moveToNextDay()
             }
         }
 
