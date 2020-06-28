@@ -44,11 +44,12 @@ be done automatically by the app.
 After adding the timetable, you will be taken to the timetable view. Here you see your timetable, there are a couple
 of features that were implemented into the app so please read the following carefully so you know what is happening
 
-![tt_view](https://user-images.githubusercontent.com/23484014/72175467-1fee0f80-33d4-11ea-9459-acf07a401a93.png)
+![tt_view](https://user-images.githubusercontent.com/23484014/85850903-9fff0a80-b7a5-11ea-949e-560b3476e44c.png)
 
 
 The displayed day depends on the current day. That is, if you are viewing the timetable on Wednesday, the app will
-automatically go to Wednesday items. To view a different day, simply swipe left or right.
+automatically go to Wednesday items. To view a different day, simply swipe left or right, or you can also click on the
+previous or next day.
 
 The same goes for weeks, you can select weeks above the timetable view. By default, you will see the timetable
 for the current week.

@@ -1,14 +1,18 @@
 package com.example.hwutimetable
 
+import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ScrollView
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -17,9 +21,9 @@ import androidx.viewpager.widget.PagerAdapter
 import com.example.hwutimetable.parser.Clashes
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableDay
+import com.example.hwutimetable.settings.SettingsActivity
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
-import kotlinx.android.synthetic.main.fragment_view_timetable.view.*
 import org.joda.time.LocalDate
 import java.util.*
 
@@ -35,18 +39,38 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
     private lateinit var wholeTimetable: Timetable
+    private val toolbar: Toolbar by lazy {
+        findViewById<Toolbar>(R.id.toolbar)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_timetable)
 
         setSupportActionBar(toolbar)
+        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+
+        val name = getTimetableName(intent)
+        setTimetableTitle(name)
 
         wholeTimetable = getTimetable(intent)
-
         val currentWeek = wholeTimetable.semester.getWeek(LocalDate.now())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
+    }
+
+    private fun setTimetableTitle(name: String) {
+        with(toolbar) {
+            title = name
+
+            children.forEach { child ->
+                if (child is TextView) {
+                    child.ellipsize = TextUtils.TruncateAt.MARQUEE
+                    child.isSelected = true
+                    child.marqueeRepeatLimit = -1
+                }
+            }
+        }
     }
 
     private fun displayTimetableForWeek(week: Int, showToday: Boolean) {
@@ -80,6 +104,13 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         return timetable as Timetable
     }
 
+    private fun getTimetableName(intent: Intent): String {
+        val info = intent.extras?.get("name")
+            ?: throw Exception("Timetable name (Intent Extra) has not been passed")
+
+        return info as String
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_view_timetable, menu)
@@ -90,18 +121,27 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        val id = item.itemId
-
-        if (id == R.id.action_settings) {
-            return true
+        return when (item.itemId) {
+            R.id.action_settings -> {
+                openSettings()
+                true
+            }
+            android.R.id.home -> {
+                onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
+    }
 
-        return super.onOptionsItemSelected(item)
+    private fun openSettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun populateSpinner(currentWeek: Int) {
         val weeks = (1..12).toList()
-        val adapter = ArrayAdapter<Int>(this, android.R.layout.simple_spinner_item, weeks)
+        val adapter = ArrayAdapter<Int>(this, R.layout.weeks_spinner_item, weeks)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         weeks_spinner.adapter = adapter
         weeks_spinner.setSelection(weeks.indexOf(currentWeek))
@@ -173,37 +213,92 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         }
     }
 
+    private fun moveToPreviousDay() {
+        container.setCurrentItem(container.currentItem - 1, true)
+    }
+
+    private fun moveToNextDay() {
+        container.setCurrentItem(container.currentItem + 1, true)
+    }
+
     /**
      * A placeholder fragment containing a simple view.
      */
     class PlaceholderFragment : Fragment() {
-        private var gridLayout: ScrollView? = null
+        private lateinit var gridLayout: ViewGroup
+        private val viewGenerator by lazy {
+            TimetableViewGenerator(context!!)
+        }
+
+        private lateinit var rootView: View
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            val rootView = inflater.inflate(R.layout.fragment_view_timetable, container, false)
-            rootView.section_label.text = when (arguments?.getInt(ARG_SECTION_NUMBER)) {
-                1 -> "Monday"
-                2 -> "Tuesday"
-                3 -> "Wednesday"
-                4 -> "Thursday"
-                5 -> "Friday"
-                else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 0 and 4")
-            }
+            rootView = inflater.inflate(R.layout.fragment_view_timetable, container, false)
+            val sectionNumber = arguments?.getInt(ARG_SECTION_NUMBER) ?: throw Exception("Missing section number")
+            setCurrentDayLabelText(sectionNumber)
+            setPreviousDayLabelText(sectionNumber)
+            setNextDayLabelText(sectionNumber)
 
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
                 ?: throw Exception("TimetableItem list must not be null")
 
-            val timetableView = TimetableView.getTimetableItemView(context!!, list)
+            val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
 
-            with(rootView.findViewById(R.id.constraintLayout) as ViewGroup) {
+            with(rootView.findViewById(R.id.scroll_view) as ViewGroup) {
                 addView(timetableView)
             }
 
+            setPreviousDayClickListener()
+            setNextDayClickListener()
+
             return rootView
+        }
+
+        private fun setCurrentDayLabelText(currentDay: Int) {
+            rootView.findViewById<TextView>(R.id.section_label).text = getDay(currentDay)
+        }
+
+        private fun setPreviousDayLabelText(currentDay: Int) {
+            val dayIndex = currentDay - 1
+            rootView.findViewById<TextView>(R.id.previous_day_label).text = if (dayIndex >= 1) {
+                getDay(dayIndex)
+            } else {
+                ""
+            }
+        }
+
+        private fun setPreviousDayClickListener() {
+            rootView.findViewById<TextView>(R.id.previous_day_label).setOnClickListener {
+                (activity as ViewTimetable).moveToPreviousDay()
+            }
+        }
+
+        private fun setNextDayLabelText(currentDay: Int) {
+            val dayIndex = currentDay + 1
+            rootView.findViewById<TextView>(R.id.next_day_label).text = if (dayIndex <= 5) {
+                getDay(dayIndex)
+            } else {
+                ""
+            }
+        }
+
+        private fun setNextDayClickListener() {
+            rootView.findViewById<TextView>(R.id.next_day_label).setOnClickListener {
+                (activity as ViewTimetable).moveToNextDay()
+            }
+        }
+
+        private fun getDay(sectionNumber: Int) = when (sectionNumber) {
+            1 -> "Monday"
+            2 -> "Tuesday"
+            3 -> "Wednesday"
+            4 -> "Thursday"
+            5 -> "Friday"
+            else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 1 and 5")
         }
 
         override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -213,7 +308,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun addConstraints() {
             val constraintSet = ConstraintSet()
-            val gridId = gridLayout!!.id
+            val gridId = gridLayout.id
 
             constraintSet.clone(context, R.layout.fragment_view_timetable)
             constraintSet.connect(gridId, ConstraintSet.TOP, R.id.section_label, ConstraintSet.BOTTOM)
