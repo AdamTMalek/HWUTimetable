@@ -4,28 +4,35 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.list
 import java.io.File
+import javax.inject.Inject
 
 /**
  * This class handles the tt_dict.json file responsible
  * for storing information ([TimetableInfo]) about stored documents/timetables.
  */
-class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
+class InfoFile @Inject constructor(private val directory: File) : ListFileHandler<TimetableInfo> {
 
     companion object {
         const val FILENAME = "tt_dict.json"
+    }
+
+    private val file = File(directory, FILENAME)
+
+    init {
+        if (!directory.exists())
+            directory.mkdir()
+
+        if (file.exists())
+            file.createNewFile()
     }
 
     /**
      * Adds the new information to the info file
      */
     override fun save(member: TimetableInfo) {
-        val file = getFile()
-
         // Get the list we have so far
         val infoList = mutableListOf<TimetableInfo>()
-        if (file.isFile) {
-            infoList.addAll(getList())
-        }
+        infoList.addAll(getList())
 
         if (infoList.contains(member))
             return  // Info for this list already exists in the file
@@ -50,8 +57,6 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
      * Gets the list of [TimetableInfo] stored in the info file
      */
     override fun getList(): List<TimetableInfo> {
-        val file = getFile()
-
         if (!file.isFile)
             return emptyList()
 
@@ -77,7 +82,7 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
      * Delete the whole info file
      */
     override fun deleteAll() {
-        getFile().delete()
+        file.delete()
     }
 
     fun invalidateInfoFile(codes: Iterable<String>): List<TimetableInfo> {
@@ -102,9 +107,4 @@ class InfoFile(private val directory: File) : ListFileHandler<TimetableInfo> {
     fun getInfoByCode(code: String): TimetableInfo? {
         return getList().find { it.code == code }
     }
-
-    /**
-     * Get the info file
-     */
-    private fun getFile() = File(directory, FILENAME)
 }
