@@ -12,8 +12,9 @@ import org.joda.time.LocalTime
 import org.joda.time.Period
 import java.io.File
 import java.io.FileNotFoundException
+import javax.inject.Inject
 
-class TimetableFileHandler(private val directory: File) : TimetableHandler {
+class TimetableFileHandler @Inject constructor(private val directory: File) {
     private val infoFile = InfoFile(directory)
 
     companion object {
@@ -27,10 +28,10 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
     }
 
     @Throws(IOException::class)
-    /**
-     * Saves the given timetable and its info
-     */
-    override fun save(timetable: Timetable, timetableInfo: TimetableInfo) {
+            /**
+             * Saves the given timetable and its info
+             */
+    fun save(timetable: Timetable, timetableInfo: TimetableInfo) {
         infoFile.save(timetableInfo)
 
         val file = File(directory, getFilename(timetableInfo))
@@ -43,7 +44,7 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
     /**
      * Returns a list of stored timetable infos
      */
-    override fun getStoredTimetables(): List<TimetableInfo> {
+    fun getStoredTimetables(): List<TimetableInfo> {
         return infoFile.getList()
     }
 
@@ -52,7 +53,7 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    override fun getTimetable(timetableInfo: TimetableInfo): Timetable {
+    fun getTimetable(timetableInfo: TimetableInfo): Timetable {
         val file = File(directory, getFilename(timetableInfo))
         if (!file.exists())
             throw getNotFoundException(file)
@@ -65,7 +66,7 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    override fun deleteTimetable(timetableInfo: TimetableInfo) {
+    fun deleteTimetable(timetableInfo: TimetableInfo) {
         infoFile.delete(timetableInfo)
         val file = File(directory, getFilename(timetableInfo))
         if (!file.exists())
@@ -80,7 +81,7 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
      * @throws FileNotFoundException when a timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    override fun deleteAllTimetables(): List<TimetableInfo> {
+    fun deleteAllTimetables(): List<TimetableInfo> {
         val deleted = mutableListOf<TimetableInfo>()
         infoFile.getList().forEach {
             deleteTimetable(it)
@@ -95,7 +96,7 @@ class TimetableFileHandler(private val directory: File) : TimetableHandler {
      * - delete all info entries of timetables that are missing
      * @return [TimetableInfo] list of timetables that are left
      */
-    override fun invalidateList(): List<TimetableInfo> {
+    fun invalidateList(): List<TimetableInfo> {
         val codes = getStoredTimetablesCodes()
         val infoList = infoFile.getList()
         val infoCodes = infoList.map { it.code }

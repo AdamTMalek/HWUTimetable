@@ -16,28 +16,31 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableFileHandler
-import com.example.hwutimetable.filehandler.TimetableHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.settings.SettingsActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.FileNotFoundException
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val infoList = mutableListOf<TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
-    private lateinit var infoFile: InfoFile
-    private lateinit var timetableHandler: TimetableHandler
+
+    @Inject
+    lateinit var infoFile: InfoFile
+
+    @Inject
+    lateinit var timetableHandler: TimetableFileHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        timetableHandler = TimetableFileHandler(this.filesDir)
-        infoFile = InfoFile(this.filesDir)
 
         fab.setOnClickListener {
             val intent = Intent(this, AddActivity::class.java)
