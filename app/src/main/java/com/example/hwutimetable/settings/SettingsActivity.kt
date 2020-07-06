@@ -1,10 +1,6 @@
 package com.example.hwutimetable.settings
 
 import android.content.Context
-import android.net.ConnectivityManager
-import android.net.Network
-import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import android.os.Bundle
 import android.text.format.DateFormat
 import android.view.MenuItem
@@ -51,7 +47,8 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat(), OnUpdateFinishedListener {
+    class SettingsFragment : PreferenceFragmentCompat(), OnUpdateFinishedListener,
+        NetworkUtilities.ConnectivityCallbackReceiver {
         private lateinit var updateManager: UpdateManager
         private val networkUtilities: NetworkUtilities by lazy {
             NetworkUtilities(this.context!!)
@@ -59,36 +56,13 @@ class SettingsActivity : AppCompatActivity() {
         private val updateNowPreference: Preference by lazy {
             findPreference<Preference>(getString(R.string.update_now))!!
         }
-        private val connectivityManager: ConnectivityManager by lazy {
-            context!!.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        }
 
-        private val availableNetworks = mutableListOf<Network>()
-
-        private val networkCallback = object : ConnectivityManager.NetworkCallback() {
-
-            override fun onLost(network: Network) {
-                availableNetworks.remove(network)
-                if (availableNetworks.isEmpty()) {
-                    this@SettingsFragment.activity!!.runOnUiThread {
-                        onInternetConnectionLost()
-                    }
-                }
-
-
-            }
-
-            override fun onAvailable(network: Network) {
-                availableNetworks.add(network)
-                this@SettingsFragment.activity!!.runOnUiThread {
-                    onInternetConnectionAvailable()
-                }
-            }
+        private val connectivityCallback: NetworkUtilities.ConnectivityCallback by lazy {
+            NetworkUtilities.ConnectivityCallback(context!!)
         }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            registerNetworkChangeReceiver()
 
             updateManager = UpdateManager(context!!)
             PreferenceManager.getDefaultSharedPreferences(context!!)
@@ -99,19 +73,10 @@ class SettingsActivity : AppCompatActivity() {
             setUpdateButtonHandler()
             setUpdateSummary()
 
+            connectivityCallback.registerCallbackReceiver(this)
+
             if (!networkUtilities.hasInternetConnection())
-                onInternetConnectionLost()
-
-            availableNetworks.addAll(connectivityManager.allNetworks)
-        }
-
-        private fun registerNetworkChangeReceiver() {
-            val networkRequest = NetworkRequest.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-                .addTransportType(NetworkCapabilities.TRANSPORT_CELLULAR)
-                .build()
-
-            connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+                onConnectionLost()
         }
 
         override fun onDisplayPreferenceDialog(preference: Preference?) {
@@ -213,14 +178,18 @@ class SettingsActivity : AppCompatActivity() {
             updater.update()
         }
 
-        private fun onInternetConnectionAvailable() {
-            updateNowPreference.isEnabled = true
-            updateNowPreference.summary = getString(R.string.update_now_enabled_summary)
+        override fun onConnectionAvailable() {
+            activity!!.runOnUiThread {
+                updateNowPreference.isEnabled = true
+                updateNowPreference.summary = getString(R.string.update_now_enabled_summary)
+            }
         }
 
-        private fun onInternetConnectionLost() {
-            updateNowPreference.isEnabled = false
-            updateNowPreference.summary = getString(R.string.update_now_disabled_summary)
+        override fun onConnectionLost() {
+            activity!!.runOnUiThread {
+                updateNowPreference.isEnabled = false
+                updateNowPreference.summary = getString(R.string.update_now_disabled_summary)
+            }
         }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -238,7 +207,7 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         override fun onDestroy() {
-            connectivityManager.unregisterNetworkCallback(networkCallback)
+            connectivityCallback.cleanup()
             super.onDestroy()
         }
     }
