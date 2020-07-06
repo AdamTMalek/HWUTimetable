@@ -5,8 +5,10 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
 
-class NetworkUtilities(context: Context) {
+class NetworkUtilities @Inject constructor(@ApplicationContext context: Context) {
     /**
      * Any class that wants to receive notifications about Internet connection
      * loss or gain via [ConnectivityCallback] class, has to implement this

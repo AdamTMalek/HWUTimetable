@@ -26,7 +26,7 @@ import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
     private val infoList = mutableListOf<TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
@@ -36,6 +36,12 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
+    private val connectivityCallback: NetworkUtilities.ConnectivityCallback by lazy {
+        NetworkUtilities.ConnectivityCallback(applicationContext!!)
+    }
+
+    @Inject
+    lateinit var networkUtilities: NetworkUtilities
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,10 +52,17 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, AddActivity::class.java)
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
         }
+        fab.backgroundTintList = applicationContext.getColorStateList(R.color.fab_color)
+
         recycler_view.layoutManager = LinearLayoutManager(this)
         addTouchCallbacksHandler()
         listTimetables()
         setupAlertDialog()
+
+        connectivityCallback.registerCallbackReceiver(this)
+        if (!networkUtilities.hasInternetConnection()) {
+            onConnectionLost()
+        }
     }
 
     override fun onResume() {
@@ -242,6 +255,23 @@ class MainActivity : AppCompatActivity() {
 
         listAdapter.notifyDataSetChanged()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    override fun onConnectionAvailable() {
+        runOnUiThread {
+            fab.isEnabled = true
+        }
+    }
+
+    override fun onConnectionLost() {
+        runOnUiThread {
+            fab.isEnabled = false
+        }
+    }
+
+    override fun onDestroy() {
+        connectivityCallback.cleanup()
+        super.onDestroy()
     }
 
     override fun onStop() {
