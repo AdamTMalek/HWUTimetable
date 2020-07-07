@@ -163,7 +163,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         // Check if the list was empty to begin with
         // then, the no_timetables_text will exist
         if (infoList.isEmpty()) {
-            no_timetables_text.visibility = View.INVISIBLE
+            no_timetables_text.visibility = View.VISIBLE
         }
         infoList.clear()
         infoList.addAll(timetableHandler.getStoredTimetables())
@@ -218,6 +218,10 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         }.plus(string)
 
         infoList.removeAt(position)
+        if (infoList.isEmpty()) {
+            no_timetables_text.visibility = View.VISIBLE
+        }
+
         listAdapter.notifyItemRemoved(position)
         listAdapter.notifyDataSetChanged()
         Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_SHORT).show()
