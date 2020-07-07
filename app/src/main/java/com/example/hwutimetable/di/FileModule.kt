@@ -1,4 +1,4 @@
-package com.example.hwutimetable.filehandler
+package com.example.hwutimetable.di
 
 import android.content.Context
 import dagger.Module

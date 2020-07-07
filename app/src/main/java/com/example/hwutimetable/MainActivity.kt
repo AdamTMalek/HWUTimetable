@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.network.NetworkUtilities
+import com.example.hwutimetable.network.NetworkUtils
 import com.example.hwutimetable.settings.SettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
@@ -41,7 +43,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     @Inject
-    lateinit var networkUtilities: NetworkUtilities
+    lateinit var networkUtilities: NetworkUtils
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -1,4 +1,4 @@
-package com.example.hwutimetable
+package com.example.hwutimetable.network
 
 import android.content.Context
 import android.net.ConnectivityManager
@@ -8,7 +8,7 @@ import android.net.NetworkRequest
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class NetworkUtilities @Inject constructor(@ApplicationContext context: Context) {
+class NetworkUtilities @Inject constructor(@ApplicationContext context: Context) : NetworkUtils {
     /**
      * Any class that wants to receive notifications about Internet connection
      * loss or gain via [ConnectivityCallback] class, has to implement this
@@ -115,17 +115,17 @@ class NetworkUtilities @Inject constructor(@ApplicationContext context: Context)
         networkCapabilities = connectivityManager.getNetworkCapabilities(activeNetwork)
     }
 
-    fun hasInternetConnection(): Boolean {
+    override fun hasInternetConnection(): Boolean {
         val wifi = isWifiEnabled()
         val data = isMobileDataEnabled()
         return wifi || data
     }
 
-    fun isWifiEnabled(): Boolean {
+    override fun isWifiEnabled(): Boolean {
         return networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ?: false
     }
 
-    fun isMobileDataEnabled(): Boolean {
+    override fun isMobileDataEnabled(): Boolean {
         return networkCapabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ?: false
     }
 }

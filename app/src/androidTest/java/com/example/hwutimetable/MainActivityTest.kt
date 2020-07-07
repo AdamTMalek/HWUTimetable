@@ -7,9 +7,13 @@ import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
-import com.example.hwutimetable.filehandler.FileModule
+import com.example.hwutimetable.di.FileModule
+import com.example.hwutimetable.di.NetworkUtilitiesModule
 import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.network.NetworkUtils
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,6 +30,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import javax.inject.Inject
+import javax.inject.Singleton
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -33,7 +38,7 @@ import javax.inject.Inject
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 
-@UninstallModules(FileModule::class)
+@UninstallModules(value = [FileModule::class, NetworkUtilitiesModule::class])
 @HiltAndroidTest
 class MainActivityTest {
     @InstallIn(ApplicationComponent::class)
@@ -45,6 +50,36 @@ class MainActivityTest {
         }
     }
 
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    abstract class TestNetworkUtilitiesModule {
+        class TestNetworkUtilities : NetworkUtils {
+            @Inject
+            constructor() {
+
+            }
+
+            var wifiOn = false
+            var dataOn = false
+
+            override fun hasInternetConnection(): Boolean {
+                return wifiOn || dataOn
+            }
+
+            override fun isWifiEnabled(): Boolean {
+                return wifiOn
+            }
+
+            override fun isMobileDataEnabled(): Boolean {
+                return dataOn
+            }
+        }
+
+        @Singleton
+        @Binds
+        abstract fun bindNetworkUtilities(networkUtilities: TestNetworkUtilities): NetworkUtils
+    }
+
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
@@ -52,6 +87,9 @@ class MainActivityTest {
 
     @Inject
     lateinit var infoFile: InfoFile
+
+    @Inject
+    lateinit var networkUtils: NetworkUtils
 
     @Before
     fun init() {
@@ -116,12 +154,60 @@ class MainActivityTest {
 
     @Test
     fun testAddButtonEnabledWhenHasInternetAccess() {
-        // TODO
+        with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
+            dataOn = false
+            wifiOn = false
+        }
+
+        launchActivity()
+        scenario.onActivity { activity ->
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            assertFalse(addButton.isEnabled)
+        }
     }
 
     @Test
     fun testAddButtonDisabledWhenNoInternetAccess() {
-        // TODO
+        with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
+            dataOn = false
+            wifiOn = true
+        }
+
+        launchActivity()
+        scenario.onActivity { activity ->
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            assertTrue(addButton.isEnabled)
+        }
+    }
+
+    @Test
+    fun testAddButtonDisabledWhenInternetAccessLost() {
+        with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
+            dataOn = false
+            wifiOn = true
+        }
+
+        launchActivity()
+        scenario.onActivity { activity ->
+            activity.onConnectionLost()
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            assertFalse(addButton.isEnabled)
+        }
+    }
+
+    @Test
+    fun testAddButtonEnabledWhenInternetAccessGained() {
+        with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
+            dataOn = false
+            wifiOn = false
+        }
+
+        launchActivity()
+        scenario.onActivity { activity ->
+            activity.onConnectionAvailable()
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            assertTrue(addButton.isEnabled)
+        }
     }
 
     /**

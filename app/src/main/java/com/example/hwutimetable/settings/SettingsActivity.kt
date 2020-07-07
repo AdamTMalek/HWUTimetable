@@ -10,9 +10,9 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
-import com.example.hwutimetable.NetworkUtilities
 import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.network.NetworkUtilities
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
 import com.example.hwutimetable.updater.OnUpdateFinishedListener

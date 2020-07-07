@@ -6,8 +6,8 @@ import android.content.SharedPreferences
 import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
-import com.example.hwutimetable.NetworkUtilities
 import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.network.NetworkUtilities
 import com.example.hwutimetable.parser.Parser
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.coroutines.GlobalScope
