@@ -54,7 +54,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setTimetableTitle(name)
 
         wholeTimetable = getTimetable(intent)
-        val currentWeek = wholeTimetable.semester.getWeek(LocalDate.now())
+        val currentWeek = wholeTimetable.info.semester.getWeek(LocalDate.now())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
     }

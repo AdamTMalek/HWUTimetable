@@ -14,11 +14,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hwutimetable.filehandler.InfoFile
 import com.example.hwutimetable.filehandler.TimetableFileHandler
-import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.network.NetworkUtilities
 import com.example.hwutimetable.network.NetworkUtils
+import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.settings.SettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
@@ -29,12 +28,9 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
-    private val infoList = mutableListOf<TimetableInfo>()
+    private val infoList = mutableListOf<Timetable.TimetableInfo>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
-
-    @Inject
-    lateinit var infoFile: InfoFile
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
@@ -183,34 +179,23 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         val string = getTextFromRecyclerViewItem(position)
 
         val intent = Intent(this, ViewTimetable::class.java)
-        val info = infoFile.getInfoByName(string)
-
-        checkNotNull(info) {
-            timetableHandler.invalidateList()
-            return
-        }
+        val info = timetableHandler.getStoredTimetables().find { it.name == string }!!
 
         val timetable = timetableHandler.getTimetable(info)
         intent.putExtra("timetable", timetable)
-        intent.putExtra("name", info.name)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun onItemSwiped(position: Int) {
         val string = getTextFromRecyclerViewItem(position)
-        val info = infoFile.getInfoByName(string)
+        val info = timetableHandler.getStoredTimetables().find { it.name == string }!!
 
         var success = true
-        if (info != null) {
-            try {
-                timetableHandler.deleteTimetable(info)
-            } catch (ex: FileNotFoundException) {
-                success = false
-            }
-        } else {
+        try {
+            timetableHandler.deleteTimetable(info)
+        } catch (ex: FileNotFoundException) {
             success = false
         }
-
 
         val toastMessage = when (success) {
             true -> "Successfully deleted "
@@ -232,7 +217,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             .itemView.findViewById<TextView>(R.id.timetable_title).text as String
     }
 
-    private fun getTimetablesInfoList(): List<TimetableInfo> {
+    private fun getTimetablesInfoList(): List<Timetable.TimetableInfo> {
         return timetableHandler.getStoredTimetables()
     }
 
@@ -281,7 +266,6 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     override fun onStop() {
-        infoFile.saveAll(infoList) // By doing this we keep the order set by the user
         super.onStop()
     }
 }

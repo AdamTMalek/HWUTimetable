@@ -1,1 +1,438 @@
-{"hash":[-12,127,2,-69,54,-45,-119,0,-95,98,102,-29,52,-2,-12,73,114,77,-112,15,10,96,51,6,9,-21,46,1,-128,-25,-44,-38],"days":[{"day":"MONDAY","items":[{"duration":"PT120M","code":"B39SA-S1","name":"Signals and Systems","room":"EM336","lecturer":"Prof. Y Wiaux","type":{"name":"Lec"},"start":"13:15:00.000","end":"14:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}}]},{"day":"TUESDAY","items":[{"duration":"PT180M","code":"B39SA-S1","name":"Signals and Systems","room":"GR1DLb","lecturer":"Prof. Y Wiaux","type":{"name":"WKP"},"start":"09:15:00.000","end":"12:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}},{"duration":"PT60M","code":"B39AX-S1","name":"Engineering maths and stats","room":"ECG01","lecturer":"Dr J. Mota Dr Y. Altmann","type":{"name":"Lec"},"start":"15:15:00.000","end":"16:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT90M","code":"B39SA-S1","name":"Signals and Systems","room":"EM336","lecturer":"Prof. Y Wiaux","type":{"name":"Lec"},"start":"16:15:00.000","end":"17:45:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}}]},{"day":"WEDNESDAY","items":[{"duration":"PT60M","code":"B39AX-S1","name":"Engineering maths and stats","room":"EM182","lecturer":"Dr J. Mota Dr Y. Altmann","type":{"name":"Lec"},"start":"10:15:00.000","end":"11:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT60M","code":"B39AX-S1","name":"Engineering maths and stats","room":"EM182","lecturer":"Dr J. Mota Dr Y. Altmann","type":{"name":"Lec"},"start":"11:15:00.000","end":"12:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT60M","code":"F29AI-S1","name":"Artificial Intell\u0026Intell Agent","room":"JW1","lecturer":"Dr A. Eshghi Dr R. Petrick","type":{"name":"Lec"},"start":"12:15:00.000","end":"13:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}}]},{"day":"THURSDAY","items":[{"duration":"PT60M","code":"F29AI-S1","name":"Artificial Intell\u0026Intell Agent","room":"JW1","lecturer":"Dr A. Eshghi Dr R. Petrick","type":{"name":"Lec"},"start":"12:15:00.000","end":"13:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT60M","code":"B39AX-S1","name":"Engineering maths and stats","room":"DB113","lecturer":"Dr J. Mota Dr Y. Altmann","type":{"name":"Tut"},"start":"13:15:00.000","end":"14:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT60M","code":"F29SO-S1","name":"Software Engineering","room":"GRGIC2, GRGIC1","lecturer":"Dr R. Petrick","type":{"name":"Lec"},"start":"14:15:00.000","end":"15:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}},{"duration":"PT60M","code":"F29SO-S1","name":"Software Engineering","room":"GRGIC2, GRGIC1","lecturer":"Dr R. Petrick","type":{"name":"Lec"},"start":"15:15:00.000","end":"16:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}}]},{"day":"FRIDAY","items":[{"duration":"PT60M","code":"F29SO-S1","name":"Software Engineering","room":"GR1DLa, GR1DLb","lecturer":"Dr R. Petrick","type":{"name":"CLab"},"start":"11:15:00.000","end":"12:15:00.000","weeks":{"weeks":[7,8,9,10,11,12]}},{"duration":"PT120M","code":"F29AI-S1","name":"Artificial Intell\u0026Intell Agent","room":"GR1DLa, GR1DLb","lecturer":"Dr A. Eshghi Dr R. Petrick","type":{"name":"CLab"},"start":"09:15:00.000","end":"11:15:00.000","weeks":{"weeks":[2,3,4,5,6,7,8,9,10,11]}},{"duration":"PT60M","code":"F29SO-S1","name":"Software Engineering","room":"EC207","lecturer":"Dr R. Petrick","type":{"name":"Lec"},"start":"11:15:00.000","end":"12:15:00.000","weeks":{"weeks":[1,2,3,4,5,6,7]}},{"duration":"PT60M","code":"F29SO-S1","name":"Software Engineering","room":"GRID1","lecturer":"Dr R. Petrick","type":{"name":"Lec"},"start":"12:30:00.000","end":"13:30:00.000","weeks":{"weeks":[1,2,3,4,5,6,7,8,9,10,11,12]}}]}],"semester":{"startDate":"2019-09-16","value":1}}
+{
+  "days": [
+    {
+      "day": "MONDAY",
+      "items": [
+        {
+          "duration": "PT120M",
+          "code": "B39SA-S1",
+          "name": "Signals and Systems",
+          "room": "EM336",
+          "lecturer": "Prof. Y Wiaux",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "13:15:00.000",
+          "end": "14:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "day": "TUESDAY",
+      "items": [
+        {
+          "duration": "PT180M",
+          "code": "B39SA-S1",
+          "name": "Signals and Systems",
+          "room": "GR1DLb",
+          "lecturer": "Prof. Y Wiaux",
+          "type": {
+            "name": "WKP"
+          },
+          "start": "09:15:00.000",
+          "end": "12:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "B39AX-S1",
+          "name": "Engineering maths and stats",
+          "room": "ECG01",
+          "lecturer": "Dr J. Mota Dr Y. Altmann",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "15:15:00.000",
+          "end": "16:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT90M",
+          "code": "B39SA-S1",
+          "name": "Signals and Systems",
+          "room": "EM336",
+          "lecturer": "Prof. Y Wiaux",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "16:15:00.000",
+          "end": "17:45:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "day": "WEDNESDAY",
+      "items": [
+        {
+          "duration": "PT60M",
+          "code": "B39AX-S1",
+          "name": "Engineering maths and stats",
+          "room": "EM182",
+          "lecturer": "Dr J. Mota Dr Y. Altmann",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "10:15:00.000",
+          "end": "11:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "B39AX-S1",
+          "name": "Engineering maths and stats",
+          "room": "EM182",
+          "lecturer": "Dr J. Mota Dr Y. Altmann",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "11:15:00.000",
+          "end": "12:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "F29AI-S1",
+          "name": "Artificial Intell\u0026Intell Agent",
+          "room": "JW1",
+          "lecturer": "Dr A. Eshghi Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "12:15:00.000",
+          "end": "13:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "day": "THURSDAY",
+      "items": [
+        {
+          "duration": "PT60M",
+          "code": "F29AI-S1",
+          "name": "Artificial Intell\u0026Intell Agent",
+          "room": "JW1",
+          "lecturer": "Dr A. Eshghi Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "12:15:00.000",
+          "end": "13:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "B39AX-S1",
+          "name": "Engineering maths and stats",
+          "room": "DB113",
+          "lecturer": "Dr J. Mota Dr Y. Altmann",
+          "type": {
+            "name": "Tut"
+          },
+          "start": "13:15:00.000",
+          "end": "14:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "F29SO-S1",
+          "name": "Software Engineering",
+          "room": "GRGIC2, GRGIC1",
+          "lecturer": "Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "14:15:00.000",
+          "end": "15:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "F29SO-S1",
+          "name": "Software Engineering",
+          "room": "GRGIC2, GRGIC1",
+          "lecturer": "Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "15:15:00.000",
+          "end": "16:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "day": "FRIDAY",
+      "items": [
+        {
+          "duration": "PT60M",
+          "code": "F29SO-S1",
+          "name": "Software Engineering",
+          "room": "GR1DLa, GR1DLb",
+          "lecturer": "Dr R. Petrick",
+          "type": {
+            "name": "CLab"
+          },
+          "start": "11:15:00.000",
+          "end": "12:15:00.000",
+          "weeks": {
+            "weeks": [
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        },
+        {
+          "duration": "PT120M",
+          "code": "F29AI-S1",
+          "name": "Artificial Intell\u0026Intell Agent",
+          "room": "GR1DLa, GR1DLb",
+          "lecturer": "Dr A. Eshghi Dr R. Petrick",
+          "type": {
+            "name": "CLab"
+          },
+          "start": "09:15:00.000",
+          "end": "11:15:00.000",
+          "weeks": {
+            "weeks": [
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "F29SO-S1",
+          "name": "Software Engineering",
+          "room": "EC207",
+          "lecturer": "Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "11:15:00.000",
+          "end": "12:15:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7
+            ]
+          }
+        },
+        {
+          "duration": "PT60M",
+          "code": "F29SO-S1",
+          "name": "Software Engineering",
+          "room": "GRID1",
+          "lecturer": "Dr R. Petrick",
+          "type": {
+            "name": "Lec"
+          },
+          "start": "12:30:00.000",
+          "end": "13:30:00.000",
+          "weeks": {
+            "weeks": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "info": {
+    "code": "#SPLUS4F80E0",
+    "name": "BEng Computing and Electronics, level 3, semester 1",
+    "semester": {
+      "startDate": "2020-07-09",
+      "number": 1
+    }
+  }
+}

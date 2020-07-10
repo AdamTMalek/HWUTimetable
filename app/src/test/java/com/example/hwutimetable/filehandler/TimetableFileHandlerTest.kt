@@ -9,7 +9,6 @@ import org.junit.Assert.*
 import org.junit.BeforeClass
 import org.junit.Test
 import java.io.File
-import java.io.FileNotFoundException
 
 class TimetableFileHandlerTest {
     companion object {
@@ -50,102 +49,61 @@ class TimetableFileHandlerTest {
     }
 
     @Test
-    fun testSaveTimetable() {
-        val info = saveTimetable()
+    fun testSaveGetTimetable() {
+        val timetable = generateTimetable("C01")
 
-        val file = getFileByInfo(info)
-        assertTrue(file.exists())
+        fileHandler.save(timetable)
+        val saved = fileHandler.getTimetable(timetable.info)
+        assertEquals(timetable, saved)
     }
 
     @Test
     fun testGetStoredTimetables() {
-        val infoList = mutableListOf<TimetableInfo>()
+        val timetables = listOf(
+            generateTimetable("C01"),
+            generateTimetable("C02"),
+            generateTimetable("C03")
+        )
+        val infoList = timetables.map { it.info }
 
-        for (i in 1..5) {
-            infoList.add(saveTimetable(code = "code$i"))
+        timetables.forEach { timetable ->
+            fileHandler.save(timetable)
         }
 
-        val savedInfoList = fileHandler.getStoredTimetables()
-        assertEquals(infoList, savedInfoList)
-    }
-
-    @Test
-    fun testGetTimetable() {
-        val actualTimetable = Timetable(
-            generateTimetableDays(),
-            Semester(LocalDate.now(), 1)
-        )
-
-        val timetableInfo = TimetableInfo("code", "name", 1)
-        fileHandler.save(actualTimetable, timetableInfo)
-        val savedTimetable = fileHandler.getTimetable(timetableInfo)
-
-        assertEquals("Are timetables the same?", actualTimetable, savedTimetable)
-    }
-
-    @Test(expected = FileNotFoundException::class)
-    fun testGetCorrupted() {
-        val timetableInfo = TimetableInfo("xxx", "xxx", 1)
-        fileHandler.getTimetable(timetableInfo)
+        val stored = fileHandler.getStoredTimetables()
+        assertTrue(stored.containsAll(infoList))
     }
 
     @Test
     fun testDeleteTimetable() {
-        val info = saveTimetable()
-        fileHandler.deleteTimetable(info)
-
-        val file = getFileByInfo(info)
-        assertFalse("Has the file been deleted?", file.exists())
-    }
-
-    @Test(expected = InfoNotFoundException::class)
-    fun testDeleteCorrupted() {
-        val info = TimetableInfo("xxx", "xxx", 1)
-        fileHandler.deleteTimetable(info)
-    }
-
-    @Test
-    fun testInvalidateNoTimetable() {
-        val infoA = saveTimetable(code = "codeA")
-        val infoB = saveTimetable(code = "codeB")
-
-        val file = getFileByInfo(infoA)
-        file.delete()
-
-        val saved = fileHandler.invalidateList()
-
-        assertTrue("Was the infoA deleted?", !saved.contains(infoA))
-        assertTrue(saved.contains(infoB))
-        assertEquals(1, saved.size)
-    }
-
-    @Test
-    fun testInvalidateNoInfo() {
-        val info = saveTimetable()
-
-        val infoFile = File(dir_path + "/${InfoFile.FILENAME}")
-        infoFile.delete()
-
-        val saved = fileHandler.invalidateList()
-        assertTrue("Returned empty \"saved\" list?", saved.isEmpty())
-
-        val timetableFile = getFileByInfo(info)
-        assertTrue("Timetable file deleted?", !timetableFile.exists())
-    }
-
-
-    private fun saveTimetable(code: String = "xxx"): TimetableInfo {
-        val timetable = Timetable(
-            generateTimetableDays(),
-            Semester(LocalDate.now(), 1)
+        val timetables = listOf(
+            generateTimetable("C01"),
+            generateTimetable("C02"),
+            generateTimetable("C03")
         )
-        val info = TimetableInfo(code, "xxx", 1)
-        fileHandler.save(timetable, info)
-        return info
+        val infoList = timetables.map { it.info }
+        timetables.forEach { timetable ->
+            fileHandler.save(timetable)
+        }
+
+        val deleted = infoList.find { it.code == "C01" }!!
+        fileHandler.deleteTimetable(deleted)
+        val expected = infoList.filter { it != deleted }
+
+        val actual = fileHandler.getStoredTimetables()
+        assertEquals(expected, actual)
     }
 
-    private fun getFileByInfo(info: TimetableInfo) =
-        File(dir_path + "/${info.code}.json")
+    private fun generateTimetable(code: String): Timetable {
+        return Timetable(
+            generateTimetableDays(),
+            Timetable.TimetableInfo(
+                code, "Test Timetable", Semester(
+                    LocalDate.now(), 1
+                )
+            )
+        )
+    }
 
     private fun generateTimetableDays(): Array<TimetableDay> {
         return arrayOf(

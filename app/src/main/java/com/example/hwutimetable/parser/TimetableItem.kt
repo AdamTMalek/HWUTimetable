@@ -9,7 +9,7 @@ import org.joda.time.Period
 /**
  * TimetableItem object represents a lecture, lab, tutorial etc.
  */
-open class TimetableItem(
+data class TimetableItem(
     val code: String,
     val name: String,
     val room: String,

@@ -7,7 +7,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.hwutimetable.NotificationChannelManager
 import com.example.hwutimetable.R
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Timetable
 
 
 /**
@@ -69,7 +69,7 @@ internal class UpdateNotifier(val context: Context) : OnUpdateInProgressListener
      * It will check if there were any timetables updated (the [updated] collection may be empty),
      * and if it's not empty - it will show create and show post-update notification.
      */
-    override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+    override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
         cancelInProgressNotification()
 
         if (updated.isEmpty()) {

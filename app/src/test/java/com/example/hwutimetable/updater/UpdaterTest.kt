@@ -1,15 +1,14 @@
 package com.example.hwutimetable.updater
 
 import com.example.hwutimetable.SampleTimetableHandler
-import com.example.hwutimetable.filehandler.TimetableInfo
-import com.example.hwutimetable.parser.Parser
-import com.example.hwutimetable.parser.Timetable
-import com.example.hwutimetable.parser.TimetableParser
+import com.example.hwutimetable.parser.*
 import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.TimetableScraper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
+import org.joda.time.LocalDate
+import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.After
@@ -18,6 +17,7 @@ import org.junit.Test
 import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.io.File
+import java.util.*
 
 @ExperimentalCoroutinesApi
 class UpdaterTest {
@@ -25,10 +25,15 @@ class UpdaterTest {
     private val testDir = File("src/test/resources/sampleTimetables", "/parsed")
     private val updateWaitingTime = 500L
     private val sampleTimetablePath = "src/test/resources/sampleTimetables/tt1.html"
+    private val localDateFormatter = DateTimeFormat.forPattern("dd/MM/YYYY").withLocale(Locale.ENGLISH)
+    private val timetableInfo = Timetable.TimetableInfo(
+        "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1",
+        Semester(LocalDate.parse("16/09/2019", localDateFormatter), 1)
+    )
 
     init {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
-        val savedTimetable = SampleTimetableHandler.getTimetable(savedTimetableFile)
+        val savedTimetable = SampleTimetableHandler.getJsonTimetable(savedTimetableFile)
         parser = ParserForTest(savedTimetable as Timetable)
 
         // For coroutines
@@ -76,11 +81,11 @@ class UpdaterTest {
     @Test
     fun testNothingUpdated() {
         val file = File("src/test/resources/sampleTimetables/tt1.html")
-        val savedTimetable = SampleTimetableHandler.getTimetable(file)
+        val savedTimetable = SampleTimetableHandler.getHtmlTimetable(file, timetableInfo)
         val savedDocument = SampleTimetableHandler.getDocument(file)
 
-        if (savedDocument == null || savedTimetable == null) {
-            fail("Loader failed to load from the given file. The path is not be valid.")
+        if (savedDocument == null) {
+            fail("Loader failed to load from the given file. The path is not valid.")
             return
         }
 
@@ -100,18 +105,22 @@ class UpdaterTest {
     fun testTimetableUpdated() {
         val oldFile = File("src/test/resources/sampleTimetables/tt1.html")
         val newFile = File("src/test/resources/sampleTimetables/tt2.html")
-        val savedTimetable = SampleTimetableHandler.getTimetable(oldFile)
+        val savedTimetable = SampleTimetableHandler.getHtmlTimetable(oldFile, timetableInfo)
         val newTimetableDocument = SampleTimetableHandler.getDocument(newFile)
 
-        if (savedTimetable == null || newTimetableDocument == null) {
+        if (newTimetableDocument == null) {
             fail("Test resources are null. Check file paths.")
             return
         }
 
         val scraper = ScraperForTest(newTimetableDocument)
-        val info = TimetableInfo("#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1", 1)
+        val info = Timetable.TimetableInfo(
+            "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1", Semester(
+                LocalDate.now(), 1
+            )
+        )
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        val parser = Parser()
+        val parser = Parser(null)
         Updater(testDir, parser, scraper).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
@@ -131,7 +140,7 @@ class UpdaterTest {
             return
         }
 
-        override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+        override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
             return
         }
     }
@@ -141,8 +150,12 @@ class UpdaterTest {
             return this
         }
 
-        override fun getTimetable(): Timetable {
-            return timetable
+        override fun getSemesterStartDate(): LocalDate {
+            return timetable.info.semester.startDate
+        }
+
+        override fun getTimetable(): Array<TimetableDay> {
+            return timetable.days
         }
     }
 

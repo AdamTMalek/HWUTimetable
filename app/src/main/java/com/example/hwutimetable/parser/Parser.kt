@@ -1,20 +1,23 @@
 package com.example.hwutimetable.parser
 
 import com.example.hwutimetable.parser.exceptions.ParserException
+import org.joda.time.LocalDate
 import org.joda.time.LocalTime
+import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import java.util.*
 
 
 /**
  * This class is used to parse the given html timetable document.
- * To use the parser set the HTML document [setDocument] and then
- * use [getTimetable] to get the parsed timetable.
+ * To get the timetable (days with no information) use [getTimetable].
+ * To get the semester start day (for constructing [Timetable.TimetableInfo]
+ * use [getSemesterStartDate].
  */
-class Parser : TimetableParser {
+class Parser(private var document: Document?) : TimetableParser {
     private lateinit var timetableDays: Array<TimetableDay>
-    private lateinit var document: Document
 
     init {
         initTimetableDays()
@@ -25,10 +28,10 @@ class Parser : TimetableParser {
      * @param dayIndex: Index of the day of interest (0 - Monday, 1 - Tuesday etc.)
      * @return List of rows belonging to the day
      */
-    private fun findRowsOfDay(dayIndex: Int): List<Element> {
+    private fun findRowsOfDay(daysTable: Document, dayIndex: Int): List<Element> {
         // Get all the children of tbody (trs) and remove the first row
         // because it contains time information that we don't need
-        val rows = document.selectFirst("tbody").children().drop(1)
+        val rows = daysTable.selectFirst("tbody").children().drop(1)
 
         var currentDay = -1  // Current day index
         val dayRows = mutableListOf<Element>()  // List of rows that will be returned
@@ -152,10 +155,11 @@ class Parser : TimetableParser {
     }
 
     /**
-     * Get start date of the semester (timetable)
+     * Get start date of the semester
      */
-    private fun getSemester(): Semester {
-        val dateString = document.selectFirst("span.header-2-2-3").text()
+    override fun getSemesterStartDate(): LocalDate {
+        val datesHeader = document!!.selectFirst("span.header-2-2-3")
+        val dateString = datesHeader.text()
 
         val regex = Regex("((\\d+\\s\\w+\\s\\d+)(?=-\\d+\\s\\w+\\s\\d+))")
         val dates = regex.find(dateString)
@@ -164,24 +168,18 @@ class Parser : TimetableParser {
         val startDate = dates.groups[0]
             ?: throw ParserException("Parser was not able to parse the start date of the semester ($dateString)")
 
-        return SemesterBuilder()
-            .setFromString(startDate.value)
-            .getSemester()
+        val formatter = DateTimeFormat.forPattern("dd MMM YYYY").withLocale(Locale.ENGLISH)
+        return LocalDate.parse(startDate.value, formatter)
     }
 
     /**
      * Checks if the [document] has a parser
      * @return true if it does, false if it does not
      */
-    private fun documentHasParser() = this.document.parser() != null
+    private fun documentHasParser() = this.document!!.parser() != null
 
-    /**
-     * Sets the document that will be parsed on the next call of
-     * [getTimetable]
-     */
-    override fun setDocument(document: Document): Parser {
+    override fun setDocument(document: Document): TimetableParser {
         this.document = document
-        initTimetableDays()
         return this
     }
 
@@ -200,18 +198,16 @@ class Parser : TimetableParser {
      * @return Timetable
      */
     @Throws(ParserException::class)
-    override fun getTimetable(): Timetable {
+    override fun getTimetable(): Array<TimetableDay> {
         if (!documentHasParser())
             throw ParserException("Document must have a Jsoup parser")
 
-        val semester = getSemester()
-
-        document = Jsoup.parse(document.selectFirst("table.grid-border-args").outerHtml())
+        val daysTable = Jsoup.parse(document!!.selectFirst("table.grid-border-args").outerHtml())
         for (day in 0..4) {
-            val rows = findRowsOfDay(day)
+            val rows = findRowsOfDay(daysTable, day)
             addLecturesFromRows(rows, day)
         }
 
-        return Timetable(timetableDays, semester)
+        return timetableDays
     }
 }

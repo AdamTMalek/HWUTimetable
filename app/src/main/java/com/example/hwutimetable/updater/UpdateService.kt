@@ -6,9 +6,9 @@ import android.content.SharedPreferences
 import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
-import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.network.NetworkUtilities
 import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -68,7 +68,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
         updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
-    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(), Scraper(), this)
+    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(null), Scraper(), this)
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 
@@ -100,7 +100,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
     /**
      * Post-update callback received from the [updater]
      */
-    override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+    override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
         val logMessage = if (updated.isEmpty())
             "Post-Update callback received but no timetables were updated"
         else

@@ -14,21 +14,16 @@ object SampleTimetableHandler {
         return Jsoup.parse(file, "UTF-8")
     }
 
-    private fun getHtmlTimetable(file: File): Timetable? {
-        val document = getDocument(file) ?: return null
-        return Parser().setDocument(document).getTimetable()
+    fun getHtmlTimetable(file: File, info: Timetable.TimetableInfo): Timetable {
+        val document = getDocument(file)!!
+        val parser = Parser(document)
+        val days = parser.getTimetable()
+
+        return Timetable(days, info)
     }
 
-    private fun getJsonTimetable(file: File): Timetable? {
+    fun getJsonTimetable(file: File): Timetable? {
         val gson = TimetableFileHandler.getGson()
         return gson.fromJson(file.readText(), Timetable::class.java)
-    }
-
-    fun getTimetable(file: File): Timetable? {
-        return if (file.extension == "json")
-            getJsonTimetable(file)
-        else
-            getHtmlTimetable(file)
-
     }
 }

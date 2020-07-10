@@ -1,6 +1,6 @@
 package com.example.hwutimetable.updater
 
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Timetable
 
 interface OnUpdateFinishedListener {
     /**
@@ -8,5 +8,5 @@ interface OnUpdateFinishedListener {
      * After the update process has been finished, this method will be invoked and the updated timetables
      * (if any) will be passed as a list.
      */
-    fun onUpdateFinished(updated: Collection<TimetableInfo>)
+    fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>)
 }

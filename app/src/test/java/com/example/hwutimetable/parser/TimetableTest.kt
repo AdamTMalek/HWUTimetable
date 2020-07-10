@@ -10,8 +10,16 @@ import java.io.File
 class TimetableTest {
     @Test
     fun testEmptyTimetable() {
-        val timetable = Timetable(arrayOf(), Semester(LocalDate.now(), 1))
-        assertEquals("Total items is 0?", 0, timetable.getTotalItems())
+        val timetable = Timetable(
+            arrayOf(),
+            Timetable.TimetableInfo(
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1)
+            )
+        )
+
+        assertEquals(
+            "Total items is 0?", 0, timetable.getTotalItems()
+        )
     }
 
     @Test
@@ -24,7 +32,9 @@ class TimetableTest {
                 createTimetableDay(Day.THURSDAY, 4),
                 createTimetableDay(Day.FRIDAY, 5)
             ),
-            Semester(LocalDate.now(), 1)
+            Timetable.TimetableInfo(
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1)
+            )
         )
 
         val expectedCount = (1..5).sum()
@@ -40,8 +50,8 @@ class TimetableTest {
         val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
         val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
         val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_TIME.json")
-        val timetable1 = SampleTimetableHandler.getTimetable(timetable1File)
-        val timetable2 = SampleTimetableHandler.getTimetable(timetable2File)
+        val timetable1 = SampleTimetableHandler.getJsonTimetable(timetable1File)
+        val timetable2 = SampleTimetableHandler.getJsonTimetable(timetable2File)
 
         if (timetable1 == null || timetable2 == null) {
             fail("No timetable resources. Check file paths.")
@@ -60,8 +70,8 @@ class TimetableTest {
         val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
         val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
         val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_ROOM.json")
-        val timetable1 = SampleTimetableHandler.getTimetable(timetable1File)
-        val timetable2 = SampleTimetableHandler.getTimetable(timetable2File)
+        val timetable1 = SampleTimetableHandler.getJsonTimetable(timetable1File)
+        val timetable2 = SampleTimetableHandler.getJsonTimetable(timetable2File)
 
         if (timetable1 == null || timetable2 == null) {
             fail("No timetable resources. Check file paths.")
@@ -85,15 +95,14 @@ class TimetableTest {
 
     private fun createTimetableItem(): TimetableItem {
         return createTimetableItem(
-            LocalTime.MIDNIGHT, LocalTime.MIDNIGHT,
             WeeksBuilder().setRange(1, 1).getWeeks()
         )
     }
 
-    private fun createTimetableItem(startTime: LocalTime, endTime: LocalTime, weeks: Weeks): TimetableItem {
+    private fun createTimetableItem(weeks: Weeks): TimetableItem {
         return TimetableItem(
             "code", "name", "room", "lecturer", ItemType("type"),
-            startTime, endTime, weeks
+            LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, weeks
         )
     }
 }

@@ -1,6 +1,6 @@
 package com.example.hwutimetable.updater
 
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Timetable
 
 /**
  * Any class that checks and updates the stored timetables must implement the following interface
@@ -34,5 +34,5 @@ interface UpdatePerformer {
      * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
-    fun notifyUpdateFinished(updated: Collection<TimetableInfo>)
+    fun notifyUpdateFinished(updated: Collection<Timetable.TimetableInfo>)
 }
