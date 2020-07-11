@@ -81,7 +81,6 @@ class UpdaterTest {
     @Test
     fun testNothingUpdated() {
         val file = File("src/test/resources/sampleTimetables/tt1.html")
-        val savedTimetable = SampleTimetableHandler.getHtmlTimetable(file, timetableInfo)
         val savedDocument = SampleTimetableHandler.getDocument(file)
 
         if (savedDocument == null) {
@@ -105,7 +104,7 @@ class UpdaterTest {
     fun testTimetableUpdated() {
         val oldFile = File("src/test/resources/sampleTimetables/tt1.html")
         val newFile = File("src/test/resources/sampleTimetables/tt2.html")
-        val savedTimetable = SampleTimetableHandler.getHtmlTimetable(oldFile, timetableInfo)
+        val oldFileDoc = SampleTimetableHandler.getDocument(oldFile)!!
         val newTimetableDocument = SampleTimetableHandler.getDocument(newFile)
 
         if (newTimetableDocument == null) {
@@ -114,9 +113,10 @@ class UpdaterTest {
         }
 
         val scraper = ScraperForTest(newTimetableDocument)
+        val semesterStartDate = Parser(oldFileDoc).getSemesterStartDate()
         val info = Timetable.TimetableInfo(
             "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1", Semester(
-                LocalDate.now(), 1
+                semesterStartDate, 1
             )
         )
         val receiver = Mockito.mock(NotificationReceiver::class.java)
