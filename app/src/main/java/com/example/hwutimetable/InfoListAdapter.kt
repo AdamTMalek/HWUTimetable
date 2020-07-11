@@ -9,7 +9,7 @@ import com.example.hwutimetable.parser.Timetable
 
 
 /**
- * This class is the adapter for representing list of [TimetableInfo]
+ * This class is the adapter for representing list of timetables
  * in the [RecyclerView].
  */
 class InfoListAdapter(private val infoList: MutableList<Timetable.TimetableInfo>) :
