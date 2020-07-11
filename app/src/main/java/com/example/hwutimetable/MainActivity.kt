@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
 
         fab.setOnClickListener {
             val intent = Intent(this, AddActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
             startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
         }
         fab.backgroundTintList = applicationContext.getColorStateList(R.color.fab_color)
