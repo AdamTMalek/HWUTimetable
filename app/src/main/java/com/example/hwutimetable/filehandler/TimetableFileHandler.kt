@@ -37,7 +37,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
     }
 
     /**
-     * Saves the given timetable and its info
+     * Saves the given timetable. Does not do anything with order file.
      */
     @Throws(IOException::class)
     fun save(timetable: Timetable) {
@@ -50,7 +50,6 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         val data = gson.toJson(timetable)
 
         file.writeText(data)
-        orderFile.appendText(",${timetable.info.code}")
     }
 
     fun saveOrder(infoList: List<Timetable.TimetableInfo>) {
