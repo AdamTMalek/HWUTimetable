@@ -50,10 +50,9 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
-        val name = getTimetableName(intent)
-        setTimetableTitle(name)
-
         wholeTimetable = getTimetable(intent)
+        val name = wholeTimetable.info.name
+        setTimetableTitle(name)
         val currentWeek = wholeTimetable.info.semester.getWeek(LocalDate.now())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
@@ -102,13 +101,6 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             ?: throw Exception("Timetable (Intent Extra) has not been passed")
 
         return timetable as Timetable
-    }
-
-    private fun getTimetableName(intent: Intent): String {
-        val info = intent.extras?.get("name")
-            ?: throw Exception("Timetable name (Intent Extra) has not been passed")
-
-        return info as String
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
