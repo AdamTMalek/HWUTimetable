@@ -172,7 +172,6 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         val intent = Intent(this, ViewTimetable::class.java)
         intent.putExtra("timetable", timetable)
-        intent.putExtra("name", timetableInfo.name)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
