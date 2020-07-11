@@ -26,6 +26,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         }
     }
 
+    private val orderFile = File(directory, "timetables.txt")
     private val filterRegex = Regex("[\\#a-zA-Z0-9]+\\.json")
     private val filenameFilter = FilenameFilter { _, name -> filterRegex.matches(name) }
 
@@ -49,16 +50,29 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         val data = gson.toJson(timetable)
 
         file.writeText(data)
+        orderFile.appendText(",${timetable.info.code}")
     }
 
+    fun saveOrder(infoList: List<Timetable.TimetableInfo>) {
+        val order = infoList.joinToString(",") { it.code }
+        orderFile.writeText(order)
+    }
+
+    private fun getTimetablesOrder() = orderFile.readText().split(",")
+
     /**
-     * Returns a list of stored timetable infos
+     * Returns a list of stored timetable infos sorted by user's preference
      */
     fun getStoredTimetables(): List<Timetable.TimetableInfo> {
+        if (!orderFile.exists())
+            return emptyList()
+
+        val order = getTimetablesOrder().withIndex().associate { it.value to it.index }
+
         return directory.listFiles(filenameFilter)?.map { file ->
             val timetable = getGson().fromJson(file.readText(), Timetable::class.java)
             return@map timetable.info
-        } ?: return emptyList()
+        }?.sortedBy { order[it.code] } ?: return emptyList()
     }
 
     /**
@@ -85,6 +99,12 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
             throw getNotFoundException(file)
 
         file.delete()
+
+        val newOrder = getTimetablesOrder()
+            .filterNot { it == info.code }
+            .joinToString(",")
+
+        orderFile.writeText(newOrder)
     }
 
     /**
@@ -99,6 +119,8 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
             deleteTimetable(info)
             deleted.add(info)
         }
+
+        orderFile.delete()
         return deleted
     }
 

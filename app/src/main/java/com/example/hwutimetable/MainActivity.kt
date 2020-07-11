@@ -266,6 +266,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     override fun onStop() {
+        timetableHandler.saveOrder(infoList)
         super.onStop()
     }
 }
