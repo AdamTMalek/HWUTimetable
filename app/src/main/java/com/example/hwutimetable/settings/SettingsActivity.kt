@@ -11,9 +11,9 @@ import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.example.hwutimetable.R
-import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.network.NetworkUtilities
 import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.scraper.Scraper
 import com.example.hwutimetable.updater.OnUpdateFinishedListener
 import com.example.hwutimetable.updater.UpdateManager
@@ -169,7 +169,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun startUpdate() {
             val activity = this.activity!!
             val context = activity.applicationContext
-            val updater = Updater(activity.filesDir, Parser(), Scraper(), activity)
+            val updater = Updater(activity.filesDir, Parser(null), Scraper(), activity)
             val notifier = UpdateNotifier(context)
 
             updater.addInProgressListener(notifier)
@@ -196,7 +196,7 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
         }
 
-        override fun onUpdateFinished(updated: Collection<TimetableInfo>) {
+        override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
             val message = when (updated.isEmpty()) {
                 true -> "All timetables are up-to-date"
                 false -> "Updated ${updated.size} timetable(s)"

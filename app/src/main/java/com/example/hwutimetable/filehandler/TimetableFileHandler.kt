@@ -12,11 +12,10 @@ import org.joda.time.LocalTime
 import org.joda.time.Period
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.FilenameFilter
 import javax.inject.Inject
 
 class TimetableFileHandler @Inject constructor(private val directory: File) {
-    private val infoFile = InfoFile(directory)
-
     companion object {
         fun getGson(): Gson {
             return GsonBuilder()
@@ -27,25 +26,67 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         }
     }
 
-    @Throws(IOException::class)
-            /**
-             * Saves the given timetable and its info
-             */
-    fun save(timetable: Timetable, timetableInfo: TimetableInfo) {
-        infoFile.save(timetableInfo)
+    private val orderFile = File(directory, "timetables.txt")
+    private val filterRegex = Regex("[\\#a-zA-Z0-9]+\\.json")
+    private val filenameFilter = FilenameFilter { _, name -> filterRegex.matches(name) }
 
-        val file = File(directory, getFilename(timetableInfo))
+
+    init {
+        if (!directory.exists())
+            directory.mkdir()
+    }
+
+    /**
+     * Saves the given timetable.
+     * Gets placed last in the orders file.
+     */
+    @Throws(IOException::class)
+    fun save(timetable: Timetable) {
+        val file = File(directory, getFilename(timetable.info))
+
+        if (!file.exists())
+            file.createNewFile()
+
         val gson = getGson()
         val data = gson.toJson(timetable)
 
         file.writeText(data)
+
+        val newCode = timetable.info.code
+        val order = getTimetablesOrder().toMutableList()
+
+        if (order.contains(newCode))
+            return
+
+        order.add(timetable.info.code)
+        orderFile.writeText(order.joinToString(","))
+    }
+
+    fun saveOrder(infoList: List<Timetable.TimetableInfo>) {
+        val order = infoList.joinToString(",") { it.code }
+        orderFile.writeText(order)
+    }
+
+    private fun getTimetablesOrder(): List<String> {
+        if (!orderFile.exists())
+            return emptyList()
+
+        return orderFile.readText().split(",")
     }
 
     /**
-     * Returns a list of stored timetable infos
+     * Returns a list of stored timetable infos sorted by user's preference
      */
-    fun getStoredTimetables(): List<TimetableInfo> {
-        return infoFile.getList()
+    fun getStoredTimetables(): List<Timetable.TimetableInfo> {
+        if (!orderFile.exists())
+            return emptyList()
+
+        val order = getTimetablesOrder().withIndex().associate { it.value to it.index }
+
+        return directory.listFiles(filenameFilter)?.map { file ->
+            val timetable = getGson().fromJson(file.readText(), Timetable::class.java)
+            return@map timetable.info
+        }?.sortedBy { order[it.code] } ?: return emptyList()
     }
 
     /**
@@ -53,7 +94,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun getTimetable(timetableInfo: TimetableInfo): Timetable {
+    fun getTimetable(timetableInfo: Timetable.TimetableInfo): Timetable {
         val file = File(directory, getFilename(timetableInfo))
         if (!file.exists())
             throw getNotFoundException(file)
@@ -66,13 +107,18 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun deleteTimetable(timetableInfo: TimetableInfo) {
-        infoFile.delete(timetableInfo)
-        val file = File(directory, getFilename(timetableInfo))
+    fun deleteTimetable(info: Timetable.TimetableInfo) {
+        val file = File(directory, getFilename(info))
         if (!file.exists())
             throw getNotFoundException(file)
 
         file.delete()
+
+        val newOrder = getTimetablesOrder()
+            .filterNot { it == info.code }
+            .joinToString(",")
+
+        orderFile.writeText(newOrder)
     }
 
     /**
@@ -81,39 +127,18 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
      * @throws FileNotFoundException when a timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun deleteAllTimetables(): List<TimetableInfo> {
-        val deleted = mutableListOf<TimetableInfo>()
-        infoFile.getList().forEach {
-            deleteTimetable(it)
-            deleted.add(it)
+    fun deleteAllTimetables(): List<Timetable.TimetableInfo> {
+        val deleted = mutableListOf<Timetable.TimetableInfo>()
+        getStoredTimetables().forEach { info ->
+            deleteTimetable(info)
+            deleted.add(info)
         }
+
+        orderFile.delete()
         return deleted
     }
 
-    /**
-     * This method will
-     * - delete all timetables (json files) that do not have info entries saved
-     * - delete all info entries of timetables that are missing
-     * @return [TimetableInfo] list of timetables that are left
-     */
-    fun invalidateList(): List<TimetableInfo> {
-        val codes = getStoredTimetablesCodes()
-        val infoList = infoFile.getList()
-        val infoCodes = infoList.map { it.code }
-        val noInfo = codes.filterNot { code -> infoCodes.contains(code.nameWithoutExtension) }
-
-        noInfo.forEach { file -> file.delete() }
-        return infoFile.invalidateInfoFile(codes.map { it.nameWithoutExtension }.toList())
-    }
-
-    private fun getStoredTimetablesCodes(): Array<File> {
-        return directory.listFiles { _, name ->
-            name.endsWith(".json", true)
-                .and(!name.endsWith(InfoFile.FILENAME))
-        } ?: return emptyArray()
-    }
-
-    private fun getFilename(timetableInfo: TimetableInfo) = "${timetableInfo.code}.json"
+    private fun getFilename(timetableInfo: Timetable.TimetableInfo) = "${timetableInfo.code}.json"
 
     private fun getNotFoundException(file: File): FileNotFoundException {
         return FileNotFoundException("Timetable file (${file.name}) was not found")

@@ -2,11 +2,17 @@ package com.example.hwutimetable.parser
 
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
-import org.joda.time.LocalDate
-
 
 @Parcelize
-class Timetable(val days: Array<TimetableDay>, val semester: Semester) : Parcelable {
+data class Timetable(val days: Array<TimetableDay>, val info: TimetableInfo) : Parcelable {
+    /**
+     * TimetableInfo represents information about a timetable.
+     * @param code: Code of the timetable (from the option value from the Timetables website)
+     * @param name: Readable name
+     * @param semester: Semester information (start date and number)
+     */
+    @Parcelize
+    data class TimetableInfo(val code: String, val name: String, val semester: Semester) : Parcelable
 
     /**
      * Get total items in the timetable (includes clashes - if they exists
@@ -37,12 +43,7 @@ class Timetable(val days: Array<TimetableDay>, val semester: Semester) : Parcela
             days.add(day.getForWeek(week))
         }
 
-        return Timetable(days.toTypedArray(), this.semester)
-    }
-
-    fun getForDate(date: LocalDate): Timetable {
-        val week = semester.getWeek(date)
-        return getForWeek(week)
+        return Timetable(days.toTypedArray(), info)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -51,6 +52,7 @@ class Timetable(val days: Array<TimetableDay>, val semester: Semester) : Parcela
 
         other as Timetable
 
+        if (info != other.info) return false
         if (!days.contentEquals(other.days)) return false
 
         return true
@@ -58,7 +60,7 @@ class Timetable(val days: Array<TimetableDay>, val semester: Semester) : Parcela
 
     override fun hashCode(): Int {
         var result = days.contentHashCode()
-        result = 31 * result + semester.hashCode()
+        result = 31 * result + info.hashCode()
         return result
     }
 }

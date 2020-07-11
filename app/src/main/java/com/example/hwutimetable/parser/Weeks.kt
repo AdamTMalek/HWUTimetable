@@ -1,6 +1,6 @@
 package com.example.hwutimetable.parser
 
-class Weeks(val weeks: IntArray) {
+data class Weeks(val weeks: IntArray) {
     /**
      * Get the duration (number of weeks)
      */

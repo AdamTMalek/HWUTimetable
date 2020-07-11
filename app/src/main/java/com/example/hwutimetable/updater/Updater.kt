@@ -3,7 +3,6 @@ package com.example.hwutimetable.updater
 import android.content.Context
 import com.example.hwutimetable.R
 import com.example.hwutimetable.filehandler.TimetableFileHandler
-import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.parser.TimetableParser
 import com.example.hwutimetable.scraper.TimetableScraper
@@ -50,14 +49,15 @@ class Updater(
         GlobalScope.launch {
             scraper.setup()
 
-            val timetables = getStoredTimetables()
-            val updated = mutableListOf<TimetableInfo>()
-            timetables.forEach { timetable ->
-                val newTimetable = getTimetable(timetable)
+            val savedTimetablesInfoList = getStoredTimetables()
+            val updated = mutableListOf<Timetable.TimetableInfo>()
+            savedTimetablesInfoList.forEach { savedInfo ->
+                val savedTimetable = fileHandler.getTimetable(savedInfo)
+                val newTimetable = getTimetable(savedInfo)
 
-                if (isUpdated(timetable, newTimetable)) {
-                    saveTimetable(newTimetable, timetable)
-                    updated.add(timetable)
+                if (isUpdated(savedTimetable, newTimetable)) {
+                    saveTimetable(newTimetable)
+                    updated.add(savedInfo)
                 }
             }
 
@@ -68,34 +68,32 @@ class Updater(
         }
     }
 
-    private suspend fun getTimetable(info: TimetableInfo): Timetable {
-        val doc = scraper.getTimetable(info.code, info.semester)
-        return parser.setDocument(doc).getTimetable()
+    private suspend fun getTimetable(info: Timetable.TimetableInfo): Timetable {
+        val doc = scraper.getTimetable(info.code, info.semester.number)
+        return Timetable(parser.setDocument(doc).getTimetable(), info)
     }
 
     /**
-     * Check if the timetable has been updated. This loads the stored timetable (using the [storedInfo]
-     * and compares the two timetables.
-     * @param storedInfo: [TimetableInfo] of the stored timetable
+     * Check if the timetable has been updated (checks for difference)
+     * @param oldTimetable: The stored timetable
      * @param newTimetable: Scraped timetable that may or may not have been updated
      * @return true if the [newTimetable] is different from the one stored on the device.
      */
-    private fun isUpdated(storedInfo: TimetableInfo, newTimetable: Timetable): Boolean {
-        val oldTimetable = fileHandler.getTimetable(storedInfo)
+    private fun isUpdated(oldTimetable: Timetable, newTimetable: Timetable): Boolean {
         return oldTimetable != newTimetable
     }
 
     /**
      * Save the timetable on the device
      */
-    private fun saveTimetable(timetable: Timetable, info: TimetableInfo) {
-        fileHandler.save(timetable, info)
+    private fun saveTimetable(timetable: Timetable) {
+        fileHandler.save(timetable)
     }
 
     /**
-     * Get the collection of stored timetables (as [TimetableInfo]
+     * Get the collection of stored timetables (as [Timetable.TimetableInfo]
      */
-    private fun getStoredTimetables(): Collection<TimetableInfo> {
+    private fun getStoredTimetables(): Collection<Timetable.TimetableInfo> {
         return fileHandler.getStoredTimetables()
     }
 
@@ -135,7 +133,7 @@ class Updater(
      * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
-    override fun notifyUpdateFinished(updated: Collection<TimetableInfo>) {
+    override fun notifyUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
         finishedListeners.forEach { it.onUpdateFinished(updated) }
     }
 }

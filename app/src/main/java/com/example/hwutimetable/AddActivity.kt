@@ -9,8 +9,9 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
 import com.example.hwutimetable.filehandler.TimetableFileHandler
-import com.example.hwutimetable.filehandler.TimetableInfo
 import com.example.hwutimetable.parser.Parser
+import com.example.hwutimetable.parser.Semester
+import com.example.hwutimetable.parser.Timetable
 import com.example.hwutimetable.scraper.Option
 import com.example.hwutimetable.scraper.Scraper
 import kotlinx.android.synthetic.main.activity_add.*
@@ -145,19 +146,25 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private suspend fun getTimetable() {
         checkNotNull(requestedGroup) { "requestedGroup cannot be null" }
 
-        val document = scraper.getTimetable(requestedGroup!!.optionValue, semester)
-        val timetable = Parser().setDocument(document).getTimetable()
-        val timetableInfo = TimetableInfo(
-            requestedGroup!!.optionValue,
-            requestedGroup!!.text,
-            semester
-        )
+        val code = requestedGroup!!.optionValue
+        val name = requestedGroup!!.text
+        val semesterNumber = semester
+
+        val document = scraper.getTimetable(code, semesterNumber)
+        val parser = Parser(document)
+        val timetableDays = parser.getTimetable()
+        val semesterStartDate = parser.getSemesterStartDate()
+
+        val semester = Semester(semesterStartDate, semesterNumber)
+        val info = Timetable.TimetableInfo(code, name, semester)
+        val timetable = Timetable(timetableDays, info)
+
         val directory = applicationContext.filesDir
 
         if (saveTimetable()) {
             withContext(Dispatchers.IO) {
                 val fileHandler = TimetableFileHandler(directory)
-                fileHandler.save(timetable, timetableInfo)
+                fileHandler.save(timetable)
             }
         }
 

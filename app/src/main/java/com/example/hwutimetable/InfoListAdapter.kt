@@ -5,22 +5,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.parser.Timetable
 
 
 /**
- * This class is the adapter for representing list of [TimetableInfo]
+ * This class is the adapter for representing list of timetables
  * in the [RecyclerView].
  */
-class InfoListAdapter(private val infoList: MutableList<TimetableInfo>) :
+class InfoListAdapter(private val infoList: MutableList<Timetable.TimetableInfo>) :
     RecyclerView.Adapter<InfoListAdapter.InfoListViewHolder>() {
 
     class InfoListViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(timetableInfo: TimetableInfo) {
+        fun bind(timetableInfo: Timetable.TimetableInfo) {
             val title = view.findViewById<TextView>(R.id.timetable_title)
             val semester = view.findViewById<TextView>(R.id.semester_circle)
             title.text = timetableInfo.name
-            semester.text = if (timetableInfo.semester == 1) "I" else "II"
+            semester.text = if (timetableInfo.semester.number == 1) "I" else "II"
         }
     }
 

@@ -9,9 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import com.example.hwutimetable.di.FileModule
 import com.example.hwutimetable.di.NetworkUtilitiesModule
-import com.example.hwutimetable.filehandler.InfoFile
-import com.example.hwutimetable.filehandler.TimetableInfo
+import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.network.NetworkUtils
+import com.example.hwutimetable.parser.Semester
+import com.example.hwutimetable.parser.Timetable
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.Binds
 import dagger.Module
@@ -24,6 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.Assert.assertFalse
 import junit.framework.Assert.assertTrue
+import org.joda.time.LocalDate
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -53,11 +55,7 @@ class MainActivityTest {
     @InstallIn(ApplicationComponent::class)
     @Module
     abstract class TestNetworkUtilitiesModule {
-        class TestNetworkUtilities : NetworkUtils {
-            @Inject
-            constructor() {
-
-            }
+        class TestNetworkUtilities @Inject constructor() : NetworkUtils {
 
             var wifiOn = false
             var dataOn = false
@@ -86,7 +84,7 @@ class MainActivityTest {
     private lateinit var scenario: ActivityScenario<MainActivity>
 
     @Inject
-    lateinit var infoFile: InfoFile
+    lateinit var timetableFileHandler: TimetableFileHandler
 
     @Inject
     lateinit var networkUtils: NetworkUtils
@@ -101,17 +99,23 @@ class MainActivityTest {
     }
 
     private fun populateInfoList() {
-        infoFile.saveAll(
-            listOf(
-                TimetableInfo("C1", "N1", 1),
-                TimetableInfo("C2", "N2", 2)
-            )
-        )
+        fun getInfo(code: String): Timetable.TimetableInfo {
+            val semester = Semester(LocalDate.now(), 1)
+            return Timetable.TimetableInfo("C01", "Test", semester)
+        }
+
+        listOf(
+            Timetable(emptyArray(), getInfo("C01")),
+            Timetable(emptyArray(), getInfo("C02")),
+            Timetable(emptyArray(), getInfo("C03"))
+        ).forEach { timetable ->
+            timetableFileHandler.save(timetable)
+        }
     }
 
     @Before
     fun clearInfoFile() {
-        infoFile.deleteAll()
+        timetableFileHandler.deleteAllTimetables()
     }
 
     @Test

@@ -13,13 +13,13 @@ class ParserTest {
     private val document: Document = org.jsoup.Jsoup.parse(
         File("src/test/resources/sampleTimetables/tt1.html"), "UTF-8"
     )
-    private val parser: Parser = Parser()
+    private val parser: Parser = Parser(document)
 
-    private var timetable: Timetable? = null
+    private lateinit var days: Array<TimetableDay>
 
     @Before
     fun runParser() {
-        timetable = parser.setDocument(document).getTimetable()
+        days = parser.getTimetable()
     }
 
     /**
@@ -27,13 +27,13 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser().setDocument(Document("src/test/sampleTimetables/tt1.html")).getTimetable()
+        Parser(Document("src/test/sampleTimetables/tt1.html")).getTimetable()
     }
 
     @Test
     fun testNumberOfItems() {
         // There are 15 timetable items in tt1.html
-        assertEquals(15, timetable!!.getTotalItems())
+        assertEquals(15, days.sumBy { day -> day.items.size })
     }
 
     @Test
@@ -41,7 +41,7 @@ class ParserTest {
         val expectedList = arrayOf(1, 3, 3, 4, 4)
 
         expectedList.forEachIndexed { index, expected ->
-            assertEquals(expected, timetable!!.days[index].items.size)
+            assertEquals(expected, days[index].items.size)
         }
     }
 
@@ -55,17 +55,17 @@ class ParserTest {
             listOf("F29SO-S1", "F29AI-S1", "F29SO-S1", "F29SO-S1")  // Friday
         )
 
-        timetable!!.days.forEachIndexed { index, _ ->
-            val codes = timetable!!.days[index].items.map { it.code }
+        days.forEachIndexed { index, _ ->
+            val codes = days[index].items.map { it.code }
             assertTrue(expected[index].containsAll(codes))
-            assertEquals(expected[index].size, timetable!!.days[index].items.size)
+            assertEquals(expected[index].size, days[index].items.size)
         }
     }
 
     @Test
     fun testSemester() {
         val expectedStartDate = LocalDate(2019, 9, 16)
-        val actualStartDate = timetable!!.semester.startDate
+        val actualStartDate = parser.getSemesterStartDate()
 
         assertEquals(expectedStartDate, actualStartDate)
     }
