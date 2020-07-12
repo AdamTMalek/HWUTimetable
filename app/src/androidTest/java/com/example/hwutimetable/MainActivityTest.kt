@@ -7,6 +7,11 @@ import androidx.core.view.isNotEmpty
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.intent.Intents
+import androidx.test.espresso.intent.matcher.IntentMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.example.hwutimetable.di.FileModule
 import com.example.hwutimetable.di.NetworkUtilitiesModule
 import com.example.hwutimetable.filehandler.TimetableFileHandler
@@ -212,6 +217,20 @@ class MainActivityTest {
             val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
             assertTrue(addButton.isEnabled)
         }
+    }
+
+    @Test
+    fun testAddButtonStartsActivity() {
+        with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
+            wifiOn = true
+        }
+        Intents.init()
+
+        launchActivity()
+        Espresso.onView(withId(R.id.fab))
+            .perform(click())
+
+        Intents.intended(IntentMatchers.hasComponent(AddActivity::class.java.name))
     }
 
     /**
