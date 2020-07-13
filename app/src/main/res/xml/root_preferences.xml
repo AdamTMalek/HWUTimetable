@@ -20,14 +20,14 @@
                 app:title="Allow using mobile data"
                 app:dependency="enable_updates"/>
 
-        <com.example.hwutimetable.settings.TimePreference
+        <com.github.hwutimetable.settings.TimePreference
                 app:key="time_preference"
                 app:title="Update time"
                 app:summary="Click here to change the update time."
                 app:defaultValue="90"
                 app:dependency="enable_updates"/>
 
-        <com.example.hwutimetable.settings.NumberPreference
+        <com.github.hwutimetable.settings.NumberPreference
                 app:key="frequency_preference"
                 app:title="Update frequency"
                 app:summary="Number of days between each update check"
