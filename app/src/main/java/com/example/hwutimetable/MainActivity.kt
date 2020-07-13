@@ -225,7 +225,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     private fun setupAlertDialog() {
         val listener = DialogInterface.OnClickListener { _, which -> handleDialogClick(which) }
         alertDialog = AlertDialog.Builder(this)
-        alertDialog.setMessage("Are you sure?")
+        alertDialog.setMessage(getString(R.string.delete_all_confirmation))
             .setPositiveButton("Yes", listener)
             .setNegativeButton("No", listener)
     }
