@@ -12,12 +12,15 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.platform.app.InstrumentationRegistry
 import com.example.hwutimetable.di.FileModule
 import com.example.hwutimetable.di.NetworkUtilitiesModule
 import com.example.hwutimetable.filehandler.TimetableFileHandler
 import com.example.hwutimetable.network.NetworkUtils
 import com.example.hwutimetable.parser.Semester
 import com.example.hwutimetable.parser.Timetable
+import com.example.hwutimetable.settings.SettingsActivity
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.Binds
 import dagger.Module
@@ -231,6 +234,21 @@ class MainActivityTest {
             .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(AddActivity::class.java.name))
+    }
+
+    @Test
+    fun testSettingsButtonStartsActivity() {
+        Intents.init()
+        launchActivity()
+
+        // Open menu
+        Espresso.openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().context)
+
+        // Find settings menu entry (withId does not work)
+        Espresso.onView(withText(R.string.action_settings))
+            .perform(click())
+
+        Intents.intended(IntentMatchers.hasComponent(SettingsActivity::class.java.name))
     }
 
     /**
