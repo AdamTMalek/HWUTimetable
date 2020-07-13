@@ -31,8 +31,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import org.joda.time.LocalDate
 import org.junit.After
 import org.junit.Before
@@ -234,6 +234,8 @@ class MainActivityTest {
             .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(AddActivity::class.java.name))
+
+        Intents.release()
     }
 
     @Test
@@ -249,6 +251,8 @@ class MainActivityTest {
             .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(SettingsActivity::class.java.name))
+
+        Intents.release()
     }
 
 
@@ -305,6 +309,7 @@ class MainActivityTest {
      */
     @After
     fun cleanup() {
-        scenario.close()
+        if (this::scenario.isInitialized)
+            scenario.close()
     }
 }
