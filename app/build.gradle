@@ -13,12 +13,12 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
-        applicationId "com.example.hwutimetable"
+        applicationId "com.github.hwutimetable"
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "0.8"
-        testInstrumentationRunner "com.example.hwutimetable.HiltTestRunner"
+        versionName "0.8.5"
+        testInstrumentationRunner "com.github.hwutimetable.HiltTestRunner"
     }
     buildTypes {
         release {
