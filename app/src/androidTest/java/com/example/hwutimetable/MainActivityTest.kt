@@ -9,10 +9,10 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.example.hwutimetable.di.FileModule
 import com.example.hwutimetable.di.NetworkUtilitiesModule
@@ -242,7 +242,7 @@ class MainActivityTest {
         launchActivity()
 
         // Open menu
-        Espresso.openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().context)
+        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
 
         // Find settings menu entry (withId does not work)
         Espresso.onView(withText(R.string.action_settings))
@@ -250,6 +250,55 @@ class MainActivityTest {
 
         Intents.intended(IntentMatchers.hasComponent(SettingsActivity::class.java.name))
     }
+
+
+    @Test
+    fun testDeleteAllDisplaysAlertDialog() {
+        launchActivity()
+        // Open menu
+        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        // Find delete all menu entry
+        Espresso.onView(withText(R.string.delete_all))
+            .perform(click())
+
+        // Check if displayed
+        Espresso.onView(withText(R.string.delete_all_confirmation))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testDeleteAllWhenYesClicked() {
+        populateInfoList()
+        launchActivity()
+
+        // Get the dialog to display, click on the OK button
+        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.onView(withText(R.string.delete_all)).perform(click())
+        Espresso.onView(withId(android.R.id.button1)).perform(click())
+
+        Espresso.onView(withId(R.id.recycler_view)).check { view, _ ->
+            view as RecyclerView
+            assertTrue(view.isEmpty())
+        }
+    }
+
+    @Test
+    fun testDeleteAllWhenNoClicked() {
+        populateInfoList()
+        launchActivity()
+
+        // Get the dialog to display, click on the OK button
+        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.onView(withText(R.string.delete_all)).perform(click())
+        Espresso.onView(withId(android.R.id.button2)).perform(click())
+
+        Espresso.onView(withId(R.id.recycler_view)).check { view, _ ->
+            view as RecyclerView
+            assertTrue(view.isNotEmpty())
+        }
+    }
+
+    private fun getContext() = InstrumentationRegistry.getInstrumentation().context
 
     /**
      * Finish the activity and clean up the device state

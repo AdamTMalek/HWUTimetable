@@ -15,6 +15,7 @@
 	<string name="update_notification_channel_desc">
 		Update notifications appear whenever a stored timetable has been updated
 	</string>
+	<string name="delete_all_confirmation">Are you sure?</string>
 	<string name="update_settings">Update settings</string>
 	<string name="update_time">Update time:</string>
 	<string name="title_activity_settings">Settings</string>
