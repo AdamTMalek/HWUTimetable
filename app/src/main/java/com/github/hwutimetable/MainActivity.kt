@@ -54,6 +54,8 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         fab.backgroundTintList = applicationContext.getColorStateList(R.color.fab_color)
 
         recycler_view.layoutManager = LinearLayoutManager(this)
+        initializeListAdapter()
+        onInfoListChange()
         addTouchCallbacksHandler()
         listTimetables()
         setupAlertDialog()
@@ -150,23 +152,15 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         if (infoList.isEmpty())
             return
 
-        no_timetables_text.visibility = View.INVISIBLE
-
-        initializeListAdapter()
-        recycler_view.adapter = listAdapter
+        hideNoTimetablesPlaceholder()
     }
 
     private fun reloadInfoList() {
-        // Check if the list was empty to begin with
-        // then, the no_timetables_text will exist
-        if (infoList.isEmpty()) {
-            no_timetables_text.visibility = View.VISIBLE
-        }
         infoList.clear()
         infoList.addAll(timetableHandler.getStoredTimetables())
 
         initializeListAdapter()
-        listAdapter.notifyDataSetChanged()
+        onInfoListChange()
     }
 
     private fun initializeListAdapter() {
@@ -174,6 +168,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             return
 
         listAdapter = InfoListAdapter(infoList)
+        recycler_view.adapter = listAdapter
     }
 
     private fun onItemClick(position: Int) {
@@ -204,12 +199,9 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         }.plus(string)
 
         infoList.removeAt(position)
-        if (infoList.isEmpty()) {
-            no_timetables_text.visibility = View.VISIBLE
-        }
 
         listAdapter.notifyItemRemoved(position)
-        listAdapter.notifyDataSetChanged()
+        onInfoListChange()
         Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_SHORT).show()
     }
 
@@ -245,8 +237,24 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             false -> "Something went wrong. Not all timetables were deleted"
         }
 
-        listAdapter.notifyDataSetChanged()
+        onInfoListChange()
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun onInfoListChange() {
+        listAdapter.notifyDataSetChanged()
+        if (infoList.isEmpty())
+            displayNoTimetablesPlaceholder()
+        else
+            hideNoTimetablesPlaceholder()
+    }
+
+    private fun displayNoTimetablesPlaceholder() {
+        no_timetables_text.visibility = View.VISIBLE
+    }
+
+    private fun hideNoTimetablesPlaceholder() {
+        no_timetables_text.visibility = View.INVISIBLE
     }
 
     override fun onConnectionAvailable() {
