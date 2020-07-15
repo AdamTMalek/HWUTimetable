@@ -7,7 +7,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
 
-object SampleTimetableHandler {
+class SampleTimetableHandler {
     fun getDocument(file: File): Document? {
         if (!file.exists())
             return null
