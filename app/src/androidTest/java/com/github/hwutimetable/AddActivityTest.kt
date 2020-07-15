@@ -40,6 +40,7 @@ class AddActivityTest {
 
         override fun getDepartments(): List<Option> {
             return listOf(
+                Option("dval0", "(Any Department)"),
                 Option("dval1", "dep1"),
                 Option("dval2", "dep2")
             )
@@ -47,6 +48,7 @@ class AddActivityTest {
 
         override fun getLevels(): List<Option> {
             return listOf(
+                Option("lval0", "(Any Level)"),
                 Option("lval1", "lev1"),
                 Option("lval2", "lev2")
             )
@@ -93,6 +95,26 @@ class AddActivityTest {
         scenario.onActivity { activity ->
             val levelsSpinner = activity.findViewById<Spinner>(R.id.levels_spinner)
             assertTrue(levelsSpinner.adapter.count > 0)
+        }
+    }
+
+    @Test
+    fun testGroupsListGetsPopulated() {
+        // To test if groups list get populated, we first have to select
+        // a department and a level
+
+        // Split the onActivity functions into two. First will apply the filters,
+        // then the second will check if the groups spinner was populated.
+        // If we join them together, it will not work, because groups
+        // are fetched asynchronously.
+        scenario.onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
+            activity.findViewById<Spinner>(R.id.levels_spinner).setSelection(1)
+        }
+
+        scenario.onActivity { activity ->
+            val groupsSpinner = activity.findViewById<Spinner>(R.id.groups_spinner)
+            assertTrue(groupsSpinner.count > 0)
         }
     }
 }
