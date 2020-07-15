@@ -29,6 +29,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     @Inject
     lateinit var scraper: TimetableScraper
+
+    @Inject
+    lateinit var timetableHandler: TimetableFileHandler
     private var departments: List<Option>? = null
     private var levels: List<Option>? = null
     private var groups: List<Option>? = null
@@ -177,12 +180,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val info = Timetable.TimetableInfo(code, name, semester)
         val timetable = Timetable(timetableDays, info)
 
-        val directory = applicationContext.filesDir
-
         if (saveTimetable()) {
             withContext(Dispatchers.IO) {
-                val fileHandler = TimetableFileHandler(directory)
-                fileHandler.save(timetable)
+                timetableHandler.save(timetable)
             }
         }
 
