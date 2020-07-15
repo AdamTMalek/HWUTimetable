@@ -15,15 +15,20 @@ import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.Scraper
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private val mainScope = MainScope()
-    private val scraper = Scraper()
+
+    @Inject
+    lateinit var scraper: Scraper
     private var departments: List<Option>? = null
     private var levels: List<Option>? = null
     private var groups: List<Option>? = null
