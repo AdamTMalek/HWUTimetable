@@ -8,6 +8,8 @@ import org.junit.Test
 import java.io.File
 
 class TimetableTest {
+    private val timetableHandler = SampleTimetableHandler()
+
     @Test
     fun testEmptyTimetable() {
         val timetable = Timetable(
@@ -50,8 +52,8 @@ class TimetableTest {
         val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
         val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
         val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_TIME.json")
-        val timetable1 = SampleTimetableHandler.getJsonTimetable(timetable1File)
-        val timetable2 = SampleTimetableHandler.getJsonTimetable(timetable2File)
+        val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
+        val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
 
         if (timetable1 == null || timetable2 == null) {
             fail("No timetable resources. Check file paths.")
@@ -70,8 +72,8 @@ class TimetableTest {
         val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
         val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
         val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_ROOM.json")
-        val timetable1 = SampleTimetableHandler.getJsonTimetable(timetable1File)
-        val timetable2 = SampleTimetableHandler.getJsonTimetable(timetable2File)
+        val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
+        val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
 
         if (timetable1 == null || timetable2 == null) {
             fail("No timetable resources. Check file paths.")

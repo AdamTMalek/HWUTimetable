@@ -34,9 +34,11 @@ class UpdaterTest {
         Semester(LocalDate.parse("16/09/2019", localDateFormatter), 1)
     )
 
+    private val timetableHandler = SampleTimetableHandler()
+
     init {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
-        val savedTimetable = SampleTimetableHandler.getJsonTimetable(savedTimetableFile)
+        val savedTimetable = timetableHandler.getJsonTimetable(savedTimetableFile)
         parser = ParserForTest(savedTimetable as Timetable)
 
         // For coroutines
@@ -84,7 +86,7 @@ class UpdaterTest {
     @Test
     fun testNothingUpdated() {
         val file = File("src/test/resources/sampleTimetables/tt1.html")
-        val savedDocument = SampleTimetableHandler.getDocument(file)
+        val savedDocument = timetableHandler.getDocument(file)
 
         if (savedDocument == null) {
             fail("Loader failed to load from the given file. The path is not valid.")
@@ -107,8 +109,8 @@ class UpdaterTest {
     fun testTimetableUpdated() {
         val oldFile = File("src/test/resources/sampleTimetables/tt1.html")
         val newFile = File("src/test/resources/sampleTimetables/tt2.html")
-        val oldFileDoc = SampleTimetableHandler.getDocument(oldFile)!!
-        val newTimetableDocument = SampleTimetableHandler.getDocument(newFile)
+        val oldFileDoc = timetableHandler.getDocument(oldFile)!!
+        val newTimetableDocument = timetableHandler.getDocument(newFile)
 
         if (newTimetableDocument == null) {
             fail("Test resources are null. Check file paths.")

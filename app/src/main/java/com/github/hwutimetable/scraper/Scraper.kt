@@ -6,6 +6,7 @@ import org.jsoup.Connection
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import javax.inject.Inject
 
 /**
  * The [Scraper] class is the main implementation of [TimetableScraper]
@@ -15,7 +16,7 @@ import org.jsoup.nodes.Document
  * The network functions are suspending and run on a separate networking
  * thread by using Kotlin's Dispatcher.IO.
  */
-class Scraper : TimetableScraper {
+class Scraper @Inject constructor() : TimetableScraper {
     private val loginUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/login.aspx"
     private val defaultUrl = "https://timetable.hw.ac.uk/WebTimetables/LiveED/default.aspx"
 
