@@ -6,12 +6,17 @@ import com.github.hwutimetable.parser.Timetable
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
+import java.io.InputStream
 
 class SampleTimetableHandler {
     fun getDocument(file: File): Document? {
         if (!file.exists())
             return null
         return Jsoup.parse(file, "UTF-8")
+    }
+
+    fun getDocument(stream: InputStream): Document? {
+        return Jsoup.parse(stream, "UTF-8", "")
     }
 
     fun getHtmlTimetable(file: File, info: Timetable.TimetableInfo): Timetable {
