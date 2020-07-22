@@ -24,12 +24,12 @@ class ViewTimetableActivityTest {
         Timetable(days, Timetable.TimetableInfo("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
     }
 
-    private lateinit var scenario: ActivityScenario<ViewTimetable>
+    private lateinit var scenario: ActivityScenario<ViewTimetableActivity>
 
 
     @Before
     fun setup() {
-        val intent = Intent(targetContext, ViewTimetable::class.java)
+        val intent = Intent(targetContext, ViewTimetableActivity::class.java)
         intent.putExtra("timetable", timetable)
         scenario = ActivityScenario.launch(intent)
     }

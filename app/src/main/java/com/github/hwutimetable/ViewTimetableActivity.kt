@@ -27,7 +27,7 @@ import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import org.joda.time.LocalDate
 import java.util.*
 
-class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /**
      * The [androidx.viewpager.widget.PagerAdapter] that will provide
@@ -265,7 +265,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun setPreviousDayClickListener() {
             rootView.findViewById<TextView>(R.id.previous_day_label).setOnClickListener {
-                (activity as ViewTimetable).moveToPreviousDay()
+                (activity as ViewTimetableActivity).moveToPreviousDay()
             }
         }
 
@@ -280,7 +280,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun setNextDayClickListener() {
             rootView.findViewById<TextView>(R.id.next_day_label).setOnClickListener {
-                (activity as ViewTimetable).moveToNextDay()
+                (activity as ViewTimetableActivity).moveToNextDay()
             }
         }
 
