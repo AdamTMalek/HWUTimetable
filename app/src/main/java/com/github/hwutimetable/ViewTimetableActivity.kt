@@ -22,11 +22,13 @@ import com.github.hwutimetable.parser.Clashes
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.settings.SettingsActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
-import org.joda.time.LocalDate
 import java.util.*
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /**
@@ -38,6 +40,10 @@ class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+
+    @Inject
+    lateinit var dateProvider: CurrentDateProvider
+
     private lateinit var wholeTimetable: Timetable
     private val toolbar: Toolbar by lazy {
         findViewById<Toolbar>(R.id.toolbar)
@@ -53,7 +59,7 @@ class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         wholeTimetable = getTimetable(intent)
         val name = wholeTimetable.info.name
         setTimetableTitle(name)
-        val currentWeek = wholeTimetable.info.semester.getWeek(LocalDate.now())
+        val currentWeek = wholeTimetable.info.semester.getWeek(dateProvider.getCurrentDate())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
     }
