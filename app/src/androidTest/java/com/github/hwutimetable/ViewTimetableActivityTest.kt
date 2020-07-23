@@ -3,6 +3,10 @@ package com.github.hwutimetable
 import android.content.Intent
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.parser.Parser
@@ -17,6 +21,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
+import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
 import org.junit.After
 import org.junit.Before
@@ -166,5 +171,25 @@ class ViewTimetableActivityTest {
             }
             scenario.close()
         }
+    }
+
+    @Test
+    fun testPreviousDayLabelClick() {
+        setDate(LocalDate.parse("2020-07-22"))  // Wednesday
+        startActivity()
+        Espresso.onView(allOf(isDisplayed(), withId(R.id.previous_day_label))).perform(click())
+        Espresso.onView(allOf(isDisplayed(), withId(R.id.section_label))).check(
+            matches(withText("Tuesday"))
+        )
+    }
+
+    @Test
+    fun testNextDayLabelClick() {
+        setDate(LocalDate.parse("2020-07-22"))  // Wednesday
+        startActivity()
+        Espresso.onView(allOf(isDisplayed(), withId(R.id.next_day_label))).perform(click())
+        Espresso.onView(allOf(isDisplayed(), withId(R.id.section_label))).check(
+            matches(withText("Thursday"))
+        )
     }
 }
