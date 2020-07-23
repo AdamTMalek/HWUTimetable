@@ -25,7 +25,7 @@ import com.github.hwutimetable.settings.SettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
-import java.util.*
+import org.joda.time.DateTimeConstants
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -176,16 +176,15 @@ class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
     }
 
     private fun getCurrentDayIndex(): Int {
-        val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val day = dateProvider.getCurrentDate().dayOfWeek
 
         // If the current day is Saturday or Sunday - show the timetable for Monday
-        if (day == Calendar.SATURDAY || day == Calendar.SUNDAY)
+        if (day == DateTimeConstants.SATURDAY || day == DateTimeConstants.SUNDAY)
             return 0
 
-        // Monday is actually 2 in the Java's enum
-        // since their first day of the week (1) is Sunday
-        // we need to takeaway 2 to get the current day as index
-        return day - 2
+        // Monday is defined as 1 in the dayOfWeek in Joda LocalDate
+        // So we have to takeaway 1 for the index
+        return day - 1
     }
 
 
