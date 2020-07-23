@@ -1,6 +1,7 @@
 package com.github.hwutimetable
 
 import android.content.Intent
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
@@ -191,5 +192,30 @@ class ViewTimetableActivityTest {
         Espresso.onView(allOf(isDisplayed(), withId(R.id.section_label))).check(
             matches(withText("Thursday"))
         )
+    }
+
+    @Test
+    fun testCurrentWeekIsSetAccordingToDate() {
+        // To ensure that the selected week works as it should, we will set the date to the second week
+        // of the timetable that we use for testing. This is 23/09/2019.
+        setDate(LocalDate.parse("2019-09-23"))
+        startActivity()
+        scenario.onActivity { activity ->
+            val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
+            val selectedWeek = weeksSpinner.selectedItem
+            assertEquals(2, selectedWeek)
+        }
+    }
+
+    @Test
+    fun testWeeksIsSetTo12AfterEndOfSemester() {
+        // We will set a date that is past the end of the semester. This can be anything
+        setDate(LocalDate.parse("2020-07-23"))
+        startActivity()
+        scenario.onActivity { activity ->
+            val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
+            val selectedWeek = weeksSpinner.selectedItem
+            assertEquals(12, selectedWeek)
+        }
     }
 }
