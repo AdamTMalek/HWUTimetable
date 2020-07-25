@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.children
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
@@ -208,5 +209,9 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
                 ), layoutParams
             )
         }
+    }
+
+    fun getTimetableItems() = children.filter {
+        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_code) != null)
     }
 }
