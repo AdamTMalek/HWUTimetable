@@ -125,14 +125,14 @@ class SettingsActivity : AppCompatActivity() {
         private fun displayTimePreference(preference: Preference) {
             TimePreferenceDialogFragmentCompat.newInstance(preference.key).let {
                 it.setTargetFragment(this, 0)
-                it.show(fragmentManager!!, "androidx.support.preference.PreferenceFragment.DIALOG")
+                it.show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
             }
         }
 
         private fun displayNumberPreference(preference: Preference) {
             NumberPreferenceDialogFragmentCompat.newInstance(preference.key).let {
                 it.setTargetFragment(this, 0)
-                it.show(fragmentManager!!, "androidx.support.preference.PreferenceFragment.DIALOG")
+                it.show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
             }
         }
 
