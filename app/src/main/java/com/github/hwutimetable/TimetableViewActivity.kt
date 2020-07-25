@@ -22,12 +22,14 @@ import com.github.hwutimetable.parser.Clashes
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.settings.SettingsActivity
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
-import org.joda.time.LocalDate
-import java.util.*
+import org.joda.time.DateTimeConstants
+import javax.inject.Inject
 
-class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+@AndroidEntryPoint
+class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /**
      * The [androidx.viewpager.widget.PagerAdapter] that will provide
@@ -38,6 +40,10 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+
+    @Inject
+    lateinit var dateProvider: CurrentDateProvider
+
     private lateinit var wholeTimetable: Timetable
     private val toolbar: Toolbar by lazy {
         findViewById<Toolbar>(R.id.toolbar)
@@ -53,7 +59,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         wholeTimetable = getTimetable(intent)
         val name = wholeTimetable.info.name
         setTimetableTitle(name)
-        val currentWeek = wholeTimetable.info.semester.getWeek(LocalDate.now())
+        val currentWeek = wholeTimetable.info.semester.getWeek(dateProvider.getCurrentDate())
         populateSpinner(currentWeek)
         displayTimetableForWeek(currentWeek, true)
     }
@@ -170,16 +176,15 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     }
 
     private fun getCurrentDayIndex(): Int {
-        val day = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val day = dateProvider.getCurrentDate().dayOfWeek
 
         // If the current day is Saturday or Sunday - show the timetable for Monday
-        if (day == Calendar.SATURDAY || day == Calendar.SUNDAY)
+        if (day == DateTimeConstants.SATURDAY || day == DateTimeConstants.SUNDAY)
             return 0
 
-        // Monday is actually 2 in the Java's enum
-        // since their first day of the week (1) is Sunday
-        // we need to takeaway 2 to get the current day as index
-        return day - 2
+        // Monday is defined as 1 in the dayOfWeek in Joda LocalDate
+        // So we have to takeaway 1 for the index
+        return day - 1
     }
 
 
@@ -265,7 +270,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun setPreviousDayClickListener() {
             rootView.findViewById<TextView>(R.id.previous_day_label).setOnClickListener {
-                (activity as ViewTimetable).moveToPreviousDay()
+                (activity as TimetableViewActivity).moveToPreviousDay()
             }
         }
 
@@ -280,7 +285,7 @@ class ViewTimetable : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         private fun setNextDayClickListener() {
             rootView.findViewById<TextView>(R.id.next_day_label).setOnClickListener {
-                (activity as ViewTimetable).moveToNextDay()
+                (activity as TimetableViewActivity).moveToNextDay()
             }
         }
 

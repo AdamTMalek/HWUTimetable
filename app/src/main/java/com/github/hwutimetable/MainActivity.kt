@@ -174,7 +174,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     private fun onItemClick(position: Int) {
         val string = getTextFromRecyclerViewItem(position)
 
-        val intent = Intent(this, ViewTimetable::class.java)
+        val intent = Intent(this, TimetableViewActivity::class.java)
         val info = timetableHandler.getStoredTimetables().find { it.name == string }!!
 
         val timetable = timetableHandler.getTimetable(info)
