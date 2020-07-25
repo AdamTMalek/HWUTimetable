@@ -1,5 +1,6 @@
 package com.github.hwutimetable
 
+import android.app.Activity
 import android.content.Intent
 import android.widget.Spinner
 import android.widget.TextView
@@ -58,6 +59,9 @@ class ViewTimetableActivityTest {
         val days = parser.getTimetable()
         Timetable(days, Timetable.TimetableInfo("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
     }
+
+    private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
+    private val seLectureCode = "F29SO-S1"  // First lecture on Friday on week 1
 
     private lateinit var scenario: ActivityScenario<ViewTimetableActivity>
 
@@ -216,6 +220,43 @@ class ViewTimetableActivityTest {
             val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
             val selectedWeek = weeksSpinner.selectedItem
             assertEquals(12, selectedWeek)
+        }
+    }
+
+    @Test
+    fun testSelectedWeekChange() {
+        fun getFirstLectureCode(activity: Activity): CharSequence {
+            val grid = activity.findViewById<TimetableGridLayout>(R.id.timetable_grid)
+            val firstLecture = grid.getTimetableItems().first()
+            return firstLecture.findViewById<TextView>(R.id.item_code).text
+        }
+        /* To check if the selected week actually makes a difference
+         * (i.e. displayed timetable differs)
+         * we will set the date to the first week of the semester.
+         * This way, we will NOT have the AI lecture at Friday 9:15,
+         * then we will select the second week and check if that
+         * lecture will "appear"
+         */
+        setDate(LocalDate.parse("2019-09-20"))  // Friday, week 1
+        startActivity()
+
+        scenario.onActivity { activity ->
+            // Verify that the AI lecture is not showing
+            val firstWeekFirstLectureCode = getFirstLectureCode(activity)
+            assertEquals(seLectureCode, firstWeekFirstLectureCode)
+
+            // Change to week 2, where the AI lecture should appear
+            val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
+            weeksSpinner.setSelection(1, false)
+        }
+
+        // Split into two onActivity calls, otherwise checking and UI happen asynchronously
+        // resulting in the test failing, even though the lecture pops up
+
+        scenario.onActivity { activity ->
+            // Verify that the AI lecture has showed up
+            val secondWeekFirstLectureCode = getFirstLectureCode(activity)
+            assertEquals(aiLectureCode, secondWeekFirstLectureCode)
         }
     }
 }
