@@ -29,7 +29,7 @@ import org.joda.time.DateTimeConstants
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     /**
      * The [androidx.viewpager.widget.PagerAdapter] that will provide
@@ -270,7 +270,7 @@ class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
         private fun setPreviousDayClickListener() {
             rootView.findViewById<TextView>(R.id.previous_day_label).setOnClickListener {
-                (activity as ViewTimetableActivity).moveToPreviousDay()
+                (activity as TimetableViewActivity).moveToPreviousDay()
             }
         }
 
@@ -285,7 +285,7 @@ class ViewTimetableActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
         private fun setNextDayClickListener() {
             rootView.findViewById<TextView>(R.id.next_day_label).setOnClickListener {
-                (activity as ViewTimetableActivity).moveToNextDay()
+                (activity as TimetableViewActivity).moveToNextDay()
             }
         }
 

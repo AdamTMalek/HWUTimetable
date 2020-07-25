@@ -188,7 +188,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
         changeProgressBarVisibility(false)
 
-        val intent = Intent(this, ViewTimetableActivity::class.java)
+        val intent = Intent(this, TimetableViewActivity::class.java)
         intent.putExtra("timetable", timetable)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }

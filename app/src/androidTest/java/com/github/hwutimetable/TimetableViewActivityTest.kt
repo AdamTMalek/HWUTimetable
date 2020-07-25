@@ -34,7 +34,7 @@ import javax.inject.Singleton
 
 @HiltAndroidTest
 @UninstallModules(CurrentDateProviderModule::class)
-class ViewTimetableActivityTest {
+class TimetableViewActivityTest {
     @Module
     @InstallIn(ApplicationComponent::class)
     abstract class TestDateProviderModule {
@@ -63,7 +63,7 @@ class ViewTimetableActivityTest {
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
     private val seLectureCode = "F29SO-S1"  // First lecture on Friday on week 1
 
-    private lateinit var scenario: ActivityScenario<ViewTimetableActivity>
+    private lateinit var scenario: ActivityScenario<TimetableViewActivity>
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -83,7 +83,7 @@ class ViewTimetableActivityTest {
     }
 
     private fun startActivity() {
-        val intent = Intent(targetContext, ViewTimetableActivity::class.java)
+        val intent = Intent(targetContext, TimetableViewActivity::class.java)
         intent.putExtra("timetable", timetable)
         scenario = ActivityScenario.launch(intent)
     }
