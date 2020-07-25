@@ -246,8 +246,7 @@ class ViewTimetableActivityTest {
             assertEquals(seLectureCode, firstWeekFirstLectureCode)
 
             // Change to week 2, where the AI lecture should appear
-            val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
-            weeksSpinner.setSelection(1, false)
+            changeWeek(activity, 2)
         }
 
         // Split into two onActivity calls, otherwise checking and UI happen asynchronously
@@ -258,5 +257,22 @@ class ViewTimetableActivityTest {
             val secondWeekFirstLectureCode = getFirstLectureCode(activity)
             assertEquals(aiLectureCode, secondWeekFirstLectureCode)
         }
+    }
+
+    @Test
+    fun testClashesMessageShowsUp() {
+        setDate(LocalDate.parse("2019-09-16"))  // Monday, week 1
+        startActivity()
+
+        scenario.onActivity { activity ->
+            changeWeek(activity, 3)
+        }
+
+        Espresso.onView(withText("Clashes")).check(matches(isDisplayed()))
+    }
+
+    private fun changeWeek(activity: Activity, week: Int) {
+        val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
+        weeksSpinner.setSelection(week - 1, false)
     }
 }
