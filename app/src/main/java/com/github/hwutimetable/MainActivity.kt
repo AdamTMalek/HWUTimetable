@@ -60,6 +60,8 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         listTimetables()
         setupAlertDialog()
 
+        setTitle(R.string.main_activity_title)
+
         connectivityCallback.registerCallbackReceiver(this)
         if (!networkUtilities.hasInternetConnection()) {
             onConnectionLost()

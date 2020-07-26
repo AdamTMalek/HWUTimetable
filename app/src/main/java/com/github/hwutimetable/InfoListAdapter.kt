@@ -18,9 +18,7 @@ class InfoListAdapter(private val infoList: MutableList<Timetable.TimetableInfo>
     class InfoListViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         fun bind(timetableInfo: Timetable.TimetableInfo) {
             val title = view.findViewById<TextView>(R.id.timetable_title)
-            val semester = view.findViewById<TextView>(R.id.semester_circle)
             title.text = timetableInfo.name
-            semester.text = if (timetableInfo.semester.number == 1) "I" else "II"
         }
     }
 
