@@ -228,7 +228,7 @@ class Scraper @Inject constructor() : TimetableScraper {
             return submitForm(defaultUrl, formData).statusCode()
         }
 
-        check(state == ScraperState.OnTimetablesSite) {
+        check(canApplyFilters()) {
             "Cannot apply filters unless on timetables site"
         }
 
@@ -256,7 +256,7 @@ class Scraper @Inject constructor() : TimetableScraper {
      * @return List of group options
      */
     override suspend fun getGroups(department: String, level: String): List<Option> {
-        check(state == ScraperState.OnTimetablesSite || state == ScraperState.Filtered) {
+        check(canApplyFilters()) {
             "Illegal state for getGroups. Must be OnTimetablesSite or Filter."
         }
 
@@ -314,6 +314,8 @@ class Scraper @Inject constructor() : TimetableScraper {
         response = Jsoup.parse(response!!.outerHtml())
         return response as Document
     }
+
+    private fun canApplyFilters() = state == ScraperState.OnTimetablesSite || state == ScraperState.Filtered
 
     /**
      * ScraperState represents different state that the Scraper can be in
