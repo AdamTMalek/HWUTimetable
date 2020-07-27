@@ -72,6 +72,7 @@ class SettingsActivity : AppCompatActivity() {
             setIntervalPreferenceSummaryProvider()
             setUpdateButtonHandler()
             setUpdateSummary()
+            setVersionPreferenceSummary()
 
             connectivityCallback.registerCallbackReceiver(this)
 
@@ -204,6 +205,17 @@ class SettingsActivity : AppCompatActivity() {
 
             Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show()
             setUpdateSummary()
+        }
+
+        private fun setVersionPreferenceSummary() {
+            val versionPreference = findPreference<Preference>("version")
+            versionPreference!!.summary = getVersion()
+        }
+
+        private fun getVersion(): String {
+            val packageManager = context!!.packageManager!!
+            val packageInfo = packageManager.getPackageInfo(context!!.packageName, 0)
+            return packageInfo.versionName
         }
 
         override fun onDestroy() {
