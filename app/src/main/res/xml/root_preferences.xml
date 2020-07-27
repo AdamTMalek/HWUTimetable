@@ -40,4 +40,11 @@
                     app:key="@string/update_now"
                     app:summary="@string/update_now_enabled_summary"/>
     </PreferenceCategory>
+    <PreferenceCategory
+            app:title="About">
+        <Preference
+                app:key="version"
+                app:title="Build version"
+                app:summary="1.0"/>
+    </PreferenceCategory>
 </PreferenceScreen>
