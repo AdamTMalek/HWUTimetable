@@ -6,6 +6,7 @@ import android.widget.CheckBox
 import android.widget.Spinner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
+import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.TimetableScraperModule
 import com.github.hwutimetable.filehandler.TimetableFileHandler
@@ -20,8 +21,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import junit.framework.TestCase.assertNull
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.*
+import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
 import org.junit.After
 import org.junit.Before
@@ -31,7 +32,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@UninstallModules(value = [TimetableScraperModule::class, FileModule::class])
+@UninstallModules(value = [TimetableScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
 class AddActivityTest {
     @Module
@@ -48,6 +49,21 @@ class AddActivityTest {
     abstract class TimetableScraperTestModule {
         @Binds
         abstract fun bindScraper(scraperForTest: ScraperForTest): TimetableScraper
+    }
+
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    abstract class TestDateProviderModule {
+        @Singleton
+        @Binds
+        abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
+    }
+
+    class TestDateProvider @Inject constructor() : CurrentDateProvider {
+        var date: LocalDate = LocalDate.now()
+        override fun getCurrentDate(): LocalDate {
+            return date
+        }
     }
 
     @Singleton
@@ -89,6 +105,9 @@ class AddActivityTest {
     @Inject
     lateinit var fileHandler: TimetableFileHandler
 
+    @Inject
+    lateinit var testDate: CurrentDateProvider
+
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
@@ -97,7 +116,14 @@ class AddActivityTest {
     @Before
     fun init() {
         hiltRule.inject()
+    }
+
+    private fun launchActivity() {
         scenario = ActivityScenario.launch(AddActivity::class.java)
+    }
+
+    private fun setDate(date: LocalDate) {
+        (testDate as TestDateProvider).date = date
     }
 
     @After
@@ -108,6 +134,7 @@ class AddActivityTest {
 
     @Test
     fun testDepartmentsListGetsPopulated() {
+        launchActivity()
         scenario.onActivity { activity ->
             val departmentsSpinner = activity.findViewById<Spinner>(R.id.departments_spinner)
             assertTrue(departmentsSpinner.adapter.count > 0)
@@ -116,6 +143,7 @@ class AddActivityTest {
 
     @Test
     fun testLevelsListGetsPopulated() {
+        launchActivity()
         scenario.onActivity { activity ->
             val levelsSpinner = activity.findViewById<Spinner>(R.id.levels_spinner)
             assertTrue(levelsSpinner.adapter.count > 0)
@@ -124,6 +152,7 @@ class AddActivityTest {
 
     @Test
     fun testGroupsListGetsPopulated() {
+        launchActivity()
         // To test if groups list get populated, we first have to select
         // a department and a level
 
@@ -144,6 +173,7 @@ class AddActivityTest {
 
     @Test
     fun testViewTimetableWithoutSaving() {
+        launchActivity()
         var name = ""
         scenario.onActivity { activity ->
             activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
@@ -163,6 +193,7 @@ class AddActivityTest {
 
     @Test
     fun testSaveAndViewTimetable() {
+        launchActivity()
         var name = ""
         scenario.onActivity { activity ->
             activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
@@ -178,5 +209,25 @@ class AddActivityTest {
         }
 
         assertNull(fileHandler.getStoredTimetables().find { it.name == name })
+    }
+
+    @Test
+    fun testSemesterIsSetTo1() {
+        setDate(LocalDate.parse("2020-09-01"))
+        launchActivity()
+        scenario.onActivity { activity ->
+            val selectedSemester = activity.findViewById<Spinner>(R.id.semester_spinner).selectedItem
+            assertEquals("Semester 1", selectedSemester)
+        }
+    }
+
+    @Test
+    fun testSemesterIsSetTo2() {
+        setDate(LocalDate.parse("2020-01-01"))
+        launchActivity()
+        scenario.onActivity { activity ->
+            val selectedSemester = activity.findViewById<Spinner>(R.id.semester_spinner).selectedItem
+            assertEquals("Semester 2", selectedSemester)
+        }
     }
 }

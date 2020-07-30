@@ -32,6 +32,9 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
+
+    @Inject
+    lateinit var currentDateProvider: CurrentDateProvider
     private var departments: List<Option>? = null
     private var levels: List<Option>? = null
     private var groups: List<Option>? = null
@@ -53,6 +56,8 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         mainScope.launch {
             populateDepartmentsAndLevels()
         }
+
+        setClosestSemester()
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -112,6 +117,16 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         levels?.map { it.text }?.let { applyAdapterFromList(levels_spinner, it) }
 
         changeProgressBarVisibility(false)
+    }
+
+    private fun setClosestSemester() {
+        val currentDate = currentDateProvider.getCurrentDate()
+        val closetSemester = if (currentDate.monthOfYear >= 6)
+            1
+        else
+            2
+
+        semester_spinner.setSelection(closetSemester - 1)
     }
 
     /**
