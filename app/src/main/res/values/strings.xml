@@ -6,6 +6,9 @@
 	<string name="departments">Departments:</string>
 	<string name="levels">Levels:</string>
 	<string name="semester">Semester:</string>
+	<string name="semester_1">Semester 1</string>
+	<string name="semester_2">Semester 2</string>
+	<string name="semester_any">Any semester</string>
 	<string name="groups">Groups</string>
 	<string name="submit">Get Timetable</string>
 	<string name="no_timetables">No timetables found</string>

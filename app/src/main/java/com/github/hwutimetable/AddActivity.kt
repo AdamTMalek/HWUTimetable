@@ -75,6 +75,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private fun setItemSelectedListener() {
         departments_spinner.onItemSelectedListener = this
         levels_spinner.onItemSelectedListener = this
+        semester_spinner.onItemSelectedListener = this
     }
 
     private fun setButtonClickListener() {
@@ -133,12 +134,18 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
      * getGroups callback for AsyncScraper
      */
     private suspend fun getGroups() {
+        val selectedSemester = semester_spinner.selectedItem as String
         groups = scraper.getGroups(selectedDepartment!!.optionValue, selectedLevel!!.optionValue)
 
-        if (groups != null) {
-            applyAdapterFromList(groups_spinner, groups!!.map { it.text })
-            submit_button.isEnabled = true
-        }
+        if (groups == null)
+            return
+
+        // Apply semester filter
+        if (selectedSemester != getString(R.string.semester_any))
+            groups = groups!!.filter { it.text.contains(selectedSemester, true) }
+
+        applyAdapterFromList(groups_spinner, groups!!.map { it.text })
+        submit_button.isEnabled = true
     }
 
     /**

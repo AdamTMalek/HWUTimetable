@@ -68,6 +68,8 @@ class AddActivityTest {
 
     @Singleton
     class ScraperForTest @Inject constructor() : TimetableScraper {
+        val semesterOneGroup = "grp1 (Semester 1)"
+        val semesterTwoGroup = "grp2 (Semester 2)"
         override suspend fun setup() {
             // We don't need to do anything
         }
@@ -89,10 +91,7 @@ class AddActivityTest {
         }
 
         override suspend fun getGroups(department: String, level: String): List<Option> {
-            return listOf(
-                Option("gval1", "grp1 (Semester 1)"),
-                Option("gval2", "grp2 (Semester 1)")
-            )
+            return listOf(Option("gval0", semesterOneGroup), Option("gval1", semesterTwoGroup))
         }
 
         override suspend fun getTimetable(group: String, semester: Int): Document {
@@ -108,10 +107,15 @@ class AddActivityTest {
     @Inject
     lateinit var testDate: CurrentDateProvider
 
+    @Inject
+    lateinit var scraper: TimetableScraper
+
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<AddActivity>
+    private val semester1Date = LocalDate.parse("2020-09-01")
+    private val semester2Date = LocalDate.parse("2020-01-01")
 
     @Before
     fun init() {
@@ -125,6 +129,8 @@ class AddActivityTest {
     private fun setDate(date: LocalDate) {
         (testDate as TestDateProvider).date = date
     }
+
+    private fun getContext() = InstrumentationRegistry.getInstrumentation().targetContext
 
     @After
     fun cleanup() {
@@ -213,7 +219,7 @@ class AddActivityTest {
 
     @Test
     fun testSemesterIsSetTo1() {
-        setDate(LocalDate.parse("2020-09-01"))
+        setDate(semester1Date)
         launchActivity()
         scenario.onActivity { activity ->
             val selectedSemester = activity.findViewById<Spinner>(R.id.semester_spinner).selectedItem
@@ -223,11 +229,66 @@ class AddActivityTest {
 
     @Test
     fun testSemesterIsSetTo2() {
-        setDate(LocalDate.parse("2020-01-01"))
+        setDate(semester2Date)
         launchActivity()
         scenario.onActivity { activity ->
             val selectedSemester = activity.findViewById<Spinner>(R.id.semester_spinner).selectedItem
             assertEquals("Semester 2", selectedSemester)
+        }
+    }
+
+    @Test
+    fun testSemester1FilterWorks() {
+        setDate(semester1Date)
+        launchActivity()
+        scenario.onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
+            activity.findViewById<Spinner>(R.id.levels_spinner).setSelection(1)
+            // Semester spinner will set be to Semester 1 based on the date
+        }
+
+        scenario.onActivity { activity ->
+            val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
+            val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
+            val expected = listOf((scraper as ScraperForTest).semesterOneGroup)
+            assertEquals(expected, groups)
+        }
+    }
+
+    @Test
+    fun testSemester2FilterWorks() {
+        setDate(semester2Date)
+        launchActivity()
+        scenario.onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
+            activity.findViewById<Spinner>(R.id.levels_spinner).setSelection(1)
+            // Semester spinner will set be to Semester 2 based on the date
+        }
+
+        scenario.onActivity { activity ->
+            val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
+            val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
+            val expected = listOf((scraper as ScraperForTest).semesterTwoGroup)
+            assertEquals(expected, groups)
+        }
+    }
+
+    @Test
+    fun testAnySemesterFilterWorks() {
+        // We don't care about the date for this one
+        launchActivity()
+        scenario.onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1)
+            activity.findViewById<Spinner>(R.id.levels_spinner).setSelection(1)
+            activity.findViewById<Spinner>(R.id.semester_spinner).setSelection(2)  // Any semester
+        }
+
+        scenario.onActivity { activity ->
+            val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
+            val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
+            val testScraper = (scraper as ScraperForTest)
+            val expected = listOf(testScraper.semesterOneGroup, testScraper.semesterTwoGroup)
+            assertEquals(expected, groups)
         }
     }
 }

@@ -1,7 +1,7 @@
 <resources>
     <string-array name="semester_filter_values">
-        <item>Semester 1</item>
-        <item>Semester 2</item>
-        <item>Any semester</item>
+        <item name="semester_1">@string/semester_1</item>
+        <item name="semester_2">@string/semester_2</item>
+        <item name="semester_any">@string/semester_any</item>
     </string-array>
 </resources>
