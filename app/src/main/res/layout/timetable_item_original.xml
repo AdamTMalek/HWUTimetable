@@ -2,6 +2,7 @@
 <GridLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
+        android:tag="@string/timetable_class_original"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="3"
