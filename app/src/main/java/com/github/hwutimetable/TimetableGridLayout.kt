@@ -67,17 +67,17 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
     private fun createViewForItem(item: TimetableItem): LinearLayout {
         val linearLayout = createItemLinearLayout(item.type.getBackground(context))
-        val itemView = if (useOriginalViewForItem())
-            createOriginalViewForItem(item, linearLayout)
-        else
+        val itemView = if (useSimplifiedViewForItem())
             createSimpleViewForItem(item, linearLayout)
+        else
+            createOriginalViewForItem(item, linearLayout)
 
         linearLayout.addView(itemView)
         return linearLayout
     }
 
-    private fun useOriginalViewForItem() = PreferenceManager.getDefaultSharedPreferences(context)
-        .getBoolean(context.getString(R.string.use_original_view), false)
+    private fun useSimplifiedViewForItem() = PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.use_simplified_view), false)
 
     private fun createOriginalViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
         val inflater = LayoutInflater.from(context)

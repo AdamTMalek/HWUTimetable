@@ -64,6 +64,11 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         displayTimetableForWeek(currentWeek, true)
     }
 
+    override fun onResume() {
+        mSectionsPagerAdapter?.notifyDataSetChanged()
+        super.onResume()
+    }
+
     private fun setTimetableTitle(name: String) {
         with(toolbar) {
             title = name
