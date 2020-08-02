@@ -41,6 +41,15 @@
                     app:summary="@string/update_now_enabled_summary"/>
     </PreferenceCategory>
     <PreferenceCategory
+            app:title="Timetable View">
+        <SwitchPreference
+                app:title="Use simplified timetable class view"
+                app:summary="Simplified view only contains a class description and room name. Original view is exactly the
+same as you see it on the website"
+                app:key="@string/use_simplified_view"
+                app:defaultValue="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory
             app:title="About">
         <Preference
                 app:key="version"

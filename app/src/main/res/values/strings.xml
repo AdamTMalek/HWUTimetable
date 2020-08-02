@@ -35,7 +35,7 @@
 	<string name="update_now">update_now</string>
 	<string name="last_update">last_update</string>
 	<string name="update_details">update_details</string>
-	<string name="use_original_view">use_original_view</string>
+	<string name="use_simplified_view">use_simplified_view</string>
 	<!-- Tags -->
 	<string name="timetable_class_simple">timetable_class_simple</string>
 	<string name="timetable_class_original">timetable_class_original</string>
