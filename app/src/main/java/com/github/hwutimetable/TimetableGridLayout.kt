@@ -112,9 +112,9 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
     }
 
     private fun addItemClickHandler(itemView: View, item: TimetableItem) {
-        itemView.setOnClickListener {
-            ClassInfoPopupWindow.create(context, item)
-                .showAtLocation(this, Gravity.CENTER, 0, 0)
+        itemView.setOnLongClickListener {
+            ClassInfoPopupWindow.create(context, item).showAtLocation(this, Gravity.CENTER, 0, 0)
+            return@setOnLongClickListener true
         }
     }
 

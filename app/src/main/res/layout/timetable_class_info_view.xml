@@ -15,8 +15,7 @@
             app:layout_constraintLeft_toRightOf="parent"
             android:layout_marginTop="30dp"
             android:layout_marginLeft="@dimen/edge_margin"
-            android:layout_marginRight="@dimen/edge_margin"
-
+            android:layout_marginRight="15dp"
             android:rowCount="8"
             android:columnCount="2">
         <TextView
@@ -77,6 +76,7 @@
             app:layout_constraintBottom_toTopOf="@id/item_info_grid"
             app:layout_constraintRight_toRightOf="@id/item_info_grid"
             app:layout_constraintLeft_toRightOf="@id/item_info_grid"
+            app:backgroundTint="@color/colorPrimaryDark"
             app:srcCompat="@drawable/ic_close"
             app:fabCustomSize="30dp"
             android:scaleType="center"/>

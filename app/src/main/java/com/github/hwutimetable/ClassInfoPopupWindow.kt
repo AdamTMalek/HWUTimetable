@@ -1,9 +1,11 @@
 package com.github.hwutimetable
 
 import android.content.Context
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.PopupWindow
 import com.github.hwutimetable.parser.TimetableItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -24,15 +26,13 @@ class ClassInfoPopupWindow private constructor(contentView: View?, width: Int, h
          * Creates an object of [ClassInfoPopupWindow] for the given [item].
          */
         fun create(context: Context, item: TimetableItem): ClassInfoPopupWindow {
+            val screenWidth = getScreenWidth(context)
+            val (width, height) = getWindowDimensions(context, screenWidth)
             val view = getView(context, item)
-            val width = LinearLayout.LayoutParams.WRAP_CONTENT
-            val height = LinearLayout.LayoutParams.WRAP_CONTENT
-            val focusable = true
-
-            return ClassInfoPopupWindow(view, width, height, focusable)
+            return ClassInfoPopupWindow(view, width, height, true)
         }
 
-        private fun getLayoutInflaterService(context: Context): LayoutInflater =
+        private fun getLayoutInflaterService(context: Context) =
             context.getSystemService(LayoutInflater::class.java)!!
 
         private fun getView(context: Context, item: TimetableItem) =
@@ -40,6 +40,22 @@ class ClassInfoPopupWindow private constructor(contentView: View?, width: Int, h
                 .apply {
                     ClassInfoViewPopulator.populateView(this, item)
                 }
+
+        private fun getScreenWidth(context: Context): Int {
+            val displayMetrics = DisplayMetrics()
+            context.getSystemService(WindowManager::class.java)!!
+                .defaultDisplay
+                .getMetrics(displayMetrics)
+
+            return displayMetrics.widthPixels
+        }
+
+        private fun getWindowDimensions(context: Context, width: Int): Pair<Int, Int> {
+            return Pair(
+                width - context.resources.getDimensionPixelSize(R.dimen.info_window_side_margin),
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+        }
     }
 
     init {
