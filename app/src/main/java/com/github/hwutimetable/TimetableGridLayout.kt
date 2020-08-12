@@ -58,6 +58,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
 
         val lastRow = row + rowSpan - 1
         emptyRows.removeAll { it in (row..lastRow) }
+        addItemClickHandler(itemView, timetableItem)
     }
 
     /**
@@ -80,25 +81,18 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
         .getBoolean(context.getString(R.string.use_simplified_view), false)
 
     private fun createOriginalViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
-        val inflater = LayoutInflater.from(context)
-
-        return inflater.inflate(R.layout.timetable_item_original, linearLayout, false).apply {
-            findViewById<TextView>(R.id.item_code).text = item.code
-            findViewById<TextView>(R.id.item_weeks).text = item.weeks.toString()
-            findViewById<TextView>(R.id.item_room).text = item.room
-            findViewById<TextView>(R.id.item_name).text = item.name
-            findViewById<TextView>(R.id.item_lecturer).text = item.lecturer
-            findViewById<TextView>(R.id.item_type).text = item.type.name
-        }
+        return createViewForItem(item, linearLayout, R.layout.timetable_item_original)
     }
 
     private fun createSimpleViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
-        val inflater = LayoutInflater.from(context)
+        return createViewForItem(item, linearLayout, R.layout.timetable_item_simple)
+    }
 
-        return inflater.inflate(R.layout.timetable_item_simple, linearLayout, false).apply {
-            findViewById<TextView>(R.id.item_room).text = item.room
-            findViewById<TextView>(R.id.item_name).text = item.name
-        }
+    private fun createViewForItem(item: TimetableItem, linearLayout: LinearLayout, resource: Int): View {
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(resource, linearLayout, false)
+        ClassInfoViewPopulator.populateView(view, item)
+        return view
     }
 
     /**
@@ -114,6 +108,13 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
             )
             it.gravity = Gravity.CENTER_VERTICAL
             it.background = background
+        }
+    }
+
+    private fun addItemClickHandler(itemView: View, item: TimetableItem) {
+        itemView.setOnClickListener {
+            ClassInfoPopupWindow.create(context, item)
+                .showAtLocation(this, Gravity.CENTER, 0, 0)
         }
     }
 
