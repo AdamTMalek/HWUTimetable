@@ -60,7 +60,7 @@
     <string name="timetable_class_original">timetable_class_original</string>
     <string name="class_code_label">Class code:</string>
     <string name="class_label">Class:</string>
-    <string name="room_label">Room</string>
+    <string name="room_label">Room:</string>
     <string name="lecturer_label">Lecturer:</string>
     <string name="type_label">Type:</string>
     <string name="start_time_label">Start time:</string>
