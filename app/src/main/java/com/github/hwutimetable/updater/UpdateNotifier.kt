@@ -69,7 +69,7 @@ internal class UpdateNotifier(val context: Context) : OnUpdateInProgressListener
      * It will check if there were any timetables updated (the [updated] collection may be empty),
      * and if it's not empty - it will show create and show post-update notification.
      */
-    override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
+    override fun onUpdateFinished(updated: Collection<Timetable.Info>) {
         cancelInProgressNotification()
 
         if (updated.isEmpty()) {

@@ -32,8 +32,8 @@ class ParserTest {
 
     @Test
     fun testNumberOfItems() {
-        // There are 15 timetable items in tt1.html
-        assertEquals(15, days.sumBy { day -> day.items.size })
+        // There are 15 timetable timetableClasses in tt1.html
+        assertEquals(15, days.sumBy { day -> day.classes.size })
     }
 
     @Test
@@ -41,7 +41,7 @@ class ParserTest {
         val expectedList = arrayOf(1, 3, 3, 4, 4)
 
         expectedList.forEachIndexed { index, expected ->
-            assertEquals(expected, days[index].items.size)
+            assertEquals(expected, days[index].classes.size)
         }
     }
 
@@ -56,9 +56,9 @@ class ParserTest {
         )
 
         days.forEachIndexed { index, _ ->
-            val codes = days[index].items.map { it.code }
+            val codes = days[index].classes.map { it.code }
             assertTrue(expected[index].containsAll(codes))
-            assertEquals(expected[index].size, days[index].items.size)
+            assertEquals(expected[index].size, days[index].classes.size)
         }
     }
 

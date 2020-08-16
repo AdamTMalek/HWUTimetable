@@ -12,8 +12,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
 import androidx.preference.PreferenceManager
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.parser.TimetableDay
-import com.github.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
 import org.joda.time.Period
 
@@ -46,52 +46,52 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
     }
 
     fun addTimetableDay(timetable: TimetableDay) {
-        timetable.items.forEach { addTimetableItem(it) }
+        timetable.classes.forEach { addClass(it) }
         fillBlankCells()
     }
 
-    private fun addTimetableItem(timetableItem: TimetableItem) {
-        val itemView = createViewForItem(timetableItem)
-        val row = getRowIndexByTime(timetableItem.start)
-        val rowSpan = getRowspanByPeriod(timetableItem.duration)
+    private fun addClass(timetableClass: TimetableClass) {
+        val itemView = createViewForClass(timetableClass)
+        val row = getRowIndexByTime(timetableClass.start)
+        val rowSpan = getRowspanByPeriod(timetableClass.duration)
         addView(itemView, createLayoutParams(row, 1, columnWeight = 0.7f, rowSpan = rowSpan))
 
         val lastRow = row + rowSpan - 1
         emptyRows.removeAll { it in (row..lastRow) }
-        addItemClickHandler(itemView, timetableItem)
+        addClassClickHandler(itemView, timetableClass)
     }
 
     /**
-     * Creates one timetable item
-     * @return [LinearLayout] object with children that represent the item
+     * Creates one timetable timetableClass
+     * @return [LinearLayout] object with children that represent the timetableClass
      */
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
-    private fun createViewForItem(item: TimetableItem): LinearLayout {
-        val linearLayout = createItemLinearLayout(item.type.getBackground(context))
-        val itemView = if (useSimplifiedViewForItem())
-            createSimpleViewForItem(item, linearLayout)
+    private fun createViewForClass(timetableClass: TimetableClass): LinearLayout {
+        val linearLayout = createClassLinearLayout(timetableClass.type.getBackground(context))
+        val classView = if (useSimplifiedView())
+            createSimpleViewForClass(timetableClass, linearLayout)
         else
-            createOriginalViewForItem(item, linearLayout)
+            createOriginalViewForClass(timetableClass, linearLayout)
 
-        linearLayout.addView(itemView)
+        linearLayout.addView(classView)
         return linearLayout
     }
 
-    private fun useSimplifiedViewForItem() = PreferenceManager.getDefaultSharedPreferences(context)
+    private fun useSimplifiedView() = PreferenceManager.getDefaultSharedPreferences(context)
         .getBoolean(context.getString(R.string.use_simplified_view), false)
 
-    private fun createOriginalViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
-        return createViewForItem(item, linearLayout, R.layout.timetable_item_original)
+    private fun createOriginalViewForClass(timetableClass: TimetableClass, linearLayout: LinearLayout): View {
+        return createViewForClass(timetableClass, linearLayout, R.layout.timetable_class_original)
     }
 
-    private fun createSimpleViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
-        return createViewForItem(item, linearLayout, R.layout.timetable_item_simple)
+    private fun createSimpleViewForClass(timetableClass: TimetableClass, linearLayout: LinearLayout): View {
+        return createViewForClass(timetableClass, linearLayout, R.layout.timetable_class_simple)
     }
 
-    private fun createViewForItem(item: TimetableItem, linearLayout: LinearLayout, resource: Int): View {
+    private fun createViewForClass(timetableClass: TimetableClass, linearLayout: LinearLayout, resource: Int): View {
         val inflater = LayoutInflater.from(context)
         val view = inflater.inflate(resource, linearLayout, false)
-        ClassInfoViewPopulator.populateView(view, item)
+        ClassInfoViewPopulator.populateView(view, timetableClass)
         return view
     }
 
@@ -99,7 +99,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * Creates linear layout that acts as a container for the grid layout.
      * @param background: [Drawable] background of the item
      */
-    private fun createItemLinearLayout(background: Drawable): LinearLayout {
+    private fun createClassLinearLayout(background: Drawable): LinearLayout {
         return LinearLayout(context).also {
             it.id = View.generateViewId()
             it.layoutParams = LinearLayout.LayoutParams(
@@ -111,9 +111,9 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
         }
     }
 
-    private fun addItemClickHandler(itemView: View, item: TimetableItem) {
-        itemView.setOnLongClickListener {
-            ClassInfoPopupWindow.create(context, item).showAtLocation(this, Gravity.CENTER, 0, 0)
+    private fun addClassClickHandler(classView: View, timetableClass: TimetableClass) {
+        classView.setOnLongClickListener {
+            ClassInfoPopupWindow.create(context, timetableClass).showAtLocation(this, Gravity.CENTER, 0, 0)
             return@setOnLongClickListener true
         }
     }
@@ -224,7 +224,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
         emptyRows.forEach { row ->
             val layoutParams = createLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = 1)
             addView(
-                createItemLinearLayout(
+                createClassLinearLayout(
                     context.resources.getDrawable(R.drawable.top_line, context.theme)
                 ), layoutParams
             )
@@ -232,9 +232,9 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
     }
 
     /**
-     * Returns a sequence of the timetable items that have been added to the layout.
+     * Returns a sequence of the timetable timetableClasses that have been added to the layout.
      */
     fun getTimetableItems() = children.filter {
-        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_name) != null)
+        (it is LinearLayout) && (it.findViewById<TextView>(R.id.class_name) != null)
     }
 }

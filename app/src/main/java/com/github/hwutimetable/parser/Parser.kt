@@ -13,7 +13,7 @@ import java.util.*
 /**
  * This class is used to parse the given html timetable document.
  * To get the timetable (days with no information) use [getTimetable].
- * To get the semester start day (for constructing [Timetable.TimetableInfo]
+ * To get the semester start day (for constructing [Timetable.Info]
  * use [getSemesterStartDate].
  */
 class Parser(private var document: Document?) : TimetableParser {
@@ -82,7 +82,7 @@ class Parser(private var document: Document?) : TimetableParser {
     }
 
     /**
-     * Parse the [td] with a table as a TimetableItem object
+     * Parse the [td] with a table as a TimetableClass object
      * @param td: td with an item
      * @param tdCounter: td index at which the item appears
      * @return Colspan width of the item
@@ -107,13 +107,13 @@ class Parser(private var document: Document?) : TimetableParser {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableDays[dayIndex].items.add(
-            TimetableItem(
+        timetableDays[dayIndex].classes.add(
+            TimetableClass(
                 name = name,
                 code = code,
                 room = room,
                 lecturer = lecturer,
-                type = ItemType(type),
+                type = TimetableClass.Type(type),
                 start = startTime,
                 end = endTime,
                 weeks = WeeksBuilder()
@@ -126,7 +126,7 @@ class Parser(private var document: Document?) : TimetableParser {
     }
 
     /**
-     * With the given list of rows - finds all timetable items that are in them and adds them to the timetableItems list.
+     * With the given list of rows - finds all timetable timetableClasses that are in them and adds them to the timetableItems list.
      * @param rows: List of rows
      */
     private fun addLecturesFromRows(rows: List<Element>, day: Int) {
@@ -194,7 +194,7 @@ class Parser(private var document: Document?) : TimetableParser {
     }
 
     /**
-     * Parses the timetable and return the timetable items
+     * Parses the timetable and return the timetable timetableClasses
      * @return Timetable
      */
     @Throws(ParserException::class)

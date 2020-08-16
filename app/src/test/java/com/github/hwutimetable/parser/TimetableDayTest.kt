@@ -61,9 +61,9 @@ class TimetableDayTest {
         assertEquals(0, day.getClashes(7).getClashes().size)
     }
 
-    private fun createTimetableItem(startTime: LocalTime, endTime: LocalTime, weeks: Weeks): TimetableItem {
-        return TimetableItem(
-            "xxx", "xxx", "xxx", "xxx", ItemType("xxx"),
+    private fun createTimetableItem(startTime: LocalTime, endTime: LocalTime, weeks: Weeks): TimetableClass {
+        return TimetableClass(
+            "xxx", "xxx", "xxx", "xxx", TimetableClass.Type("xxx"),
             startTime, endTime, weeks
         )
     }

@@ -107,15 +107,15 @@ class MainActivityTest {
     }
 
     private fun populateInfoList() {
-        fun getInfo(code: String): Timetable.TimetableInfo {
+        fun getInfo(): Timetable.Info {
             val semester = Semester(LocalDate.now(), 1)
-            return Timetable.TimetableInfo("C01", "Test", semester)
+            return Timetable.Info("C01", "Test", semester)
         }
 
         listOf(
-            Timetable(emptyArray(), getInfo("C01")),
-            Timetable(emptyArray(), getInfo("C02")),
-            Timetable(emptyArray(), getInfo("C03"))
+            Timetable(emptyArray(), getInfo()),
+            Timetable(emptyArray(), getInfo()),
+            Timetable(emptyArray(), getInfo())
         ).forEach { timetable ->
             timetableFileHandler.save(timetable)
         }

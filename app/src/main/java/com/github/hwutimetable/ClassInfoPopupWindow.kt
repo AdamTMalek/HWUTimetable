@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.PopupWindow
-import com.github.hwutimetable.parser.TimetableItem
+import com.github.hwutimetable.parser.TimetableClass
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 /**
@@ -23,22 +23,22 @@ class ClassInfoPopupWindow private constructor(contentView: View?, width: Int, h
 
     companion object {
         /**
-         * Creates an object of [ClassInfoPopupWindow] for the given [item].
+         * Creates an object of [ClassInfoPopupWindow] for the given [timetableClass].
          */
-        fun create(context: Context, item: TimetableItem): ClassInfoPopupWindow {
+        fun create(context: Context, timetableClass: TimetableClass): ClassInfoPopupWindow {
             val screenWidth = getScreenWidth(context)
             val (width, height) = getWindowDimensions(context, screenWidth)
-            val view = getView(context, item)
+            val view = getView(context, timetableClass)
             return ClassInfoPopupWindow(view, width, height, true)
         }
 
         private fun getLayoutInflaterService(context: Context) =
             context.getSystemService(LayoutInflater::class.java)!!
 
-        private fun getView(context: Context, item: TimetableItem) =
+        private fun getView(context: Context, timetableClass: TimetableClass) =
             getLayoutInflaterService(context).inflate(R.layout.timetable_class_info_view, null)
                 .apply {
-                    ClassInfoViewPopulator.populateView(this, item)
+                    ClassInfoViewPopulator.populateView(this, timetableClass)
                 }
 
         private fun getScreenWidth(context: Context): Int {

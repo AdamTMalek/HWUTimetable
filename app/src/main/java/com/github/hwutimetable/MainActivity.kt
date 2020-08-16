@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
-    private val infoList = mutableListOf<Timetable.TimetableInfo>()
+    private val infoList = mutableListOf<Timetable.Info>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
 
@@ -212,7 +212,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             .itemView.findViewById<TextView>(R.id.timetable_title).text as String
     }
 
-    private fun getTimetablesInfoList(): List<Timetable.TimetableInfo> {
+    private fun getTimetablesInfoList(): List<Timetable.Info> {
         return timetableHandler.getStoredTimetables()
     }
 

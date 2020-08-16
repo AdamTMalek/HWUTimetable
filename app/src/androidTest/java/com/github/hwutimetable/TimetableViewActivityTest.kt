@@ -57,7 +57,7 @@ class TimetableViewActivityTest {
         val document = SampleTimetableHandler().getDocument(input)!!
         val parser = Parser(document)
         val days = parser.getTimetable()
-        Timetable(days, Timetable.TimetableInfo("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
+        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
     }
 
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
@@ -241,7 +241,7 @@ class TimetableViewActivityTest {
         fun getFirstLectureCode(activity: Activity): CharSequence {
             val grid = activity.findViewById<TimetableGridLayout>(R.id.timetable_grid)
             val firstLecture = grid.getTimetableItems().first()
-            return firstLecture.findViewById<TextView>(R.id.item_code).text
+            return firstLecture.findViewById<TextView>(R.id.class_code).text
         }
         /* To check if the selected week actually makes a difference
          * (i.e. displayed timetable differs)

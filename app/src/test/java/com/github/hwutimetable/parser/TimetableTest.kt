@@ -3,7 +3,8 @@ package com.github.hwutimetable.parser
 import com.github.hwutimetable.SampleTimetableHandler
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.fail
 import org.junit.Test
 import java.io.File
 
@@ -14,13 +15,13 @@ class TimetableTest {
     fun testEmptyTimetable() {
         val timetable = Timetable(
             arrayOf(),
-            Timetable.TimetableInfo(
+            Timetable.Info(
                 "C01", "Test Timetable", Semester(LocalDate.now(), 1)
             )
         )
 
         assertEquals(
-            "Total items is 0?", 0, timetable.getTotalItems()
+            "Total number of classes is 0?", 0, timetable.getClassesCount()
         )
     }
 
@@ -34,13 +35,13 @@ class TimetableTest {
                 createTimetableDay(Day.THURSDAY, 4),
                 createTimetableDay(Day.FRIDAY, 5)
             ),
-            Timetable.TimetableInfo(
+            Timetable.Info(
                 "C01", "Test Timetable", Semester(LocalDate.now(), 1)
             )
         )
 
         val expectedCount = (1..5).sum()
-        assertEquals(expectedCount, timetable.getTotalItems())
+        assertEquals(expectedCount, timetable.getClassesCount())
     }
 
     /**
@@ -60,7 +61,7 @@ class TimetableTest {
             return
         }
 
-        assertFalse(timetable1 == timetable2)
+        assertEquals(timetable1, timetable2)
     }
 
     /**
@@ -80,30 +81,30 @@ class TimetableTest {
             return
         }
 
-        assertFalse(timetable1 == timetable2)
+        assertEquals(timetable1, timetable2)
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
         return TimetableDay(day, createTimetableItems(itemsInDay))
     }
 
-    private fun createTimetableItems(size: Int): ArrayList<TimetableItem> {
-        val list = mutableListOf<TimetableItem>()
+    private fun createTimetableItems(size: Int): ArrayList<TimetableClass> {
+        val classes = mutableListOf<TimetableClass>()
         for (i in 1..size) {
-            list.add(createTimetableItem())
+            classes.add(createTimetableItem())
         }
-        return ArrayList(list)
+        return ArrayList(classes)
     }
 
-    private fun createTimetableItem(): TimetableItem {
+    private fun createTimetableItem(): TimetableClass {
         return createTimetableItem(
             WeeksBuilder().setRange(1, 1).getWeeks()
         )
     }
 
-    private fun createTimetableItem(weeks: Weeks): TimetableItem {
-        return TimetableItem(
-            "code", "name", "room", "lecturer", ItemType("type"),
+    private fun createTimetableItem(weeks: Weeks): TimetableClass {
+        return TimetableClass(
+            "code", "name", "room", "lecturer", TimetableClass.Type("type"),
             LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, weeks
         )
     }

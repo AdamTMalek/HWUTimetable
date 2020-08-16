@@ -8,5 +8,5 @@ interface OnUpdateFinishedListener {
      * After the update process has been finished, this method will be invoked and the updated timetables
      * (if any) will be passed as a list.
      */
-    fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>)
+    fun onUpdateFinished(updated: Collection<Timetable.Info>)
 }

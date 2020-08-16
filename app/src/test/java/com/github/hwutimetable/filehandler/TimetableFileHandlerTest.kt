@@ -97,7 +97,7 @@ class TimetableFileHandlerTest {
     private fun generateTimetable(code: String): Timetable {
         return Timetable(
             generateTimetableDays(),
-            Timetable.TimetableInfo(
+            Timetable.Info(
                 code, "Test Timetable", Semester(
                     LocalDate.now(), 1
                 )
@@ -113,25 +113,23 @@ class TimetableFileHandlerTest {
         )
     }
 
-    private fun generateTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
-        val list = mutableListOf<TimetableItem>()
-        for (i in 1..itemsInDay)
-            list.add(generateTimetableItem())
+    private fun generateTimetableDay(day: Day, numberOfClasses: Int): TimetableDay {
+        val list = mutableListOf<TimetableClass>()
+        for (i in 1..numberOfClasses)
+            list.add(generateClass())
         return TimetableDay(day, ArrayList(list))
     }
 
-    private fun generateTimetableItem(): TimetableItem {
-        return TimetableItem(
-            "code",
-            "name",
-            "room",
-            "lecturer",
-            ItemType("type"),
-            LocalTime.MIDNIGHT,
-            LocalTime.MIDNIGHT,
-            WeeksBuilder()
-                .setRange(1, 1)
-                .getWeeks()
-        )
-    }
+    private fun generateClass() = TimetableClass(
+        "code",
+        "name",
+        "room",
+        "lecturer",
+        TimetableClass.Type("type"),
+        LocalTime.MIDNIGHT,
+        LocalTime.MIDNIGHT,
+        WeeksBuilder()
+            .setRange(1, 1)
+            .getWeeks()
+    )
 }

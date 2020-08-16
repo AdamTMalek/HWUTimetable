@@ -115,7 +115,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Inflate the menu; this adds timetableClasses to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_view_timetable, menu)
         return true
     }
@@ -245,7 +245,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             setNextDayLabelText(sectionNumber)
 
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
-                ?: throw Exception("TimetableItem list must not be null")
+                ?: throw Exception("TimetableClass list must not be null")
 
             val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
@@ -328,7 +328,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             private val ARG_SECTION_NUMBER = "section_number"
 
             /**
-             * The fragment argument representing the timetable items for this
+             * The fragment argument representing the timetable timetableClasses for this
              * fragment.
              */
             private val ARG_SECTION_TIMETABLE = "section_items"

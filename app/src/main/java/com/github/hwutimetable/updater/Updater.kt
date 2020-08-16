@@ -50,7 +50,7 @@ class Updater(
             scraper.setup()
 
             val savedTimetablesInfoList = getStoredTimetables()
-            val updated = mutableListOf<Timetable.TimetableInfo>()
+            val updated = mutableListOf<Timetable.Info>()
             savedTimetablesInfoList.forEach { savedInfo ->
                 val savedTimetable = fileHandler.getTimetable(savedInfo)
                 val newTimetable = getTimetable(savedInfo)
@@ -68,7 +68,7 @@ class Updater(
         }
     }
 
-    private suspend fun getTimetable(info: Timetable.TimetableInfo): Timetable {
+    private suspend fun getTimetable(info: Timetable.Info): Timetable {
         val doc = scraper.getTimetable(info.code, info.semester.number)
         return Timetable(parser.setDocument(doc).getTimetable(), info)
     }
@@ -91,9 +91,9 @@ class Updater(
     }
 
     /**
-     * Get the collection of stored timetables (as [Timetable.TimetableInfo]
+     * Get the collection of stored timetables (as [Timetable.Info]
      */
-    private fun getStoredTimetables(): Collection<Timetable.TimetableInfo> {
+    private fun getStoredTimetables(): Collection<Timetable.Info> {
         return fileHandler.getStoredTimetables()
     }
 
@@ -133,7 +133,7 @@ class Updater(
      * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
-    override fun notifyUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
+    override fun notifyUpdateFinished(updated: Collection<Timetable.Info>) {
         finishedListeners.forEach { it.onUpdateFinished(updated) }
     }
 }

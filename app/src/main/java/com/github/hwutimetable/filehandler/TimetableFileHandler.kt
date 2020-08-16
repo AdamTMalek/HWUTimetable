@@ -62,7 +62,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         orderFile.writeText(order.joinToString(","))
     }
 
-    fun saveOrder(infoList: List<Timetable.TimetableInfo>) {
+    fun saveOrder(infoList: List<Timetable.Info>) {
         val order = infoList.joinToString(",") { it.code }
         orderFile.writeText(order)
     }
@@ -77,7 +77,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
     /**
      * Returns a list of stored timetable infos sorted by user's preference
      */
-    fun getStoredTimetables(): List<Timetable.TimetableInfo> {
+    fun getStoredTimetables(): List<Timetable.Info> {
         if (!orderFile.exists())
             return emptyList()
 
@@ -94,8 +94,8 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun getTimetable(timetableInfo: Timetable.TimetableInfo): Timetable {
-        val file = File(directory, getFilename(timetableInfo))
+    fun getTimetable(info: Timetable.Info): Timetable {
+        val file = File(directory, getFilename(info))
         if (!file.exists())
             throw getNotFoundException(file)
 
@@ -107,7 +107,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
      * @throws FileNotFoundException when the timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun deleteTimetable(info: Timetable.TimetableInfo) {
+    fun deleteTimetable(info: Timetable.Info) {
         val file = File(directory, getFilename(info))
         if (!file.exists())
             throw getNotFoundException(file)
@@ -123,12 +123,12 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
 
     /**
      * Deletes all timetables stored on the device
-     * @return List of TimetableInfo of the timetables that were successfully deleted
+     * @return List of Info of the timetables that were successfully deleted
      * @throws FileNotFoundException when a timetable does not exist
      */
     @Throws(FileNotFoundException::class)
-    fun deleteAllTimetables(): List<Timetable.TimetableInfo> {
-        val deleted = mutableListOf<Timetable.TimetableInfo>()
+    fun deleteAllTimetables(): List<Timetable.Info> {
+        val deleted = mutableListOf<Timetable.Info>()
         getStoredTimetables().forEach { info ->
             deleteTimetable(info)
             deleted.add(info)
@@ -138,7 +138,7 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
         return deleted
     }
 
-    private fun getFilename(timetableInfo: Timetable.TimetableInfo) = "${timetableInfo.code}.json"
+    private fun getFilename(info: Timetable.Info) = "${info.code}.json"
 
     private fun getNotFoundException(file: File): FileNotFoundException {
         return FileNotFoundException("Timetable file (${file.name}) was not found")

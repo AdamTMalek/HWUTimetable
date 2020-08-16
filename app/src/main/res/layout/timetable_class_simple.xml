@@ -10,7 +10,7 @@
         android:orientation="vertical"
         tools:ignore="RtlHardcoded">
     <TextView
-            android:id="@+id/item_name"
+            android:id="@+id/class_name"
             android:layout_height="@dimen/hour_label_height"
             android:layout_width="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -25,7 +25,7 @@
             android:text="\@"
             tools:ignore="HardcodedText"/>
     <TextView
-            android:id="@+id/item_room"
+            android:id="@+id/class_room"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/hour_label_height"
             android:layout_gravity="center_horizontal"

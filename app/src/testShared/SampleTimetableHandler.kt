@@ -19,7 +19,7 @@ class SampleTimetableHandler {
         return Jsoup.parse(stream, "UTF-8", "")
     }
 
-    fun getHtmlTimetable(file: File, info: Timetable.TimetableInfo): Timetable {
+    fun getHtmlTimetable(file: File, info: Timetable.Info): Timetable {
         val document = getDocument(file)!!
         val parser = Parser(document)
         val days = parser.getTimetable()
