@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
@@ -27,10 +28,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -72,6 +70,19 @@ class TimetableViewActivityTest {
 
     @Inject
     lateinit var dateProvider: CurrentDateProvider
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun setOriginalViewPreference() {
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+            with(sharedPreferences.edit()) {
+                putBoolean(context.getString(R.string.use_simplified_view), false)
+                apply()
+            }
+        }
+    }
 
     @Before
     fun setup() {
