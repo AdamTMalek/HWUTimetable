@@ -7,6 +7,8 @@ import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
@@ -274,5 +276,47 @@ class TimetableViewActivityTest {
     private fun changeWeek(activity: Activity, week: Int) {
         val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
         weeksSpinner.setSelection(week - 1, false)
+    }
+
+    @Test
+    fun testPopupWindowOpensWhenClickedOnClass() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+        Espresso.onView(withId(R.id.item_info_grid)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testPopupWindowHasCorrectItem() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+
+        Espresso.onView(withId(R.id.item_info_grid))
+            .check(matches(withChild(withText("Signals and Systems"))))
+    }
+
+    @Test
+    fun testPopupWindowCloses() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+        Espresso.onView(withId(R.id.close_class_info)).perform(click())
+        Espresso.onView(withId(R.id.item_info_grid)).check(doesNotExist())
     }
 }

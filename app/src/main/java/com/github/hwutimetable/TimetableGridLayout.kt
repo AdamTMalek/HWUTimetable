@@ -235,6 +235,6 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * Returns a sequence of the timetable items that have been added to the layout.
      */
     fun getTimetableItems() = children.filter {
-        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_code) != null)
+        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_name) != null)
     }
 }
