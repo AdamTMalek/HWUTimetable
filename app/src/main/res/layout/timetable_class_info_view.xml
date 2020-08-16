@@ -22,31 +22,31 @@
                 android:text="@string/class_code_label"
                 style="@style/ClassInfoLabel"/>
         <TextView
-                android:id="@+id/item_code"
+                android:id="@+id/class_code"
                 style="@style/ClassInfo"/>
         <TextView
                 android:text="@string/class_label"
                 style="@style/ClassInfoLabel"/>
         <TextView
-                android:id="@+id/item_name"
+                android:id="@+id/class_name"
                 style="@style/ClassInfo"/>
         <TextView
                 android:text="@string/room_label"
                 style="@style/ClassInfoLabel"/>
         <TextView
-                android:id="@+id/item_room"
+                android:id="@+id/class_room"
                 style="@style/ClassInfo"/>
         <TextView
                 android:text="@string/lecturer_label"
                 style="@style/ClassInfoLabel"/>
         <TextView
-                android:id="@+id/item_lecturer"
+                android:id="@+id/class_lecturer"
                 style="@style/ClassInfo"/>
         <TextView
                 android:text="@string/type_label"
                 style="@style/ClassInfoLabel"/>
         <TextView
-                android:id="@+id/item_type"
+                android:id="@+id/class_type"
                 style="@style/ClassInfo"/>
         <TextView
                 android:text="@string/start_time_label"
@@ -65,7 +65,7 @@
                 style="@style/ClassInfoLabel"
                 android:layout_marginBottom="10dp"/>
         <TextView
-                android:id="@+id/item_weeks"
+                android:id="@+id/class_weeks"
                 style="@style/ClassInfo"/>
     </GridLayout>
     <com.google.android.material.floatingactionbutton.FloatingActionButton

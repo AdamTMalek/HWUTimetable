@@ -16,7 +16,7 @@ import com.github.hwutimetable.parser.TimetableDay
  * The main outer view is a [ScrollView] created by [createScrollView].
  * This view has only one child which a [TimetableGridLayout].
  * The grid layout has 36 rows and 2 columns. First column contains hour labels
- * and the second timetable items if they exist at the given hour, otherwise
+ * and the second timetable timetableClasses if they exist at the given hour, otherwise
  * cell (at the 2nd column) of the row of the corresponding hour is left empty.
  *
  * If there is an timetable item for the given hour it is made up of multiple
@@ -31,7 +31,7 @@ import com.github.hwutimetable.parser.TimetableDay
 class TimetableViewGenerator(private val context: Context) {
     /**
      * Constructs the [ScrollView] with all the [timetable] information inserted
-     * @return [ScrollView] with the timetable items
+     * @return [ScrollView] with the timetable timetableClasses
      */
     fun getTimetableItemView(timetable: TimetableDay): ViewGroup {
         return TimetableGridLayout(context).apply {

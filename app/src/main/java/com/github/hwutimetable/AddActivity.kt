@@ -199,7 +199,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val semesterStartDate = parser.getSemesterStartDate()
 
         val semester = Semester(semesterStartDate, semesterNumber)
-        val info = Timetable.TimetableInfo(code, name, semester)
+        val info = Timetable.Info(code, name, semester)
         val timetable = Timetable(timetableDays, info)
 
         if (saveTimetable()) {

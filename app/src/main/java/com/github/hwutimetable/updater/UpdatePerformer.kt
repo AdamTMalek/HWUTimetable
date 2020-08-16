@@ -34,5 +34,5 @@ interface UpdatePerformer {
      * After performing the update, this method will be used to notify any registered [OnUpdateFinishedListener].
      * @param updated: Collection of updated timetables
      */
-    fun notifyUpdateFinished(updated: Collection<Timetable.TimetableInfo>)
+    fun notifyUpdateFinished(updated: Collection<Timetable.Info>)
 }

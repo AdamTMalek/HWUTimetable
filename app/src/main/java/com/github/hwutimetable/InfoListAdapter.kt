@@ -12,13 +12,13 @@ import com.github.hwutimetable.parser.Timetable
  * This class is the adapter for representing list of timetables
  * in the [RecyclerView].
  */
-class InfoListAdapter(private val infoList: MutableList<Timetable.TimetableInfo>) :
+class InfoListAdapter(private val infoList: MutableList<Timetable.Info>) :
     RecyclerView.Adapter<InfoListAdapter.InfoListViewHolder>() {
 
     class InfoListViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        fun bind(timetableInfo: Timetable.TimetableInfo) {
+        fun bind(info: Timetable.Info) {
             val title = view.findViewById<TextView>(R.id.timetable_title)
-            title.text = timetableInfo.name
+            title.text = info.name
         }
     }
 

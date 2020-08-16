@@ -197,7 +197,7 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
         }
 
-        override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
+        override fun onUpdateFinished(updated: Collection<Timetable.Info>) {
             val message = when (updated.isEmpty()) {
                 true -> "All timetables are up-to-date"
                 false -> "Updated ${updated.size} timetable(s)"

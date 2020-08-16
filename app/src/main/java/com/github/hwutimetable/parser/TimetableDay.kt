@@ -23,15 +23,15 @@ enum class Day(val index: Int) {
 }
 
 @Parcelize
-data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Parcelable {
+data class TimetableDay(val day: Day, val classes: ArrayList<TimetableClass>) : Parcelable {
 
     /**
-     * Get new object that contains only items that happen in the given week
+     * Get new object that contains only timetable classes that happen in the given week
      */
     fun getForWeek(week: Int): TimetableDay {
         return TimetableDay(
             this.day,
-            ArrayList(items.filter { item -> item.weeks.contains(week) })
+            ArrayList(classes.filter { item -> item.weeks.contains(week) })
         )
     }
 
@@ -40,7 +40,7 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
      */
     fun getClashes(week: Int): Clashes {
         val clashes = Clashes()
-        for (i in 0 until (items.size - 1)) {
+        for (i in 0 until (classes.size - 1)) {
             clashes.addClashes(getClashes(i, week))
         }
         return clashes
@@ -51,10 +51,10 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
      * @return [Clash] if a clash exists, null otherwise.
      */
     private fun getClashes(index: Int, week: Int): Clashes {
-        val item = items[index]
+        val item = classes[index]
         val clashes = Clashes()
-        for (i in (index + 1) until items.size) {
-            val itemToCompare = items[i]
+        for (i in (index + 1) until classes.size) {
+            val itemToCompare = classes[i]
 
             if (!overlapExists(item, itemToCompare))
                 continue // If there's no overlap - continue
@@ -68,19 +68,19 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
     }
 
     /**
-     * Checks if there is an overlap between item1 and item2.
+     * Checks if there is an overlap between class1 and class2.
      * @return true if overlap exists, false otherwise.
      */
-    private fun overlapExists(item1: TimetableItem, item2: TimetableItem): Boolean {
+    private fun overlapExists(class1: TimetableClass, class2: TimetableClass): Boolean {
         // Find the minutes between the end of item 1 and start of item 2
-        var minutes = Minutes.minutesBetween(item1.end, item2.start).minutes
+        var minutes = Minutes.minutesBetween(class1.end, class2.start).minutes
         if (minutes >= 0)
             return false  // No overlap
 
         // Now, we know that item 2 start comes before the end of item 1
         // We need to check if item 2 finishes before item 1 starts.
         // We do exactly the same as before, except swap item 1 and item 2
-        minutes = Minutes.minutesBetween(item2.end, item1.start).minutes
+        minutes = Minutes.minutesBetween(class2.end, class1.start).minutes
         if (minutes >= 0)
             return false
 
@@ -96,14 +96,14 @@ data class TimetableDay(val day: Day, val items: ArrayList<TimetableItem>) : Par
         other as TimetableDay
 
         if (day != other.day) return false
-        if (items != other.items) return false
+        if (classes != other.classes) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = day.hashCode()
-        result = 31 * result + items.hashCode()
+        result = 31 * result + classes.hashCode()
         return result
     }
 }

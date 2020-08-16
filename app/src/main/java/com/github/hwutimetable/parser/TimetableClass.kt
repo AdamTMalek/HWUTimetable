@@ -1,24 +1,64 @@
 package com.github.hwutimetable.parser
 
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.core.content.ContextCompat
 import org.joda.time.LocalTime
 import org.joda.time.Minutes
 import org.joda.time.Period
 
 /**
- * TimetableItem object represents a lecture, lab, tutorial etc.
+ * TimetableClass object represents a lecture, lab, tutorial etc.
  */
-data class TimetableItem(
+data class TimetableClass(
     val code: String,
     val name: String,
     val room: String,
     val lecturer: String,
-    val type: ItemType,
+    val type: Type,
     val start: LocalTime,
     val end: LocalTime,
     val weeks: Weeks
 ) : Parcelable {
+    /**
+     * [Type] represents a type of a timetable class.
+     * This can be a lecture, tutorial, lab etc.
+     * @property name: Type as it appears on the website timetable (e.g. CLab, Tut, Lec)
+     */
+    data class Type(val name: String) {
+
+        /**
+         * Gets the background associated with this item type
+         * @return: A background from drawable resources
+         */
+        fun getBackground(context: Context): Drawable {
+            val id = getId(context)
+            return ContextCompat.getDrawable(context, id)
+                ?: throw Resources.NotFoundException("Failed to load drawable with id $id")
+        }
+
+        /**
+         * Gets the id of the drawable
+         */
+        private fun getId(context: Context): Int {
+            val name = this.name.toLowerCase()
+            val typeName = when (name) {
+                "wkp", "sgrp", "plab", "llab" -> "lab"  // These have the same background
+                else -> name
+            }.plus("_background") // add _background suffix
+
+            val id = context.resources.getIdentifier(typeName, "drawable", context.packageName)
+
+            if (id == 0) {
+                throw Resources.NotFoundException("The background with name $name was not found in the resources")
+            }
+
+            return id
+        }
+    }
 
     val duration: Period = Period.minutes(Minutes.minutesBetween(start, end).minutes)
 
@@ -27,7 +67,7 @@ data class TimetableItem(
         name = parcel.readString()!!,
         room = parcel.readString()!!,
         lecturer = parcel.readString()!!,
-        type = ItemType(parcel.readString()!!),
+        type = Type(parcel.readString()!!),
         start = LocalTime.parse(parcel.readString()),
         end = LocalTime.parse(parcel.readString()),
         weeks = WeeksBuilder()
@@ -51,12 +91,12 @@ data class TimetableItem(
 
     override fun describeContents() = 0
 
-    companion object CREATOR : Parcelable.Creator<TimetableItem> {
-        override fun createFromParcel(parcel: Parcel): TimetableItem {
-            return TimetableItem(parcel)
+    companion object CREATOR : Parcelable.Creator<TimetableClass> {
+        override fun createFromParcel(parcel: Parcel): TimetableClass {
+            return TimetableClass(parcel)
         }
 
-        override fun newArray(size: Int): Array<TimetableItem?> {
+        override fun newArray(size: Int): Array<TimetableClass?> {
             return arrayOfNulls(size)
         }
     }
@@ -65,7 +105,7 @@ data class TimetableItem(
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
 
-        other as TimetableItem
+        other as TimetableClass
 
         if (code != other.code) return false
         if (name != other.name) return false

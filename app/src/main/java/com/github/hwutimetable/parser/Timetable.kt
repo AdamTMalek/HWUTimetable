@@ -4,23 +4,23 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class Timetable(val days: Array<TimetableDay>, val info: TimetableInfo) : Parcelable {
+data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable {
     /**
-     * TimetableInfo represents information about a timetable.
+     * [Info] represents information about a timetable.
      * @param code: Code of the timetable (from the option value from the Timetables website)
      * @param name: Readable name
      * @param semester: Semester information (start date and number)
      */
     @Parcelize
-    data class TimetableInfo(val code: String, val name: String, val semester: Semester) : Parcelable
+    data class Info(val code: String, val name: String, val semester: Semester) : Parcelable
 
     /**
-     * Get total items in the timetable (includes clashes - if they exists
+     * Get total timetableClasses in the timetable (includes clashes - if they exists
      */
-    fun getTotalItems() = days.sumBy { it.items.size }
+    fun getClassesCount() = days.sumBy { it.classes.size }
 
     /**
-     * For the given week, the algorithm finds if there are any clashes between items
+     * For the given week, the algorithm finds if there are any clashes between timetable classes
      * @return [Clashes] which may or may not contain clashes
      */
     fun getClashes(week: Int): Clashes {
@@ -34,7 +34,8 @@ data class Timetable(val days: Array<TimetableDay>, val info: TimetableInfo) : P
 
     /**
      * Generates a timetable for the given week.
-     * Using this method the timetable will filter out items (lectures, labs etc.) that only happen in the given week.
+     * Using this method the timetable will filter out timetable classes (lectures, labs etc.) that only happen
+     * in the given week.
      * @return [Timetable] for the given week.
      */
     fun getForWeek(week: Int): Timetable {

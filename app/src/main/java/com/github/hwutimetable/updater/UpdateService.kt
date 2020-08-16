@@ -100,7 +100,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
     /**
      * Post-update callback received from the [updater]
      */
-    override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
+    override fun onUpdateFinished(updated: Collection<Timetable.Info>) {
         val logMessage = if (updated.isEmpty())
             "Post-Update callback received but no timetables were updated"
         else

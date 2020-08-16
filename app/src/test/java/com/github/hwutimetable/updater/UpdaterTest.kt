@@ -29,7 +29,7 @@ class UpdaterTest {
     private val updateWaitingTime = 500L
     private val sampleTimetablePath = "src/test/resources/sampleTimetables/tt1.html"
     private val localDateFormatter = DateTimeFormat.forPattern("dd/MM/YYYY").withLocale(Locale.ENGLISH)
-    private val timetableInfo = Timetable.TimetableInfo(
+    private val timetableInfo = Timetable.Info(
         "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1",
         Semester(LocalDate.parse("16/09/2019", localDateFormatter), 1)
     )
@@ -119,7 +119,7 @@ class UpdaterTest {
 
         val scraper = ScraperForTest(newTimetableDocument)
         val semesterStartDate = Parser(oldFileDoc).getSemesterStartDate()
-        val info = Timetable.TimetableInfo(
+        val info = Timetable.Info(
             "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1", Semester(
                 semesterStartDate, 1
             )
@@ -145,7 +145,7 @@ class UpdaterTest {
             return
         }
 
-        override fun onUpdateFinished(updated: Collection<Timetable.TimetableInfo>) {
+        override fun onUpdateFinished(updated: Collection<Timetable.Info>) {
             return
         }
     }
