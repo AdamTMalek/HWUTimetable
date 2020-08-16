@@ -17,4 +17,7 @@
     <dimen name="day_text_size">18sp</dimen>
     <dimen name="timetable_grid_top_margin">10dp</dimen>
     <dimen name="weeks_text_size">16sp</dimen>
+
+    <!-- Timetable class info window -->
+    <dimen name="info_window_side_margin">60dp</dimen>
 </resources>

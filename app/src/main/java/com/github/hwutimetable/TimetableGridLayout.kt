@@ -11,6 +11,7 @@ import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.children
+import androidx.preference.PreferenceManager
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.parser.TimetableItem
 import org.joda.time.LocalTime
@@ -57,6 +58,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
 
         val lastRow = row + rowSpan - 1
         emptyRows.removeAll { it in (row..lastRow) }
+        addItemClickHandler(itemView, timetableItem)
     }
 
     /**
@@ -66,20 +68,31 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
     private fun createViewForItem(item: TimetableItem): LinearLayout {
         val linearLayout = createItemLinearLayout(item.type.getBackground(context))
-        val inflater = LayoutInflater.from(context)
-        val gridLayout = inflater.inflate(R.layout.timetable_item, linearLayout, false)
+        val itemView = if (useSimplifiedViewForItem())
+            createSimpleViewForItem(item, linearLayout)
+        else
+            createOriginalViewForItem(item, linearLayout)
 
-        with(gridLayout) {
-            findViewById<TextView>(R.id.item_code).text = item.code
-            findViewById<TextView>(R.id.item_weeks).text = item.weeks.toString()
-            findViewById<TextView>(R.id.item_room).text = item.room
-            findViewById<TextView>(R.id.item_name).text = item.name
-            findViewById<TextView>(R.id.item_lecturer).text = item.lecturer
-            findViewById<TextView>(R.id.item_type).text = item.type.name
-        }
-
-        linearLayout.addView(gridLayout)
+        linearLayout.addView(itemView)
         return linearLayout
+    }
+
+    private fun useSimplifiedViewForItem() = PreferenceManager.getDefaultSharedPreferences(context)
+        .getBoolean(context.getString(R.string.use_simplified_view), false)
+
+    private fun createOriginalViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
+        return createViewForItem(item, linearLayout, R.layout.timetable_item_original)
+    }
+
+    private fun createSimpleViewForItem(item: TimetableItem, linearLayout: LinearLayout): View {
+        return createViewForItem(item, linearLayout, R.layout.timetable_item_simple)
+    }
+
+    private fun createViewForItem(item: TimetableItem, linearLayout: LinearLayout, resource: Int): View {
+        val inflater = LayoutInflater.from(context)
+        val view = inflater.inflate(resource, linearLayout, false)
+        ClassInfoViewPopulator.populateView(view, item)
+        return view
     }
 
     /**
@@ -95,6 +108,13 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
             )
             it.gravity = Gravity.CENTER_VERTICAL
             it.background = background
+        }
+    }
+
+    private fun addItemClickHandler(itemView: View, item: TimetableItem) {
+        itemView.setOnLongClickListener {
+            ClassInfoPopupWindow.create(context, item).showAtLocation(this, Gravity.CENTER, 0, 0)
+            return@setOnLongClickListener true
         }
     }
 
@@ -215,6 +235,6 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * Returns a sequence of the timetable items that have been added to the layout.
      */
     fun getTimetableItems() = children.filter {
-        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_code) != null)
+        (it is LinearLayout) && (it.findViewById<TextView>(R.id.item_name) != null)
     }
 }

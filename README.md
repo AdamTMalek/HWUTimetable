@@ -34,8 +34,20 @@ to choose the semester like on the website - this will be done automatically by 
 After adding the timetable, you will be taken to the timetable view. Here you see your timetable, there are a couple
 of features that were implemented into the app so please read the following carefully so you know what is happening
 
+By default, you will see a simplified class view, which only shows the class name and the room.
+ 
+![hwut-view-simple](https://user-images.githubusercontent.com/23484014/90335436-eebe6900-dfcc-11ea-9ed5-65c3c74cab46.png)
+
+You can change to original view, shown below, by going into settings and disabling "Use simplified timetable class view"
+setting.
+
 ![tt_view](https://user-images.githubusercontent.com/23484014/85850903-9fff0a80-b7a5-11ea-949e-560b3476e44c.png)
 
+To get more information about a class, long-click on the class and a popup window will come up with the information.
+This feature works on both simplified and original views, however it only comes useful in the simplified view, as in
+the original view all the information is already displayed.
+
+![hwut-view-popup](https://user-images.githubusercontent.com/23484014/90335448-08f84700-dfcd-11ea-9cca-3155991bbbc6.png)
 
 The displayed day depends on the current day. That is, if you are viewing the timetable on Wednesday, the app will
 automatically go to Wednesday lectures/labs. To view a different day, simply swipe left or right, or you can also click 

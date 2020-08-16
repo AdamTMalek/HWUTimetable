@@ -8,16 +8,16 @@
         <SwitchPreferenceCompat
                 app:key="enable_updates"
                 app:defaultValue="true"
-                app:title="Check for timetable updates"/>
+                app:title="@string/enable_updates_title"/>
 
         <CheckBoxPreference
                 app:key="allow_wifi"
-                app:title="Allow using WiFi"
+                app:title="@string/allow_wifi_title"
                 app:dependency="enable_updates"/>
 
         <CheckBoxPreference
                 app:key="allow_data"
-                app:title="Allow using mobile data"
+                app:title="@string/allow_mobile_data_title"
                 app:dependency="enable_updates"/>
 
         <com.github.hwutimetable.settings.TimePreference
@@ -29,8 +29,8 @@
 
         <com.github.hwutimetable.settings.NumberPreference
                 app:key="frequency_preference"
-                app:title="Update frequency"
-                app:summary="Number of days between each update check"
+                app:title="@string/update_frequency_title"
+                app:summary="@string/update_frequency_summary"
                 app:defaultValue="1"
                 app:dependency="enable_updates"
                 app:minValue="1"
@@ -39,6 +39,14 @@
         <Preference app:title="Check for updates now"
                     app:key="@string/update_now"
                     app:summary="@string/update_now_enabled_summary"/>
+    </PreferenceCategory>
+    <PreferenceCategory
+            app:title="Timetable View">
+        <SwitchPreference
+                app:title="@string/use_simplified_view_title"
+                app:summary="@string/use_simplified_view_summary"
+                app:key="@string/use_simplified_view"
+                app:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory
             app:title="About">

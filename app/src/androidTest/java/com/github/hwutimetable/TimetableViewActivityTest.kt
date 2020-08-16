@@ -4,9 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.preference.PreferenceManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
@@ -25,10 +28,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
-import org.junit.After
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
+import org.junit.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -70,6 +70,19 @@ class TimetableViewActivityTest {
 
     @Inject
     lateinit var dateProvider: CurrentDateProvider
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun setOriginalViewPreference() {
+            val context = InstrumentationRegistry.getInstrumentation().targetContext
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+            with(sharedPreferences.edit()) {
+                putBoolean(context.getString(R.string.use_simplified_view), false)
+                apply()
+            }
+        }
+    }
 
     @Before
     fun setup() {
@@ -274,5 +287,47 @@ class TimetableViewActivityTest {
     private fun changeWeek(activity: Activity, week: Int) {
         val weeksSpinner = activity.findViewById<Spinner>(R.id.weeks_spinner)
         weeksSpinner.setSelection(week - 1, false)
+    }
+
+    @Test
+    fun testPopupWindowOpensWhenClickedOnClass() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+        Espresso.onView(withId(R.id.item_info_grid)).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testPopupWindowHasCorrectItem() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+
+        Espresso.onView(withId(R.id.item_info_grid))
+            .check(matches(withChild(withText("Signals and Systems"))))
+    }
+
+    @Test
+    fun testPopupWindowCloses() {
+        setDate(LocalDate.parse("2019-09-17"))
+        startActivity()
+        Espresso.onView(
+            allOf(
+                withText("Signals and Systems"),
+                hasSibling(withText("GR1DLb"))
+            )
+        ).perform(longClick())
+        Espresso.onView(withId(R.id.close_class_info)).perform(click())
+        Espresso.onView(withId(R.id.item_info_grid)).check(doesNotExist())
     }
 }

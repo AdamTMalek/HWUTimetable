@@ -5,4 +5,11 @@
     <color name="colorAccent">#07393C</color>
     <color name="disabled">#44535C</color>
     <color name="textColor">#4C4C4C</color>
+
+    <!-- Timetable classes colors -->
+    <color name="type_clab">#800080</color>
+    <color name="type_cw">#FF80FF</color>
+    <color name="type_lab">#7D7C7D</color>
+    <color name="type_lec">#222287</color>
+    <color name="type_tut">#006BAB</color>
 </resources>
