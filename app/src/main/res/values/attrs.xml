@@ -3,6 +3,7 @@
     <declare-styleable name="NumberPreference">
         <attr name="maxValue" format="integer"/>
         <attr name="minValue" format="integer"/>
+        <attr name="step" format="integer"/>
         <attr name="useDefaultSummary" format="boolean"/>
     </declare-styleable>
 </resources>

@@ -2,7 +2,11 @@ package com.github.hwutimetable
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.StateListDrawable
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -67,7 +71,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      */
     @SuppressLint("RtlHardcoded")  // We want to keep positioning irrespectively of locales
     private fun createViewForClass(timetableClass: TimetableClass): LinearLayout {
-        val linearLayout = createClassLinearLayout(timetableClass.type.getBackground(context))
+        val linearLayout = createClassLinearLayout(timetableClass.type.color)
         val classView = if (useSimplifiedView())
             createSimpleViewForClass(timetableClass, linearLayout)
         else
@@ -99,16 +103,32 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * Creates linear layout that acts as a container for the grid layout.
      * @param background: [Drawable] background of the item
      */
-    private fun createClassLinearLayout(background: Drawable): LinearLayout {
-        return LinearLayout(context).also {
-            it.id = View.generateViewId()
-            it.layoutParams = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            it.gravity = Gravity.CENTER_VERTICAL
-            it.background = background
+    private fun createClassLinearLayout(backgroundColor: String): LinearLayout {
+        /**
+         * Get the drawable background resource and mutate it - change its colors depending on the activity type.
+         */
+        fun getBackgroundDrawable(): Drawable {
+            return (resources.getDrawable(R.drawable.class_background, context.theme).mutate() as LayerDrawable).apply {
+                (findDrawableByLayerId(R.id.class_background_rect) as GradientDrawable)
+                    .setColor(Color.parseColor(backgroundColor))
+
+                ((findDrawableByLayerId(R.id.class_background_grad) as StateListDrawable)
+                    .getStateDrawable(0) as GradientDrawable)
+                    .colors = intArrayOf(Color.parseColor(backgroundColor), Color.parseColor("#000000"))
+            }
         }
+
+        return createClassLinearLayout(getBackgroundDrawable())
+    }
+
+    private fun createClassLinearLayout(background: Drawable) = LinearLayout(context).also {
+        it.id = View.generateViewId()
+        it.layoutParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        it.gravity = Gravity.CENTER_VERTICAL
+        it.background = background
     }
 
     private fun addClassClickHandler(classView: View, timetableClass: TimetableClass) {

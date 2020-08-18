@@ -104,7 +104,7 @@ class TimetableTest {
 
     private fun createTimetableItem(weeks: Weeks): TimetableClass {
         return TimetableClass(
-            "code", "name", "room", "lecturer", TimetableClass.Type("type"),
+            "code", "name", "room", "lecturer", TimetableClass.Type("type", "#222287"),
             LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, weeks
         )
     }

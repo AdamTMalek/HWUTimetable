@@ -63,7 +63,7 @@ class TimetableDayTest {
 
     private fun createTimetableItem(startTime: LocalTime, endTime: LocalTime, weeks: Weeks): TimetableClass {
         return TimetableClass(
-            "xxx", "xxx", "xxx", "xxx", TimetableClass.Type("xxx"),
+            "xxx", "xxx", "xxx", "xxx", TimetableClass.Type("xxx", "#222287"),
             startTime, endTime, weeks
         )
     }

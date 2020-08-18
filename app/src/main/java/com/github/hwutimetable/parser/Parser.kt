@@ -1,6 +1,9 @@
 package com.github.hwutimetable.parser
 
 import com.github.hwutimetable.parser.exceptions.ParserException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
@@ -107,23 +110,30 @@ class Parser(private var document: Document?) : TimetableParser {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableDays[dayIndex].classes.add(
-            TimetableClass(
-                name = name,
-                code = code,
-                room = room,
-                lecturer = lecturer,
-                type = TimetableClass.Type(type),
-                start = startTime,
-                end = endTime,
-                weeks = WeeksBuilder()
-                    .setFromString(weeks)
-                    .getWeeks()
+        runBlocking {
+            timetableDays[dayIndex].classes.add(
+                TimetableClass(
+                    name = name,
+                    code = code,
+                    room = room,
+                    lecturer = lecturer,
+                    type = TimetableClass.Type(type, getBackgroundColorForType(type)),
+                    start = startTime,
+                    end = endTime,
+                    weeks = WeeksBuilder()
+                        .setFromString(weeks)
+                        .getWeeks()
+                )
             )
-        )
-
+        }
         return colspan
     }
+
+    private suspend fun getBackgroundColorForType(type: String) =
+        withContext(Dispatchers.IO) {
+            TimetableClass.Type.TypeBackgroundProvider()
+                .getBackgroundColor(type)
+        }
 
     /**
      * With the given list of rows - finds all timetable timetableClasses that are in them and adds them to the timetableItems list.
