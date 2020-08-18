@@ -199,7 +199,7 @@ class Scraper @Inject constructor() : TimetableScraper {
                     "tWildcard" to "",
                     "lbWeeks" to weeks,
                     "lbDays" to "1-5",
-                    "dlPeriod" to "6-41",
+                    "dlPeriod" to "5-40",
                     "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
                 )
             )
