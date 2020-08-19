@@ -1,6 +1,30 @@
-
 <PreferenceScreen
         xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+            app:title="Timetable View">
+        <SwitchPreference
+                app:title="@string/use_simplified_view_title"
+                app:summary="@string/use_simplified_view_summary"
+                app:key="@string/use_simplified_view"
+                app:defaultValue="true"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            app:title="Next class notifications">
+        <SwitchPreference
+                app:title="Receive notifications about next class"
+                app:key="receive_class_notification"
+                app:defaultValue="true"/>
+        <com.github.hwutimetable.settings.NumberPreference
+                app:key="class_notification_start"
+                app:title="When to send the reminder"
+                app:summary="Choose how many minutes before the class start should the reminder be sent."
+                app:defaultValue="5"
+                app:minValue="5"
+                app:maxValue="30"
+                app:step="5"/>
+    </PreferenceCategory>
 
     <PreferenceCategory
             app:title="Update checks">
@@ -39,14 +63,6 @@
         <Preference app:title="Check for updates now"
                     app:key="@string/update_now"
                     app:summary="@string/update_now_enabled_summary"/>
-    </PreferenceCategory>
-    <PreferenceCategory
-            app:title="Timetable View">
-        <SwitchPreference
-                app:title="@string/use_simplified_view_title"
-                app:summary="@string/use_simplified_view_summary"
-                app:key="@string/use_simplified_view"
-                app:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory
             app:title="About">

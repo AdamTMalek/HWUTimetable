@@ -1,6 +1,9 @@
 package com.github.hwutimetable.parser
 
 import com.github.hwutimetable.parser.exceptions.ParserException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.joda.time.format.DateTimeFormat
@@ -16,7 +19,10 @@ import java.util.*
  * To get the semester start day (for constructing [Timetable.Info]
  * use [getSemesterStartDate].
  */
-class Parser(private var document: Document?) : TimetableParser {
+class Parser(
+    private var document: Document?,
+    private val typeBackgroundProvider: TimetableClass.Type.BackgroundProvider
+) : TimetableParser {
     private lateinit var timetableDays: Array<TimetableDay>
 
     init {
@@ -107,23 +113,29 @@ class Parser(private var document: Document?) : TimetableParser {
         val lecturer = lecInfo.selectFirst("td[align=left]").text()
         val type = lecInfo.selectFirst("td[align=right]").text()
 
-        timetableDays[dayIndex].classes.add(
-            TimetableClass(
-                name = name,
-                code = code,
-                room = room,
-                lecturer = lecturer,
-                type = TimetableClass.Type(type),
-                start = startTime,
-                end = endTime,
-                weeks = WeeksBuilder()
-                    .setFromString(weeks)
-                    .getWeeks()
+        runBlocking {
+            timetableDays[dayIndex].classes.add(
+                TimetableClass(
+                    name = name,
+                    code = code,
+                    room = room,
+                    lecturer = lecturer,
+                    type = TimetableClass.Type(type, getBackgroundColorForType(type)),
+                    start = startTime,
+                    end = endTime,
+                    weeks = WeeksBuilder()
+                        .setFromString(weeks)
+                        .getWeeks()
+                )
             )
-        )
-
+        }
         return colspan
     }
+
+    private suspend fun getBackgroundColorForType(type: String) =
+        withContext(Dispatchers.IO) {
+            typeBackgroundProvider.getBackgroundColor(type)
+        }
 
     /**
      * With the given list of rows - finds all timetable timetableClasses that are in them and adds them to the timetableItems list.

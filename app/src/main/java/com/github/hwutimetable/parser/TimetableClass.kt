@@ -1,14 +1,15 @@
 package com.github.hwutimetable.parser
 
-import android.content.Context
-import android.content.res.Resources
-import android.graphics.drawable.Drawable
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.core.content.ContextCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.joda.time.LocalTime
 import org.joda.time.Minutes
 import org.joda.time.Period
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.URL
 
 /**
  * TimetableClass object represents a lecture, lab, tutorial etc.
@@ -28,36 +29,47 @@ data class TimetableClass(
      * This can be a lecture, tutorial, lab etc.
      * @property name: Type as it appears on the website timetable (e.g. CLab, Tut, Lec)
      */
-    data class Type(val name: String) {
-
-        /**
-         * Gets the background associated with this item type
-         * @return: A background from drawable resources
-         */
-        fun getBackground(context: Context): Drawable {
-            val id = getId(context)
-            return ContextCompat.getDrawable(context, id)
-                ?: throw Resources.NotFoundException("Failed to load drawable with id $id")
+    data class Type(val name: String, val color: String) {
+        interface BackgroundProvider {
+            suspend fun getBackgroundColor(type: String): String
         }
-
         /**
-         * Gets the id of the drawable
+         * The [OnlineBackgroundProvider] can fetch a file from the given [url] and parse it to get the
+         * appropriate color for the activity/class type.
          */
-        private fun getId(context: Context): Int {
-            val name = this.name.toLowerCase()
-            val typeName = when (name) {
-                "wkp", "sgrp", "plab", "llab" -> "lab"  // These have the same background
-                else -> name
-            }.plus("_background") // add _background suffix
+        class OnlineBackgroundProvider(private val url: URL = URL("https://timetable.hw.ac.uk/WebTimetables/LiveED/activitytype.css"))
+            : BackgroundProvider {
+            private val colorRegex = Regex("background-color: (#[a-zA-Z0-9]+)")
+            private lateinit var cssCopy: BufferedReader
 
-            val id = context.resources.getIdentifier(typeName, "drawable", context.packageName)
+            private suspend fun fetchCss(): BufferedReader {
+                if (this::cssCopy.isInitialized)
+                    return cssCopy
 
-            if (id == 0) {
-                throw Resources.NotFoundException("The background with name $name was not found in the resources")
+                return withContext(Dispatchers.IO) {
+                    val stream = url.openStream()
+                    BufferedReader(InputStreamReader(stream))
+                }
             }
 
-            return id
+            /**
+             * Returns the background color by fetching the CSS file from the server
+             * and looks for the correct class (type).
+             */
+            override suspend fun getBackgroundColor(type: String): String {
+                val classType = ".${type.replace(' ', '_')}"
+                return fetchCss().useLines { lines ->
+                    lines.forEach { line ->
+                        if (line.startsWith(classType, ignoreCase = true)) {
+                            return@useLines colorRegex.find(line)!!.groupValues[1]
+                        }
+                    }
+                    throw NoSuchTypeException(classType)
+                }
+            }
         }
+
+        class NoSuchTypeException(type: String) : Exception("Could not find the background for class: $type")
     }
 
     val duration: Period = Period.minutes(Minutes.minutesBetween(start, end).minutes)
@@ -67,7 +79,7 @@ data class TimetableClass(
         name = parcel.readString()!!,
         room = parcel.readString()!!,
         lecturer = parcel.readString()!!,
-        type = Type(parcel.readString()!!),
+        type = Type(parcel.readString()!!, parcel.readString()!!),
         start = LocalTime.parse(parcel.readString()),
         end = LocalTime.parse(parcel.readString()),
         weeks = WeeksBuilder()
@@ -83,6 +95,7 @@ data class TimetableClass(
             writeString(room)
             writeString(lecturer)
             writeString(type.name)
+            writeString(type.color)
             writeString(start.toString())
             writeString(end.toString())
             writeString(weeks.toString())

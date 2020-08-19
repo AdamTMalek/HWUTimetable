@@ -125,7 +125,7 @@ class TimetableFileHandlerTest {
         "name",
         "room",
         "lecturer",
-        TimetableClass.Type("type"),
+        TimetableClass.Type("type", "#222287"),
         LocalTime.MIDNIGHT,
         LocalTime.MIDNIGHT,
         WeeksBuilder()
