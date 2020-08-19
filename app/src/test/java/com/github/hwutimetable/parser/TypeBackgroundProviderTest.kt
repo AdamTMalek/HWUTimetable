@@ -1,6 +1,7 @@
 package com.github.hwutimetable.parser
 
 import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 class TypeBackgroundProviderTest {
@@ -11,16 +12,20 @@ class TypeBackgroundProviderTest {
     @Test
     fun testClassTypeWithSpace() {
         // We expect the function to replace space with underscore.
-        val expectedColor = "#222287"
-        val actualColor = backgroundProvider.getBackgroundColor("All students")
-        assertEquals(expectedColor, actualColor)
+        runBlocking {
+            val expectedColor = "#222287"
+            val actualColor = backgroundProvider.getBackgroundColor("All students")
+            assertEquals(expectedColor, actualColor)
+        }
     }
 
     @Test
     fun classTypeWithoutSpace() {
         // We expect the function to replace space with underscore.
-        val expectedColor = "#FFCC00"
-        val actualColor = backgroundProvider.getBackgroundColor("SGrp")
-        assertEquals(expectedColor, actualColor)
+        runBlocking {
+            val expectedColor = "#FFCC00"
+            val actualColor = backgroundProvider.getBackgroundColor("SGrp")
+            assertEquals(expectedColor, actualColor)
+        }
     }
 }
