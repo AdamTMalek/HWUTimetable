@@ -26,11 +26,13 @@ class NumberPreferenceDialogFragmentCompat : PreferenceDialogFragmentCompat() {
             val max = numPreference.maxNumber
             val min = numPreference.minNumber
             val value = numPreference.value
+            val step = numPreference.step
 
             with(numberPicker!!) {
                 this.maxValue = max
                 this.minValue = min
                 this.value = value
+                this.displayedValues = (minValue..maxValue step step).map { it.toString() }.toTypedArray()
             }
         }
     }

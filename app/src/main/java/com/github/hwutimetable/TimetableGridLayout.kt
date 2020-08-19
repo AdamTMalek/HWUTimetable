@@ -155,7 +155,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
             val text = getHourLabelText(i)
             addView(
                 createTimeTextView(text),
-                createLayoutParams(i, 0, columnWeight = 0.3f)
+                createLayoutParams(i, 0, columnWeight = 1.2f)
             )
         }
     }
@@ -197,7 +197,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
         return TextView(context).also {
             it.id = View.generateViewId()
             it.text = text
-            it.width = 0
+            it.width = LayoutParams.WRAP_CONTENT
             it.height = getTimeLabelHeight()
             it.background = context.resources.getDrawable(R.drawable.top_line, context.theme)
         }
@@ -242,7 +242,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      */
     private fun fillBlankCells() {
         emptyRows.forEach { row ->
-            val layoutParams = createLayoutParams(row, 1, columnWeight = 0.8f, rowSpan = 1)
+            val layoutParams = createLayoutParams(row, 1, columnWeight = 8f, rowSpan = 1)
             addView(
                 createClassLinearLayout(
                     context.resources.getDrawable(R.drawable.top_line, context.theme)

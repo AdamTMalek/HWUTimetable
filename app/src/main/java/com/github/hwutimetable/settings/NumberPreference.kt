@@ -16,6 +16,7 @@ import com.github.hwutimetable.R
 class NumberPreference(context: Context, attrs: AttributeSet) : DialogPreference(context, attrs) {
     val maxNumber: Int
     val minNumber: Int
+    val step: Int
 
     var value: Int = 0 // This value will be changed by the init block
         set(value) {
@@ -31,6 +32,7 @@ class NumberPreference(context: Context, attrs: AttributeSet) : DialogPreference
         val attributes = context.obtainStyledAttributes(attrs, R.styleable.NumberPreference)
         maxNumber = attributes.getInt(R.styleable.NumberPreference_maxValue, 100)
         minNumber = attributes.getInt(R.styleable.NumberPreference_minValue, 0)
+        step = attributes.getInt(R.styleable.NumberPreference_step, 1)
         this.value = PreferenceManager.getDefaultSharedPreferences(context).getInt(key, minNumber)
         attributes.recycle()
 
