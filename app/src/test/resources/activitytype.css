@@ -1,209 +1,35 @@
-.#SPLUS2401EF {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.#SPLUS2401F0 {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.#SPLUS2401F1 {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.#SPLUS58C82E {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.All_students {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Booking_Accepted {
-    background-color: #008800 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Booking_Cancelled {
-    background-color: #008800 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Booking_Rejected {
-    background-color: #008800 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.Booking_Requested {
-    background-color: #008800 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.CLab {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.CW {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Event {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Exams {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.FT {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.IP {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.LLab {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Lab {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Lec {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.OBS {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.PG {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.PLab {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.PTut {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.SGrp {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.Sem {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Small_Groups {
-    background-color: #FFCC00 !important;
-    color: #000000 !important;
-    border: 1px solid black;
-}
-
-.TG1 {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.TG2 {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.TG3 {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.TG4 {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.Tut {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.VC {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.WKP {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.prb {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.prv {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
-
-.srb {
-    background-color: #222287 !important;
-    color: #FFFFFF !important;
-    border: 1px solid black;
-}
+.#SPLUS2401EF {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.#SPLUS2401F0 {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.#SPLUS2401F1 {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.#SPLUS58C82E {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.All_students {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Booking_Accepted {background-color: #008800 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Booking_Cancelled {background-color: #008800 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Booking_Rejected {background-color: #008800 !important; color: #000000 !important; border: 1px solid black;}
+.Booking_Requested {background-color: #008800 !important; color: #000000 !important; border: 1px solid black;}
+.CLab {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.CW {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Event {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Exams {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.FT {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.IP {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.LLab {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Lab {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Lec {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.OBS {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.PG {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.PLab {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.PTut {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.SGrp {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.Sem {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Small_Groups {background-color: #FFCC00 !important; color: #000000 !important; border: 1px solid black;}
+.TG1 {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.TG2 {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.TG3 {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.TG4 {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.Tut {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.VC {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.WKP {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.prb {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.prv {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}
+.srb {background-color: #222287 !important; color: #FFFFFF !important; border: 1px solid black;}

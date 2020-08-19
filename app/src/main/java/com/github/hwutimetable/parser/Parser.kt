@@ -19,7 +19,10 @@ import java.util.*
  * To get the semester start day (for constructing [Timetable.Info]
  * use [getSemesterStartDate].
  */
-class Parser(private var document: Document?) : TimetableParser {
+class Parser(
+    private var document: Document?,
+    private val typeBackgroundProvider: TimetableClass.Type.BackgroundProvider
+) : TimetableParser {
     private lateinit var timetableDays: Array<TimetableDay>
 
     init {
@@ -131,8 +134,7 @@ class Parser(private var document: Document?) : TimetableParser {
 
     private suspend fun getBackgroundColorForType(type: String) =
         withContext(Dispatchers.IO) {
-            TimetableClass.Type.TypeBackgroundProvider()
-                .getBackgroundColor(type)
+            typeBackgroundProvider.getBackgroundColor(type)
         }
 
     /**

@@ -30,11 +30,15 @@ data class TimetableClass(
      * @property name: Type as it appears on the website timetable (e.g. CLab, Tut, Lec)
      */
     data class Type(val name: String, val color: String) {
+        interface BackgroundProvider {
+            suspend fun getBackgroundColor(type: String): String
+        }
         /**
-         * The [TypeBackgroundProvider] can fetch a file from the given [url] and parse it to get the
+         * The [OnlineBackgroundProvider] can fetch a file from the given [url] and parse it to get the
          * appropriate color for the activity/class type.
          */
-        class TypeBackgroundProvider(private val url: URL = URL("https://timetable.hw.ac.uk/WebTimetables/LiveED/activitytype.css")) {
+        class OnlineBackgroundProvider(private val url: URL = URL("https://timetable.hw.ac.uk/WebTimetables/LiveED/activitytype.css"))
+            : BackgroundProvider {
             private val colorRegex = Regex("background-color: (#[a-zA-Z0-9]+)")
             private lateinit var cssCopy: BufferedReader
 
@@ -52,7 +56,7 @@ data class TimetableClass(
              * Returns the background color by fetching the CSS file from the server
              * and looks for the correct class (type).
              */
-            suspend fun getBackgroundColor(type: String): String {
+            override suspend fun getBackgroundColor(type: String): String {
                 val classType = ".${type.replace(' ', '_')}"
                 return fetchCss().useLines { lines ->
                     lines.forEach { line ->

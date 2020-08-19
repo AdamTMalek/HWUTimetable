@@ -9,6 +9,7 @@ import androidx.preference.PreferenceManager
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.Scraper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -68,7 +69,12 @@ class UpdateService : Service(), OnUpdateFinishedListener {
         updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
-    private fun getDefaultUpdater() = Updater(this.filesDir, Parser(null), Scraper(), this)
+    private fun getDefaultUpdater() = Updater(
+        this.filesDir,
+        Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
+        Scraper(),
+        this
+    )
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 

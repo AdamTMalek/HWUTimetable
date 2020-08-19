@@ -4,10 +4,10 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
-class TypeBackgroundProviderTest {
+class OnlineBackgroundProviderTest {
     private val classLoader = javaClass.classLoader!!
     private val cssUrl = classLoader.getResource("activitytype.css")
-    private val backgroundProvider = TimetableClass.Type.TypeBackgroundProvider(cssUrl)
+    private val backgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(cssUrl)
 
     @Test
     fun testClassTypeWithSpace() {

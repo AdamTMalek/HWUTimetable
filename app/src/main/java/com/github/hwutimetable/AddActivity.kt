@@ -13,6 +13,7 @@ import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
 import dagger.hilt.android.AndroidEntryPoint
@@ -194,7 +195,7 @@ class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val semesterNumber = semester
 
         val document = scraper.getTimetable(code, semesterNumber)
-        val parser = Parser(document)
+        val parser = Parser(document, TimetableClass.Type.OnlineBackgroundProvider())
         val timetableDays = parser.getTimetable()
         val semesterStartDate = parser.getSemesterStartDate()
 

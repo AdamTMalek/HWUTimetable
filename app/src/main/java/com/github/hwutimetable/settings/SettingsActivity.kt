@@ -14,6 +14,7 @@ import com.github.hwutimetable.R
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.Scraper
 import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
@@ -170,7 +171,12 @@ class SettingsActivity : AppCompatActivity() {
         private fun startUpdate() {
             val activity = this.activity!!
             val context = activity.applicationContext
-            val updater = Updater(activity.filesDir, Parser(null), Scraper(), activity)
+            val updater = Updater(
+                activity.filesDir,
+                Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
+                Scraper(),
+                activity
+            )
             val notifier = UpdateNotifier(context)
 
             updater.addInProgressListener(notifier)

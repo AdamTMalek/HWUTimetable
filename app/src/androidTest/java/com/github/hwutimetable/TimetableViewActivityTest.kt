@@ -17,6 +17,7 @@ import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -35,6 +36,10 @@ import javax.inject.Singleton
 @HiltAndroidTest
 @UninstallModules(CurrentDateProviderModule::class)
 class TimetableViewActivityTest {
+    private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
+        override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
+    }
+
     @Module
     @InstallIn(ApplicationComponent::class)
     abstract class TestDateProviderModule {
@@ -55,7 +60,7 @@ class TimetableViewActivityTest {
     private val timetable: Timetable by lazy {
         val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
         val document = SampleTimetableHandler().getDocument(input)!!
-        val parser = Parser(document)
+        val parser = Parser(document, backgroundProvider)
         val days = parser.getTimetable()
         Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
     }

@@ -13,7 +13,9 @@ class ParserTest {
     private val document: Document = org.jsoup.Jsoup.parse(
         File("src/test/resources/sampleTimetables/tt1.html"), "UTF-8"
     )
-    private val parser: Parser = Parser(document)
+    private val backgroundCss = javaClass.classLoader!!.getResource("activitytype.css")
+    private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
+    private val parser: Parser = Parser(document, typeBackgroundProvider)
 
     private lateinit var days: Array<TimetableDay>
 
@@ -27,7 +29,7 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser(Document("src/test/sampleTimetables/tt1.html")).getTimetable()
+        Parser(Document("src/test/sampleTimetables/tt1.html"), typeBackgroundProvider).getTimetable()
     }
 
     @Test
