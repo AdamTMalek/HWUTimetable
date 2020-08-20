@@ -173,7 +173,7 @@ class MainActivityTest {
 
         launchActivity()
         scenario.onActivity { activity ->
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
             assertFalse(addButton.isEnabled)
         }
     }
@@ -187,7 +187,7 @@ class MainActivityTest {
 
         launchActivity()
         scenario.onActivity { activity ->
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
             assertTrue(addButton.isEnabled)
         }
     }
@@ -202,7 +202,7 @@ class MainActivityTest {
         launchActivity()
         scenario.onActivity { activity ->
             activity.onConnectionLost()
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
             assertFalse(addButton.isEnabled)
         }
     }
@@ -217,7 +217,7 @@ class MainActivityTest {
         launchActivity()
         scenario.onActivity { activity ->
             activity.onConnectionAvailable()
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.fab)
+            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
             assertTrue(addButton.isEnabled)
         }
     }
@@ -230,7 +230,7 @@ class MainActivityTest {
         Intents.init()
 
         launchActivity()
-        Espresso.onView(withId(R.id.fab))
+        Espresso.onView(withId(R.id.add_timetable))
             .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(AddActivity::class.java.name))

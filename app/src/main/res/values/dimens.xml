@@ -20,4 +20,7 @@
 
     <!-- Timetable class info window -->
     <dimen name="info_window_side_margin">60dp</dimen>
+
+    <dimen name="top_fab">125dp</dimen>
+    <dimen name="mid_fab">65dp</dimen>
 </resources>

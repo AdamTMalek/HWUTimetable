@@ -19,6 +19,7 @@ import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.settings.SettingsActivity
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
@@ -31,6 +32,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     private val infoList = mutableListOf<Timetable.Info>()
     private lateinit var listAdapter: InfoListAdapter
     private lateinit var alertDialog: AlertDialog.Builder
+    private var isAddMenuShowing = false
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
@@ -46,20 +48,13 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        fab.setOnClickListener {
-            val intent = Intent(this, AddActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
-        }
-        fab.backgroundTintList = applicationContext.getColorStateList(R.color.fab_color)
-
         recycler_view.layoutManager = LinearLayoutManager(this)
         initializeListAdapter()
         onInfoListChange()
         addTouchCallbacksHandler()
         listTimetables()
         setupAlertDialog()
-
+        setupAddButtons()
         setTitle(R.string.main_activity_title)
 
         connectivityCallback.registerCallbackReceiver(this)
@@ -224,6 +219,62 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             .setNegativeButton("No", listener)
     }
 
+    private fun setupAddButtons() {
+        setAddButtonsBackground()
+        hideAddMenu()
+        add_timetable.setOnClickListener {
+            if (isAddMenuShowing)
+                hideAddMenu()
+            else
+                showAddMenu()
+        }
+
+        add_programme.setOnClickListener {
+            openAddProgrammeTimetable()
+        }
+    }
+
+    private fun showAddMenu() {
+        isAddMenuShowing = true
+        showAddButton(add_programme, -resources.getDimension(R.dimen.top_fab))
+        showAddButton(add_class, -resources.getDimension(R.dimen.mid_fab))
+        add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_down, applicationContext.theme)
+    }
+
+    private fun hideAddMenu() {
+        isAddMenuShowing = false
+        hideAddButton(add_programme)
+        hideAddButton(add_class)
+        add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_up, applicationContext.theme)
+    }
+
+    private fun setAddButtonsBackground() {
+        fun getColorStateList() = applicationContext.getColorStateList(R.color.fab_color)
+
+        listOf(add_programme, add_class, add_timetable).forEach { button ->
+            button.backgroundTintList = getColorStateList()
+        }
+    }
+
+    private fun showAddButton(button: ExtendedFloatingActionButton, translation: Float) {
+        button.extend()
+        button.show()
+        button.animate().translationY(translation)
+        button.animate().alpha(1f)
+    }
+
+    private fun hideAddButton(button: ExtendedFloatingActionButton) {
+        button.shrink()
+        button.animate().translationY(0f)
+        button.animate().alpha(0f)
+    }
+
+    private fun openAddProgrammeTimetable() {
+        val intent = Intent(this, AddActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+    }
+
     private fun handleDialogClick(which: Int) {
         if (which == DialogInterface.BUTTON_POSITIVE) {
             deleteAllTimetables()
@@ -261,13 +312,13 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
 
     override fun onConnectionAvailable() {
         runOnUiThread {
-            fab.isEnabled = true
+            add_timetable.isEnabled = true
         }
     }
 
     override fun onConnectionLost() {
         runOnUiThread {
-            fab.isEnabled = false
+            add_timetable.isEnabled = false
         }
     }
 
