@@ -11,7 +11,7 @@
     <string name="delete_all">Delete all</string>
     <string name="delete_all_confirmation">Are you sure?</string>
 
-    <!-- Add Activity -->
+    <!-- Add Programme Timetable Activity -->
     <string name="departments">Departments:</string>
     <string name="levels">Levels:</string>
     <string name="semester">Semester:</string>
@@ -21,6 +21,13 @@
     <string name="groups">Groups</string>
     <string name="submit">Get Timetable</string>
     <string name="follow">Save on the device</string>
+
+    <!-- Add Course(s) Timetable Activity -->
+    <string name="course">Course:</string>
+    <string name="add_course_button_text">Add course</string>
+    <string name="courses">Courses</string>
+    <string name="generate_timetable">Generate timetable</string>
+    <string name="add_programme">Add programme</string>
 
     <!-- Timetable View Activity -->
     <string name="viewing_week">Select Week:</string>

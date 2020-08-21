@@ -232,26 +232,30 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         add_programme.setOnClickListener {
             openAddProgrammeTimetable()
         }
+
+        add_course.setOnClickListener {
+            openAddCoursesTimetable()
+        }
     }
 
     private fun showAddMenu() {
         isAddMenuShowing = true
         showAddButton(add_programme, -resources.getDimension(R.dimen.top_fab))
-        showAddButton(add_class, -resources.getDimension(R.dimen.mid_fab))
+        showAddButton(add_course, -resources.getDimension(R.dimen.mid_fab))
         add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_down, applicationContext.theme)
     }
 
     private fun hideAddMenu() {
         isAddMenuShowing = false
         hideAddButton(add_programme)
-        hideAddButton(add_class)
+        hideAddButton(add_course)
         add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_up, applicationContext.theme)
     }
 
     private fun setAddButtonsBackground() {
         fun getColorStateList() = applicationContext.getColorStateList(R.color.fab_color)
 
-        listOf(add_programme, add_class, add_timetable).forEach { button ->
+        listOf(add_programme, add_course, add_timetable).forEach { button ->
             button.backgroundTintList = getColorStateList()
         }
     }
@@ -271,6 +275,12 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
 
     private fun openAddProgrammeTimetable() {
         val intent = Intent(this, AddActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+    }
+
+    private fun openAddCoursesTimetable() {
+        val intent = Intent(this, AddCourseTimetable::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
