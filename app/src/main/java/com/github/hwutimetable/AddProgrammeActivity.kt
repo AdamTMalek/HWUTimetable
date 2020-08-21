@@ -25,7 +25,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AddActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
+class AddProgrammeActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
     private val mainScope = MainScope()
 
     @Inject

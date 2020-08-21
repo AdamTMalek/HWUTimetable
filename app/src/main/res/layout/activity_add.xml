@@ -7,7 +7,7 @@
         android:layout_height="match_parent"
         android:layout_marginStart="@dimen/edge_margin"
         android:layout_marginEnd="@dimen/edge_margin"
-        tools:context=".AddActivity">
+        tools:context=".AddProgrammeActivity">
 
     <LinearLayout
             android:id="@+id/controls_container"

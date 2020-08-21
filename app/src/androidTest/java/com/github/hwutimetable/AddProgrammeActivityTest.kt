@@ -34,7 +34,7 @@ import javax.inject.Singleton
 
 @UninstallModules(value = [TimetableScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
-class AddActivityTest {
+class AddProgrammeActivityTest {
     @Module
     @InstallIn(ApplicationComponent::class)
     object TestTimetableFileHandlerModule {
@@ -113,7 +113,7 @@ class AddActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private lateinit var scenario: ActivityScenario<AddActivity>
+    private lateinit var scenario: ActivityScenario<AddProgrammeActivity>
     private val semester1Date = LocalDate.parse("2020-09-01")
     private val semester2Date = LocalDate.parse("2020-01-01")
 
@@ -123,7 +123,7 @@ class AddActivityTest {
     }
 
     private fun launchActivity() {
-        scenario = ActivityScenario.launch(AddActivity::class.java)
+        scenario = ActivityScenario.launch(AddProgrammeActivity::class.java)
     }
 
     private fun setDate(date: LocalDate) {

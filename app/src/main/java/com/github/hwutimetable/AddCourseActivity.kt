@@ -3,7 +3,7 @@ package com.github.hwutimetable
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-class AddCourseTimetable : AppCompatActivity() {
+class AddCourseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

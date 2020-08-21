@@ -274,13 +274,13 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     private fun openAddProgrammeTimetable() {
-        val intent = Intent(this, AddActivity::class.java)
+        val intent = Intent(this, AddProgrammeActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     private fun openAddCoursesTimetable() {
-        val intent = Intent(this, AddCourseTimetable::class.java)
+        val intent = Intent(this, AddCourseActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
