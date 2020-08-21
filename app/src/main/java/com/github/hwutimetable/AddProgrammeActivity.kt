@@ -15,7 +15,8 @@ import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.Option
-import com.github.hwutimetable.scraper.TimetableScraper
+import com.github.hwutimetable.scraper.ProgrammeScraper
+import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add.*
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,7 @@ class AddProgrammeActivity : AppCompatActivity(), AdapterView.OnItemSelectedList
     private val mainScope = MainScope()
 
     @Inject
-    lateinit var scraper: TimetableScraper
+    lateinit var scraper: ProgrammeScraper
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
@@ -136,7 +137,12 @@ class AddProgrammeActivity : AppCompatActivity(), AdapterView.OnItemSelectedList
      */
     private suspend fun getGroups() {
         val selectedSemester = semester_spinner.selectedItem as String
-        groups = scraper.getGroups(selectedDepartment!!.optionValue, selectedLevel!!.optionValue)
+        groups = scraper.getGroups(
+            mapOf(
+                "department" to selectedDepartment!!.optionValue,
+                "level" to selectedLevel!!.optionValue
+            )
+        )
 
         if (groups == null)
             return
@@ -194,7 +200,12 @@ class AddProgrammeActivity : AppCompatActivity(), AdapterView.OnItemSelectedList
         val name = requestedGroup!!.text
         val semesterNumber = semester
 
-        val document = scraper.getTimetable(code, semesterNumber)
+        val filter = Scraper.FilterBuilder()
+            .withGroup(code)
+            .withSemester(semesterNumber)
+            .getFilter()
+
+        val document = scraper.getTimetable(filter)
         val parser = Parser(document, TimetableClass.Type.OnlineBackgroundProvider())
         val timetableDays = parser.getTimetable()
         val semesterStartDate = parser.getSemesterStartDate()

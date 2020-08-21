@@ -15,6 +15,7 @@ import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
+import com.github.hwutimetable.scraper.ProgrammeScraper
 import com.github.hwutimetable.scraper.Scraper
 import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
@@ -174,7 +175,7 @@ class SettingsActivity : AppCompatActivity() {
             val updater = Updater(
                 activity.filesDir,
                 Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
-                Scraper(),
+                ProgrammeScraper(), // TODO: Now, we've got two scrapers. This needs to be changed.
                 activity
             )
             val notifier = UpdateNotifier(context)

@@ -15,25 +15,29 @@ interface TimetableScraper {
     fun getDepartments(): List<Option>
 
     /**
+     * Scrapes groups from the Student Group Timetable site
+     * @param filters Filters to apply
+     * @return List of group options
+     */
+    suspend fun getGroups(filters: Map<String, String>): List<Option>
+
+    /**
+     * Get the timetable document from the website with the given group id (option value)
+     * and the semester.
+     * @param filters Filters to apply
+     * @return HTML document with the timetable
+     */
+    suspend fun getTimetable(filters: Map<String, Any>): Document
+}
+
+interface ProgrammeTimetableScraper : TimetableScraper {
+    /**
      * Get a list of the levels from the Student Group Timetables site
      * @return List of level options
      */
     fun getLevels(): List<Option>
+}
 
-    /**
-     * Scrapes groups from the Student Group Timetable site
-     * @param department department option's value (not text)
-     * @param level level option's value (not text)
-     * @return List of group options
-     */
-    suspend fun getGroups(department: String, level: String): List<Option>
+interface CourseTimetableScraper {
 
-    /**
-     * Get the timetable document from the website with the given [group] id (option value)
-     * and the semester.
-     * @param group group Option value
-     * @param semester Integer 1 or 2
-     * @return HTML document with the timetable
-     */
-    suspend fun getTimetable(group: String, semester: Int): Document
 }

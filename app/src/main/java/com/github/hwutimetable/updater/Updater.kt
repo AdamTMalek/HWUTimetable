@@ -5,6 +5,7 @@ import com.github.hwutimetable.R
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableParser
+import com.github.hwutimetable.scraper.Scraper
 import com.github.hwutimetable.scraper.TimetableScraper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -69,7 +70,13 @@ class Updater(
     }
 
     private suspend fun getTimetable(info: Timetable.Info): Timetable {
-        val doc = scraper.getTimetable(info.code, info.semester.number)
+        // TODO: Use correct scraper depending if its for programme or course
+        val filter = Scraper.FilterBuilder()
+            .withGroup(info.code)
+            .withSemester(info.semester.number)
+            .getFilter()
+
+        val doc = scraper.getTimetable(filter)
         return Timetable(parser.setDocument(doc).getTimetable(), info)
     }
 

@@ -10,7 +10,7 @@ import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
-import com.github.hwutimetable.scraper.Scraper
+import com.github.hwutimetable.scraper.ProgrammeScraper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -72,7 +72,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
     private fun getDefaultUpdater() = Updater(
         this.filesDir,
         Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
-        Scraper(),
+        ProgrammeScraper(), // TODO: Now we've got two scraper. This needs to be changed
         this
     )
 
