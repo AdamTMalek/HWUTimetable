@@ -50,14 +50,16 @@ class CourseScraper @Inject constructor() : Scraper(), CourseTimetableScraper {
         if (state == ScraperState.Finished) {
             cookies.clear()
             response = null
-            login()
-            goToProgrammesTimetables()
+            setup()
         }
 
         // We have to apply filters even though we know the group option value
         // Otherwise we will get an error "No items have been selected for your request"
         if (state != ScraperState.Filtered) {
-            filterByDepartment(filters.getValue("department") as String, false)
+            val department = filters["department"] as? String ?: ""
+            filterByDepartment(department, false)
+            this.department = department
+            state = ScraperState.Filtered
             return getTimetable(filters)
         }
 
