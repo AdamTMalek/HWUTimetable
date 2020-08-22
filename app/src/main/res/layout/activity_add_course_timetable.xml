@@ -86,7 +86,7 @@
             android:textSize="18sp"
             app:layout_constraintTop_toBottomOf="@id/add_course_button"
             app:layout_constraintLeft_toLeftOf="parent"/>
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/courses_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"

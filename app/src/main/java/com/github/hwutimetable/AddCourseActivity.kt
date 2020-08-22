@@ -5,6 +5,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
@@ -15,12 +16,13 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
-    private val selectedCourses = mutableListOf<Option>()
+    private val selectedCourses = mutableSetOf<Option>()
 
     override fun setupView() {
         setContentView(R.layout.activity_add_course_timetable)
         setTitle(R.string.add_course_activity_title)
-        setCoursesListAdapter()
+        setupCoursesListView()
+
         add_course_button.isEnabled = false
         setGroupsInputChangeListener()
         addAddCourseClickHandler()
@@ -32,9 +34,11 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         }
     }
 
-    private fun setCoursesListAdapter() {
-        courses_list.adapter =
-            ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, selectedCourses.map { it.text })
+    private fun setupCoursesListView() {
+        courses_list.setHasFixedSize(false)
+        courses_list.adapter = CourseListAdapter(selectedCourses)
+        courses_list.adapter!!.notifyDataSetChanged()
+        courses_list.layoutManager = LinearLayoutManager(this)
     }
 
     private fun setGroupsInputChangeListener() {
@@ -107,6 +111,9 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         val groupOption = groupOptions.find { it.text == selectedCourse }
             ?: return
         selectedCourses.add(groupOption)
-        setCoursesListAdapter()
+        courses_list.adapter!!.apply {
+            notifyDataSetChanged()
+        }
+        setupCoursesListView()
     }
 }

@@ -49,7 +49,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
     /**
      * List of group options that scraper has fetched
      */
-    protected val groupOptions = mutableListOf<Option>()
+    protected val groupOptions = mutableSetOf<Option>()
 
     protected val getTimetable: Button by lazy { findViewById<Button>(R.id.get_timetable) }
     protected val departmentsSpinner: Spinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }

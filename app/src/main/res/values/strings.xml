@@ -76,4 +76,5 @@
     <string name="weeks">Weeks:</string>
     <string name="add_course">Add course</string>
     <string name="add_timetable">Add timetable</string>
+    <string name="delete_course">Delete course</string>
 </resources>
