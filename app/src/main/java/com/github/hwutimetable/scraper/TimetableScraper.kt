@@ -19,7 +19,7 @@ interface TimetableScraper {
      * @param filters Filters to apply
      * @return List of group options
      */
-    suspend fun getGroups(filters: Map<String, String>): List<Option>
+    suspend fun getGroups(filters: Map<String, Any>): List<Option>
 
     /**
      * Get the timetable document from the website with the given group id (option value)

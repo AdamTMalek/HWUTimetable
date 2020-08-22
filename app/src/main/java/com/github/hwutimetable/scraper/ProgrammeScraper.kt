@@ -87,13 +87,13 @@ class ProgrammeScraper @Inject constructor() : Scraper(), ProgrammeTimetableScra
      * @param filters Filters to apply
      * @return List of group options
      */
-    override suspend fun getGroups(filters: Map<String, String>): List<Option> {
+    override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
         check(canApplyFilters()) {
             "Illegal state for getGroups. Must be OnTimetablesSite or Filter."
         }
 
-        val department = filters.getValue("department")
-        val level = filters.getValue("level")
+        val department = filters.getValue("department") as String
+        val level = filters.getValue("level") as String
 
         // Apply the filter
         filter(department, level)
