@@ -233,7 +233,7 @@ class MainActivityTest {
         Espresso.onView(withId(R.id.add_timetable))
             .perform(click())
 
-        Intents.intended(IntentMatchers.hasComponent(AddProgrammeActivity::class.java.name))
+        Intents.intended(IntentMatchers.hasComponent(AddProgrammeTimetableActivity::class.java.name))
 
         Intents.release()
     }

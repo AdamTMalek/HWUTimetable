@@ -35,7 +35,7 @@
                 android:label="@string/title_activity_view_timetable"
                 android:theme="@style/AppTheme.NoActionBar">
         </activity>
-        <activity android:name=".AddProgrammeActivity">
+        <activity android:name=".AddProgrammeTimetableActivity">
         </activity>
         <activity
                 android:name=".MainActivity"

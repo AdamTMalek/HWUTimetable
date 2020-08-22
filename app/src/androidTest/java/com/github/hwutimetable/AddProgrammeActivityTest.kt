@@ -8,9 +8,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.di.FileModule
-import com.github.hwutimetable.di.TimetableScraperModule
+import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.scraper.Option
+import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.TimetableScraper
 import dagger.Binds
 import dagger.Module
@@ -32,7 +33,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@UninstallModules(value = [TimetableScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
+@UninstallModules(value = [ProgrammeScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
 class AddProgrammeActivityTest {
     @Module
@@ -46,9 +47,9 @@ class AddProgrammeActivityTest {
 
     @Module
     @InstallIn(ApplicationComponent::class)
-    abstract class TimetableScraperTestModule {
+    abstract class TestProgrammeScraper {
         @Binds
-        abstract fun bindScraper(scraperForTest: ScraperForTest): TimetableScraper
+        abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @Module
@@ -67,9 +68,10 @@ class AddProgrammeActivityTest {
     }
 
     @Singleton
-    class ScraperForTest @Inject constructor() : TimetableScraper {
+    class TestScraper @Inject constructor() : ProgrammeTimetableScraper {
         val semesterOneGroup = "grp1 (Semester 1)"
         val semesterTwoGroup = "grp2 (Semester 2)"
+
         override suspend fun setup() {
             // We don't need to do anything
         }
@@ -90,11 +92,11 @@ class AddProgrammeActivityTest {
             )
         }
 
-        override suspend fun getGroups(department: String, level: String): List<Option> {
+        override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
             return listOf(Option("gval0", semesterOneGroup), Option("gval1", semesterTwoGroup))
         }
 
-        override suspend fun getTimetable(group: String, semester: Int): Document {
+        override suspend fun getTimetable(filters: Map<String, Any>): Document {
             val context = InstrumentationRegistry.getInstrumentation().context
             val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
             return SampleTimetableHandler().getDocument(input)!!
@@ -113,7 +115,7 @@ class AddProgrammeActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private lateinit var scenario: ActivityScenario<AddProgrammeActivity>
+    private lateinit var scenario: ActivityScenario<AddProgrammeTimetableActivity>
     private val semester1Date = LocalDate.parse("2020-09-01")
     private val semester2Date = LocalDate.parse("2020-01-01")
 
@@ -123,7 +125,7 @@ class AddProgrammeActivityTest {
     }
 
     private fun launchActivity() {
-        scenario = ActivityScenario.launch(AddProgrammeActivity::class.java)
+        scenario = ActivityScenario.launch(AddProgrammeTimetableActivity::class.java)
     }
 
     private fun setDate(date: LocalDate) {
@@ -190,8 +192,8 @@ class AddProgrammeActivityTest {
             val groupsSpinner = activity.findViewById<Spinner>(R.id.groups_spinner)
             groupsSpinner.setSelection(0)
             name = groupsSpinner.selectedItem as String
-            activity.findViewById<CheckBox>(R.id.follow_checkbox).isChecked = false
-            activity.findViewById<Button>(R.id.submit_button).performClick()
+            activity.findViewById<CheckBox>(R.id.save_checkbox).isChecked = false
+            activity.findViewById<Button>(R.id.get_timetable).performClick()
         }
 
         assertNull(fileHandler.getStoredTimetables().find { it.name == name })
@@ -210,8 +212,8 @@ class AddProgrammeActivityTest {
             val groupsSpinner = activity.findViewById<Spinner>(R.id.groups_spinner)
             groupsSpinner.setSelection(0)
             name = groupsSpinner.selectedItem as String
-            activity.findViewById<CheckBox>(R.id.follow_checkbox).isChecked = true
-            activity.findViewById<Button>(R.id.submit_button).performClick()
+            activity.findViewById<CheckBox>(R.id.save_checkbox).isChecked = true
+            activity.findViewById<Button>(R.id.get_timetable).performClick()
         }
 
         assertNull(fileHandler.getStoredTimetables().find { it.name == name })
@@ -250,7 +252,7 @@ class AddProgrammeActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val expected = listOf((scraper as ScraperForTest).semesterOneGroup)
+            val expected = listOf((scraper as TestScraper).semesterOneGroup)
             assertEquals(expected, groups)
         }
     }
@@ -268,7 +270,7 @@ class AddProgrammeActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val expected = listOf((scraper as ScraperForTest).semesterTwoGroup)
+            val expected = listOf((scraper as TestScraper).semesterTwoGroup)
             assertEquals(expected, groups)
         }
     }
@@ -286,7 +288,7 @@ class AddProgrammeActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val testScraper = (scraper as ScraperForTest)
+            val testScraper = (scraper as TestScraper)
             val expected = listOf(testScraper.semesterOneGroup, testScraper.semesterTwoGroup)
             assertEquals(expected, groups)
         }

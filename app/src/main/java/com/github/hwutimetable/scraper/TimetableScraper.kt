@@ -38,6 +38,6 @@ interface ProgrammeTimetableScraper : TimetableScraper {
     fun getLevels(): List<Option>
 }
 
-interface CourseTimetableScraper {
+interface CourseTimetableScraper : TimetableScraper {
 
 }

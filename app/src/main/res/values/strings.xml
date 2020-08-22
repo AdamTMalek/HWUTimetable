@@ -2,7 +2,8 @@
     <string name="app_name">HWU Timetable</string>
     <!-- Activities titles -->
     <string name="main_activity_title">Timetables</string>
-    <string name="add_activity_title">Add Timetable</string>
+    <string name="add_programme_activity_title">Add Programme</string>
+    <string name="add_course_activity_title">Add Course(s)</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_view_timetable">View Timetable</string>
 
