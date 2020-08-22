@@ -5,6 +5,16 @@ import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable {
+    companion object {
+        fun fromTimetables(info: Info, timetables: Collection<Array<TimetableDay>>): Timetable {
+            val days = Day.values().map { day ->
+                TimetableDay(day, timetables.flatMap { it[day.index].classes } as ArrayList<TimetableClass>)
+            }.toTypedArray()
+
+            return Timetable(days, info)
+        }
+    }
+
     /**
      * [Info] represents information about a timetable.
      * @param code: Code of the timetable (from the option value from the Timetables website)
