@@ -5,7 +5,7 @@ import android.content.Intent
 import android.view.View
 import android.widget.AdapterView
 import com.github.hwutimetable.extensions.clearAndAddAll
-import com.github.hwutimetable.parser.Parser
+import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
@@ -47,10 +47,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         levels_spinner.onItemSelectedListener = this
     }
 
-    /**
-     * Sets the listener on the "Get Timetable" button.
-     */
-    override fun setGetTimetableClickListener() {
+    override fun onGetTimetableButtonClick() {
         get_timetable.setOnClickListener {
             val groupOption = groupOptions.find {
                 it.text == groups_spinner.selectedItem.toString()
@@ -147,7 +144,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
             .getFilter()
 
         val document = scraper.getTimetable(filter)
-        val parser = Parser(document, TimetableClass.Type.OnlineBackgroundProvider())
+        val parser = ProgrammeTimetableParser(document, TimetableClass.Type.OnlineBackgroundProvider())
         val timetableDays = parser.getTimetable()
         val semesterStartDate = parser.getSemesterStartDate()
 

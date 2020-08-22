@@ -7,7 +7,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.github.hwutimetable.network.NetworkUtilities
-import com.github.hwutimetable.parser.Parser
+import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.ProgrammeScraper
@@ -71,7 +71,7 @@ class UpdateService : Service(), OnUpdateFinishedListener {
 
     private fun getDefaultUpdater() = Updater(
         this.filesDir,
-        Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
+        ProgrammeTimetableParser(null, TimetableClass.Type.OnlineBackgroundProvider()),
         ProgrammeScraper(), // TODO: Now we've got two scraper. This needs to be changed
         this
     )

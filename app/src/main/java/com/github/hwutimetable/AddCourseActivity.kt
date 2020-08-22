@@ -1,5 +1,7 @@
 package com.github.hwutimetable
 
+import android.app.ActivityOptions
+import android.content.Intent
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -7,6 +9,10 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.hwutimetable.extensions.clearAndAddAll
+import com.github.hwutimetable.parser.CourseTimetableParser
+import com.github.hwutimetable.parser.Semester
+import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.Scraper
@@ -31,6 +37,13 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     private fun addAddCourseClickHandler() {
         add_course_button.setOnClickListener {
             addCourseToList()
+        }
+    }
+
+    override fun onGetTimetableButtonClick() {
+        mainScope.launch {
+            changeProgressBarVisibility(true)
+            getTimetable()
         }
     }
 
@@ -84,10 +97,6 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         })
     }
 
-    override fun setGetTimetableClickListener() {
-        getTimetable.setOnClickListener { }
-    }
-
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val selectedDepartment = departmentsOptions.find { it.text == departmentsSpinner.selectedItem.toString() }
             ?: return
@@ -115,5 +124,62 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
             notifyDataSetChanged()
         }
         setupCoursesListView()
+        get_timetable.isEnabled = true
+    }
+
+    private suspend fun getTimetable() {
+        var semester: Semester? = null
+
+        val timetableDays = selectedCourses.map { course ->
+            val code = getCourseCode(course)
+            val name = getCourseName(course)
+            val semesterNumber = getSemesterFromCode(code)
+
+            val filter = Scraper.FilterBuilder()
+                .withGroup(code)
+                .withSemester(semesterNumber)
+                .getFilter()
+
+            val document = scraper.getTimetable(filter)
+            val parser = CourseTimetableParser(code, name, document, TimetableClass.Type.OnlineBackgroundProvider())
+
+            val timetable = parser.getTimetable()
+
+            if (semester == null)
+                semester = Semester(parser.getSemesterStartDate(), semesterNumber)
+
+            scraper.setup()
+            return@map timetable
+        }
+
+        val info = Timetable.Info("GEN", "App-Generated", semester!!)
+        val timetable = Timetable.fromTimetables(info, timetableDays)
+
+        changeProgressBarVisibility(false)
+
+        val intent = Intent(this, TimetableViewActivity::class.java)
+        intent.putExtra("timetable", timetable)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+    }
+
+    private fun getSemesterFromCode(courseCode: String): Int {
+        val regex = Regex("S([12])")
+        val match = regex.find(courseCode)
+            ?.groupValues
+            ?.get(1)
+
+        return match?.toInt()
+            ?: when (semesterSpinner.selectedItem.toString()) {
+                getString(R.string.semester_1) -> 1
+                getString(R.string.semester_2) -> 2
+                else -> getClosestSemester()
+            }
+    }
+
+    private fun getCourseCode(courseOption: Option) = courseOption.optionValue
+
+    private fun getCourseName(courseOption: Option): String {
+        val code = getCourseCode(courseOption)
+        return courseOption.text.removePrefix(code).trim { it.isWhitespace() || it == '-' }
     }
 }

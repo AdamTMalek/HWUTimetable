@@ -13,6 +13,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
+import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.ProgrammeScraper
@@ -174,7 +175,7 @@ class SettingsActivity : AppCompatActivity() {
             val context = activity.applicationContext
             val updater = Updater(
                 activity.filesDir,
-                Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
+                ProgrammeTimetableParser(null, TimetableClass.Type.OnlineBackgroundProvider()),
                 ProgrammeScraper(), // TODO: Now, we've got two scrapers. This needs to be changed.
                 activity
             )

@@ -55,6 +55,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
     protected val departmentsSpinner: Spinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }
     protected val semesterSpinner: Spinner by lazy { findViewById<Spinner>(R.id.semester_spinner) }
     protected val progressBar: ProgressBar by lazy { findViewById<ProgressBar>(R.id.progress_bar) }
+    private val getTimetableButton: Button by lazy { findViewById<Button>(R.id.get_timetable) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,12 +64,18 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
 
         setSpinnerSelectionListener()
         setClosestSemester()
-        setGetTimetableClickListener()
+        setGetTimetableButtonClickHandler()
 
         mainScope.launch {
             populateSpinners()
         }
     }
+
+    private fun setGetTimetableButtonClickHandler() {
+        getTimetableButton.setOnClickListener { onGetTimetableButtonClick() }
+    }
+
+    protected abstract fun onGetTimetableButtonClick()
 
     /**
      * This method is called in [onCreate].
@@ -138,11 +145,6 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
     protected abstract fun populateGroupsInput()
 
     /**
-     * Sets a click handler for the "Get Timetable" button
-     */
-    protected abstract fun setGetTimetableClickListener()
-
-    /**
      * Changes the visibility of the [progress_bar] depending on the passed value.
      * @param visible If `true`, the progress bar will be visible.
      */
@@ -157,13 +159,15 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      * Uses the current date to automatically set the closest semester in the semester spinner.
      */
     private fun setClosestSemester() {
+        semester_spinner.setSelection(getClosestSemester() - 1)
+    }
+
+    protected fun getClosestSemester(): Int {
         val currentDate = currentDateProvider.getCurrentDate()
-        val closetSemester = if (currentDate.monthOfYear >= 6)
+        return if (currentDate.monthOfYear >= 6)
             1
         else
             2
-
-        semester_spinner.setSelection(closetSemester - 1)
     }
 
     /**
