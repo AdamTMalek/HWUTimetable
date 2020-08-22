@@ -151,28 +151,34 @@ abstract class Scraper : TimetableScraper {
         return getRequiredFormData().apply {
             putAll(
                 mapOf(
-                    "tLinkType" to "studentsets",
+                    "tLinkType" to getTLinkType(),
                     "tWildcard" to "",
                     "lbWeeks" to weeks,
                     "lbDays" to "1-5",
                     "dlPeriod" to "5-40",
-                    "dlType" to "individual;swsurl;SWSCUST Student Set Individual"
+                    "dlType" to getDLType()
                 )
             )
         }
     }
 
-    protected suspend fun filterByDepartment(department: String): Int {
+    protected abstract fun getTLinkType(): String
+
+    protected abstract fun getDLType(): String
+
+    protected suspend fun filterByDepartment(department: String, useLevelFilter: Boolean): Int {
         val formData = getTimetableFormData().apply {
             putAll(
                 mapOf(
                     "__EVENTARGUMENT" to "",
                     "__EVENTTARGET" to "dlFilter2",
-                    "dlFilter2" to department,
-                    "dlFilter" to ""
+                    "dlFilter2" to department
                 )
             )
         }
+
+        if (useLevelFilter)
+            formData["dlFilter"] = ""
 
         return submitForm(defaultUrl, formData).statusCode()
     }

@@ -5,6 +5,10 @@ import org.jsoup.nodes.Document
 import javax.inject.Inject
 
 class CourseScraper @Inject constructor() : Scraper(), CourseTimetableScraper {
+    override fun getTLinkType() = "modules"
+
+    override fun getDLType() = "individual;swsurl;SWSCUST Module Individual"
+
     /**
      * Go to the Courses Timetables (equivalent of clicking Courses link)
      * @return status code after transition
@@ -34,7 +38,7 @@ class CourseScraper @Inject constructor() : Scraper(), CourseTimetableScraper {
         val department = filters.getValue("department") as String
 
         // Apply the filter
-        filterByDepartment(department)
+        filterByDepartment(department, false)
         state = ScraperState.Filtered
         this.department = department
 
@@ -53,7 +57,7 @@ class CourseScraper @Inject constructor() : Scraper(), CourseTimetableScraper {
         // We have to apply filters even though we know the group option value
         // Otherwise we will get an error "No items have been selected for your request"
         if (state != ScraperState.Filtered) {
-            filterByDepartment(filters.getValue("department") as String)
+            filterByDepartment(filters.getValue("department") as String, false)
             return getTimetable(filters)
         }
 

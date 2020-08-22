@@ -5,6 +5,10 @@ import org.jsoup.nodes.Document
 import javax.inject.Inject
 
 class ProgrammeScraper @Inject constructor() : Scraper(), ProgrammeTimetableScraper {
+    override fun getTLinkType() = "studentsets"
+
+    override fun getDLType() = "individual;swsurl;SWSCUST Student Set Individual"
+
     /**
      * Go to the Student Group Timetables (equivalent of clicking Student Groups link)
      * @return status code after transition
@@ -71,7 +75,7 @@ class ProgrammeScraper @Inject constructor() : Scraper(), ProgrammeTimetableScra
             "Cannot apply filters unless on timetables site"
         }
 
-        val departmentFilterStatusCode = filterByDepartment(department)
+        val departmentFilterStatusCode = filterByDepartment(department, true)
 
         if (departmentFilterStatusCode != 200)
             return departmentFilterStatusCode
