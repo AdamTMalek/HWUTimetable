@@ -204,8 +204,8 @@ abstract class Scraper : TimetableScraper {
             return this
         }
 
-        fun withLevel(department: String): FilterBuilder {
-            filters["level"]
+        fun withLevel(level: String): FilterBuilder {
+            filters["level"] = level
             return this
         }
 
