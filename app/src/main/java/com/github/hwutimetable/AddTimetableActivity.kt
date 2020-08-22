@@ -3,10 +3,7 @@ package com.github.hwutimetable
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.ProgressBar
-import android.widget.Spinner
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.filehandler.TimetableFileHandler
@@ -54,8 +51,10 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      */
     protected val groupOptions = mutableListOf<Option>()
 
-    private val departmentsSpinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }
-    private val semesterSpinner by lazy { findViewById<Spinner>(R.id.semester_spinner) }
+    protected val getTimetable: Button by lazy { findViewById<Button>(R.id.get_timetable) }
+    protected val departmentsSpinner: Spinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }
+    protected val semesterSpinner: Spinner by lazy { findViewById<Spinner>(R.id.semester_spinner) }
+    protected val progressBar: ProgressBar by lazy { findViewById<ProgressBar>(R.id.progress_bar) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -148,7 +147,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      * @param visible If `true`, the progress bar will be visible.
      */
     protected fun changeProgressBarVisibility(visible: Boolean) {
-        findViewById<ProgressBar>(R.id.progress_bar).visibility = when (visible) {
+        progressBar.visibility = when (visible) {
             true -> View.VISIBLE
             false -> View.INVISIBLE
         }
