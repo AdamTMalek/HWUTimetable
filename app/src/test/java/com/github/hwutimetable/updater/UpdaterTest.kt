@@ -57,7 +57,7 @@ class UpdaterTest {
     fun testReceiverAttached() {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        Updater(testDir, parser, scraper).apply {
+        Updater(testDir).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()
@@ -74,7 +74,7 @@ class UpdaterTest {
     fun testUpdateStartedNotificationSent() {
         val scraper = ScraperForTest(Jsoup.parse(sampleTimetablePath))
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        Updater(testDir, parser, scraper).apply {
+        Updater(testDir).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()
@@ -95,7 +95,7 @@ class UpdaterTest {
 
         val scraper = ScraperForTest(savedDocument)
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        Updater(testDir, parser, scraper).apply {
+        Updater(testDir).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()
@@ -126,7 +126,7 @@ class UpdaterTest {
         )
         val receiver = Mockito.mock(NotificationReceiver::class.java)
         val parser = ProgrammeTimetableParser(null, typeBackgroundProvider)
-        Updater(testDir, parser, scraper).apply {
+        Updater(testDir).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()

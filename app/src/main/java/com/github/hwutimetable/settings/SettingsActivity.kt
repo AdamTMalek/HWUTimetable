@@ -13,10 +13,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
-import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Timetable
-import com.github.hwutimetable.parser.TimetableClass
-import com.github.hwutimetable.scraper.ProgrammeScraper
 import com.github.hwutimetable.scraper.Scraper
 import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
@@ -24,7 +21,6 @@ import com.github.hwutimetable.updater.UpdateNotifier
 import com.github.hwutimetable.updater.Updater
 import org.joda.time.format.DateTimeFormat
 import java.util.*
-
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -173,12 +169,7 @@ class SettingsActivity : AppCompatActivity() {
         private fun startUpdate() {
             val activity = this.activity!!
             val context = activity.applicationContext
-            val updater = Updater(
-                activity.filesDir,
-                ProgrammeTimetableParser(null, TimetableClass.Type.OnlineBackgroundProvider()),
-                ProgrammeScraper(), // TODO: Now, we've got two scrapers. This needs to be changed.
-                activity
-            )
+            val updater = Updater(activity.filesDir, activity)
             val notifier = UpdateNotifier(context)
 
             updater.addInProgressListener(notifier)
