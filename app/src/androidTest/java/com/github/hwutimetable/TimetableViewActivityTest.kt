@@ -14,7 +14,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
-import com.github.hwutimetable.parser.Parser
+import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
@@ -29,6 +29,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
+import org.joda.time.LocalDateTime
 import org.junit.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -53,16 +54,20 @@ class TimetableViewActivityTest {
         override fun getCurrentDate(): LocalDate {
             return date
         }
+
+        override fun getCurrentDateTime(): LocalDateTime {
+            return LocalDateTime.now()
+        }
     }
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
     private val timetable: Timetable by lazy {
         val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-        val document = SampleTimetableHandler().getDocument(input)!!
-        val parser = Parser(document, backgroundProvider)
+        val document = SampleTimetableHandler(backgroundProvider).getDocument(input)!!
+        val parser = ProgrammeTimetableParser(document, backgroundProvider)
         val days = parser.getTimetable()
-        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
+        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), false))
     }
 
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11

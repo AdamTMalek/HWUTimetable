@@ -15,7 +15,7 @@ class ParserTest {
     )
     private val backgroundCss = javaClass.classLoader!!.getResource("activitytype.css")
     private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
-    private val parser: Parser = Parser(document, typeBackgroundProvider)
+    private val parser: ProgrammeTimetableParser = ProgrammeTimetableParser(document, typeBackgroundProvider)
 
     private lateinit var days: Array<TimetableDay>
 
@@ -29,7 +29,7 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser(Document("src/test/sampleTimetables/tt1.html"), typeBackgroundProvider).getTimetable()
+        ProgrammeTimetableParser(Document("src/test/sampleTimetables/tt1.html"), typeBackgroundProvider).getTimetable()
     }
 
     @Test

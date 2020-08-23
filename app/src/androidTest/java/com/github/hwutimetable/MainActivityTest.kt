@@ -109,7 +109,7 @@ class MainActivityTest {
     private fun populateInfoList() {
         fun getInfo(): Timetable.Info {
             val semester = Semester(LocalDate.now(), 1)
-            return Timetable.Info("C01", "Test", semester)
+            return Timetable.Info("C01", "Test", semester, false)
         }
 
         listOf(

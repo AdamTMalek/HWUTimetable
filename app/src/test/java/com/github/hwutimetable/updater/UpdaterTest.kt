@@ -30,10 +30,11 @@ class UpdaterTest {
     private val localDateFormatter = DateTimeFormat.forPattern("dd/MM/YYYY").withLocale(Locale.ENGLISH)
     private val timetableInfo = Timetable.Info(
         "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1",
-        Semester(LocalDate.parse("16/09/2019", localDateFormatter), 1)
+        Semester(LocalDate.parse("16/09/2019", localDateFormatter), 1),
+        false
     )
 
-    private val timetableHandler = SampleTimetableHandler()
+    private val timetableHandler = SampleTimetableHandler(typeBackgroundProvider)
 
     init {
         val savedTimetableFile = File("src/test/resources/sampleTimetables/parsed/#SPLUS4F80E0.json")
@@ -117,14 +118,14 @@ class UpdaterTest {
         }
 
         val scraper = ScraperForTest(newTimetableDocument)
-        val semesterStartDate = Parser(oldFileDoc, typeBackgroundProvider).getSemesterStartDate()
+        val semesterStartDate = ProgrammeTimetableParser(oldFileDoc, typeBackgroundProvider).getSemesterStartDate()
         val info = Timetable.Info(
-            "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1", Semester(
-                semesterStartDate, 1
-            )
+            "#SPLUS4F80E0", "BEng Computing and Electronics, level 3, semester 1",
+            Semester(semesterStartDate, 1),
+            false
         )
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        val parser = Parser(null, typeBackgroundProvider)
+        val parser = ProgrammeTimetableParser(null, typeBackgroundProvider)
         Updater(testDir, parser, scraper).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
@@ -169,19 +170,15 @@ class UpdaterTest {
         }
 
         override fun getDepartments(): List<Option> {
-            return emptyList()
+            TODO("Not yet implemented")
         }
 
-        override fun getLevels(): List<Option> {
-            return emptyList()
+        override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
+            TODO("Not yet implemented")
         }
 
-        override suspend fun getGroups(department: String, level: String): List<Option> {
-            return emptyList()
-        }
-
-        override suspend fun getTimetable(group: String, semester: Int): Document {
-            return document
+        override suspend fun getTimetable(filters: Map<String, Any>): Document {
+            TODO("Not yet implemented")
         }
     }
 }

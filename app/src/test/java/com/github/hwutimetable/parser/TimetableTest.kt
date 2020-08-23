@@ -9,14 +9,18 @@ import org.junit.Test
 import java.io.File
 
 class TimetableTest {
-    private val timetableHandler = SampleTimetableHandler()
+    private val resourcesDir = File("src/test/resources")
+    private val parsedTimetablesDirectory = File(resourcesDir, "sampleTimetables/parsed/")
+    private val backgroundCss = File(resourcesDir, "activitytype.css").toURI().toURL()
+    private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
+    private val timetableHandler = SampleTimetableHandler(typeBackgroundProvider)
 
     @Test
     fun testEmptyTimetable() {
         val timetable = Timetable(
             arrayOf(),
             Timetable.Info(
-                "C01", "Test Timetable", Semester(LocalDate.now(), 1)
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1), false
             )
         )
 
@@ -36,7 +40,7 @@ class TimetableTest {
                 createTimetableDay(Day.FRIDAY, 5)
             ),
             Timetable.Info(
-                "C01", "Test Timetable", Semester(LocalDate.now(), 1)
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1), false
             )
         )
 
@@ -50,9 +54,8 @@ class TimetableTest {
      */
     @Test
     fun testDifferentTimes() {
-        val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
-        val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
-        val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_TIME.json")
+        val timetable1File = File(parsedTimetablesDirectory, "#SPLUS4F80E0.json")
+        val timetable2File = File(parsedTimetablesDirectory, "#SPLUS4F80E0-MOD_TIME.json")
         val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
         val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
 
@@ -70,9 +73,8 @@ class TimetableTest {
      */
     @Test
     fun testDifferentRooms() {
-        val parsedDir = File("src/test/resources/sampleTimetables/parsed/")
-        val timetable1File = File(parsedDir, "#SPLUS4F80E0.json")
-        val timetable2File = File(parsedDir, "#SPLUS4F80E0-MOD_ROOM.json")
+        val timetable1File = File(parsedTimetablesDirectory, "#SPLUS4F80E0.json")
+        val timetable2File = File(parsedTimetablesDirectory, "#SPLUS4F80E0-MOD_ROOM.json")
         val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
         val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
 
