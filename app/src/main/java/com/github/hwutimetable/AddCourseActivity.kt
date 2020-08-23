@@ -26,8 +26,11 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         setContentView(R.layout.activity_add_course_timetable)
         setTitle(R.string.add_course_activity_title)
         setupCoursesListView()
+        setTimetableNameEditListener()
 
         add_course_button.isEnabled = false
+        get_timetable.isEnabled = false
+
         setGroupsInputChangeListener()
         addAddCourseClickHandler()
     }
@@ -50,6 +53,27 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         courses_list.adapter = CourseListAdapter(selectedCourses)
         courses_list.adapter!!.notifyDataSetChanged()
         courses_list.layoutManager = LinearLayoutManager(this)
+        setOnCourseRemovedListener()
+    }
+
+    private fun setOnCourseRemovedListener() {
+        (courses_list.adapter as CourseListAdapter).setOnElementRemovedListener {
+            getTimetable.isEnabled = canTimetableBeGenerated()
+        }
+    }
+
+    private fun setTimetableNameEditListener() {
+        timetable_name.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                getTimetable.isEnabled = canTimetableBeGenerated()
+            }
+        })
     }
 
     private fun setGroupsInputChangeListener() {
@@ -118,9 +142,12 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         courses_list.adapter!!.apply {
             notifyDataSetChanged()
         }
-        setupCoursesListView()
-        get_timetable.isEnabled = true
+
+        if (canTimetableBeGenerated())
+            get_timetable.isEnabled = true
     }
+
+    private fun canTimetableBeGenerated() = selectedCourses.isNotEmpty() && timetable_name.text.isNotEmpty()
 
     private suspend fun getTimetable() {
         var semester: Semester? = null

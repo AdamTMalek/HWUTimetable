@@ -9,6 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.hwutimetable.scraper.Option
 
 class CourseListAdapter(val courses: MutableSet<Option>) : RecyclerView.Adapter<CourseListAdapter.CourseViewHolder>() {
+    private var onElementRemovedListener: OnElementRemovedListener? = null
+
+    fun interface OnElementRemovedListener {
+        fun onElementRemoved(element: Option)
+    }
 
     class CourseViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         private lateinit var courseOption: Option
@@ -29,6 +34,7 @@ class CourseListAdapter(val courses: MutableSet<Option>) : RecyclerView.Adapter<
             with(adapter) {
                 courses.remove(courseOption)
                 adapter.notifyItemRemoved(position)
+                callOnElementRemoved(courseOption)
             }
         }
     }
@@ -43,5 +49,14 @@ class CourseListAdapter(val courses: MutableSet<Option>) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(holder: CourseViewHolder, position: Int) {
         holder.bind(courses.elementAt(position))
+    }
+
+    private fun callOnElementRemoved(option: Option) {
+        if (onElementRemovedListener != null)
+            onElementRemovedListener!!.onElementRemoved(option)
+    }
+
+    fun setOnElementRemovedListener(listener: OnElementRemovedListener) {
+        onElementRemovedListener = listener
     }
 }
