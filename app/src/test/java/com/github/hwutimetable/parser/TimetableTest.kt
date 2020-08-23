@@ -3,16 +3,17 @@ package com.github.hwutimetable.parser
 import com.github.hwutimetable.SampleTimetableHandler
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
-import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
+import org.junit.Assert.*
 import org.junit.Test
 import java.io.File
 
 class TimetableTest {
     private val resourcesDir = File("src/test/resources")
     private val parsedTimetablesDirectory = File(resourcesDir, "sampleTimetables/parsed/")
-    private val backgroundCss = File(resourcesDir, "activitytype.css").toURI().toURL()
-    private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
+    private val whiteColor = "#FFFFFF"
+    private val typeBackgroundProvider = object : TimetableClass.Type.BackgroundProvider {
+        override suspend fun getBackgroundColor(type: String) = whiteColor
+    }
     private val timetableHandler = SampleTimetableHandler(typeBackgroundProvider)
 
     @Test
@@ -87,7 +88,7 @@ class TimetableTest {
     }
 
     @Test
-    fun testGetCourseCodes() {
+    fun testGetCourse() {
         val timetableFile = File(parsedTimetablesDirectory, "../tt1.html")
         val timetable = timetableHandler.getHtmlTimetable(
             timetableFile, Timetable.Info(
@@ -95,10 +96,72 @@ class TimetableTest {
             )
         )
 
-        val expectedListOfCodes = listOf("B39SA-S1", "B39AX-S1", "F29AI-S1", "F29SO-S1")
-        val actualListOfCodes = timetable.getCourseCodes()
+        val expectedListOfCodes = listOf(
+            Pair("B39SA-S1", "Signals and Systems"),
+            Pair("B39AX-S1", "Engineering maths and stats"),
+            Pair("F29AI-S1", "Artificial Intell&Intell Agent"),
+            Pair("F29SO-S1", "Software Engineering")
+        )
+        val actualListOfCodes = timetable.getCourses()
 
         assertEquals(expectedListOfCodes, actualListOfCodes)
+    }
+
+    @Test
+    fun testGetClassesOfCourse() {
+        val timetableFile = File(parsedTimetablesDirectory, "../tt1.html")
+        val timetable = timetableHandler.getHtmlTimetable(
+            timetableFile, Timetable.Info(
+                "xxx", "xxx", Semester(LocalDate.now(), 1), false
+            )
+        )
+
+        val expectedClasses = arrayOf(
+            TimetableDay(
+                Day.MONDAY, arrayListOf(
+                    TimetableClass(
+                        "B39SA-S1",
+                        "Signals and Systems",
+                        "EM336",
+                        "Prof. Y Wiaux",
+                        TimetableClass.Type("Lec", whiteColor),
+                        LocalTime.parse("14:15"),
+                        LocalTime.parse("16:15"),
+                        WeeksBuilder().setRange(1, 12).getWeeks()
+                    )
+                )
+            ),
+            TimetableDay(
+                Day.TUESDAY, arrayListOf(
+                    TimetableClass(
+                        "B39SA-S1",
+                        "Signals and Systems",
+                        "GR1DLb",
+                        "Prof. Y Wiaux",
+                        TimetableClass.Type("WKP", whiteColor),
+                        LocalTime.parse("9:15"),
+                        LocalTime.parse("12:15"),
+                        WeeksBuilder().setRange(1, 12).getWeeks()
+                    ),
+                    TimetableClass(
+                        "B39SA-S1",
+                        "Signals and Systems",
+                        "EM336",
+                        "Prof. Y Wiaux",
+                        TimetableClass.Type("Lec", whiteColor),
+                        LocalTime.parse("16:15"),
+                        LocalTime.parse("17:45"),
+                        WeeksBuilder().setRange(1, 12).getWeeks()
+                    )
+                )
+            ),
+            TimetableDay(Day.WEDNESDAY, arrayListOf()),
+            TimetableDay(Day.THURSDAY, arrayListOf()),
+            TimetableDay(Day.FRIDAY, arrayListOf())
+        )
+
+        val actualClasses = timetable.getClassesOfCourse("B39SA-S1")
+        assertTrue(expectedClasses.contentEquals(actualClasses))
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {

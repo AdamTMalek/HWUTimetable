@@ -63,10 +63,33 @@ data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable
      * Returns a list of all courses that are part of the timetable.
      * @return Course codes
      */
-    fun getCourseCodes(): List<String> {
+    fun getCourses(): List<Pair<String, String>> {
         return days.flatMap { day ->
-            day.classes.map { it.code }
+            day.classes.map { Pair(it.code, it.name) }
         }.distinct()
+    }
+
+    /**
+     * Returns an array of timetable days with only the classes of the given course
+     * @return Days with the classes of only the given course.
+     */
+    fun getClassesOfCourse(code: String): Array<TimetableDay> {
+        return days.map { day ->
+            TimetableDay(day.day, ArrayList(day.classes.filter { it.code == code }))
+        }.toTypedArray()
+    }
+
+    /**
+     * Replaces all classes of the course with the given code, with
+     * classes provided in the [timetable]
+     * @param code Code of course of which the classes should be replaced.
+     * @param timetable Timetable of the course
+     */
+    fun replaceClassesOfCourse(code: String, timetable: Array<TimetableDay>) {
+        days.forEachIndexed { dayIndex, day ->
+            day.classes.removeAll { it.code == code }
+            day.classes.addAll(timetable[dayIndex].classes)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
