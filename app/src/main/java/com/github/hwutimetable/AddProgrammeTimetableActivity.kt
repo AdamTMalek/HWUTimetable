@@ -1,7 +1,5 @@
 package com.github.hwutimetable
 
-import android.app.ActivityOptions
-import android.content.Intent
 import android.view.View
 import android.widget.AdapterView
 import com.github.hwutimetable.extensions.clearAndAddAll
@@ -14,9 +12,7 @@ import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * The [AddProgrammeTimetableActivity] is the activity for adding a programme timetable.
@@ -153,15 +149,10 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         val timetable = Timetable(timetableDays, info)
 
         if (isSaveTimetableChecked()) {
-            withContext(Dispatchers.IO) {
-                timetableHandler.save(timetable)
-            }
+            saveTimetable(timetable)
         }
 
         changeProgressBarVisibility(false)
-
-        val intent = Intent(this, TimetableViewActivity::class.java)
-        intent.putExtra("timetable", timetable)
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+        startViewTimetableActivity(timetable)
     }
 }

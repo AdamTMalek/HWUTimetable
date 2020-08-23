@@ -1,5 +1,7 @@
 package com.github.hwutimetable
 
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -7,11 +9,14 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.filehandler.TimetableFileHandler
+import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
 import kotlinx.android.synthetic.main.activity_add_course_timetable.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /**
@@ -184,6 +189,18 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      * @return `true` if the timetable is to be saved, `false` otherwise.
      */
     protected fun isSaveTimetableChecked() = save_checkbox.isChecked
+
+    protected suspend fun saveTimetable(timetable: Timetable) {
+        withContext(Dispatchers.IO) {
+            timetableHandler.save(timetable)
+        }
+    }
+
+    protected fun startViewTimetableActivity(timetable: Timetable) {
+        val intent = Intent(this, TimetableViewActivity::class.java)
+        intent.putExtra("timetable", timetable)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+    }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
         // This is a required override by the AdapterView.OnItemSelectedListener

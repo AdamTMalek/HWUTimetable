@@ -1,7 +1,5 @@
 package com.github.hwutimetable
 
-import android.app.ActivityOptions
-import android.content.Intent
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -149,14 +147,16 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
             return@map timetable
         }
 
-        val info = Timetable.Info("GEN", "App-Generated", semester!!, true)
+        val dateTimeStamp = currentDateProvider.getCurrentDateTime().toString("ddMMYYYYHHmm")
+        val info = Timetable.Info("GEN$dateTimeStamp", "App-Generated", semester!!, true)
         val timetable = Timetable.fromTimetables(info, timetableDays)
 
-        changeProgressBarVisibility(false)
+        if (isSaveTimetableChecked()) {
+            saveTimetable(timetable)
+        }
 
-        val intent = Intent(this, TimetableViewActivity::class.java)
-        intent.putExtra("timetable", timetable)
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
+        changeProgressBarVisibility(false)
+        startViewTimetableActivity(timetable)
     }
 
     private fun getSemesterFromCode(courseCode: String): Int {
