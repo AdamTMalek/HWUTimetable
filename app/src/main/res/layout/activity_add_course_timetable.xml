@@ -8,9 +8,30 @@
         android:layout_marginStart="@dimen/edge_margin"
         android:layout_marginEnd="@dimen/edge_margin"
         tools:context=".AddCourseActivity">
+    <TextView
+            android:id="@+id/timetable_name_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/timetable_name"
+            android:labelFor="@id/timetable_name"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="8dp"
+            android:textSize="@dimen/heading_text_size"/>
+    <EditText
+            android:id="@+id/timetable_name"
+            android:hint="@string/timetable_name_placeholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textNoSuggestions"
+            android:importantForAutofill="no"
+            app:layout_constraintTop_toBottomOf="@id/timetable_name_label"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="6dp"/>
     <LinearLayout
             android:id="@+id/controls_container"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/timetable_name"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_width="match_parent"
@@ -55,7 +76,6 @@
                 android:layout_height="wrap_content"
                 android:text="@string/course"
                 android:textSize="@dimen/heading_text_size"
-                android:labelFor="@id/groups_input"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0"
                 android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@id/levels_spinner"/>
@@ -63,6 +83,7 @@
                 android:id="@+id/groups_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:hint="@string/enter_course_name"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent" app:layout_constraintHorizontal_bias="0.0"
                 android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/groups_textview"/>

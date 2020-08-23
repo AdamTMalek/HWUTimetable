@@ -13,8 +13,8 @@
     <string name="delete_all_confirmation">Are you sure?</string>
 
     <!-- Add Programme Timetable Activity -->
-    <string name="departments">Departments:</string>
-    <string name="levels">Levels:</string>
+    <string name="departments">Department:</string>
+    <string name="levels">Level:</string>
     <string name="semester">Semester:</string>
     <string name="semester_1">Semester 1</string>
     <string name="semester_2">Semester 2</string>
@@ -26,7 +26,7 @@
     <!-- Add Course(s) Timetable Activity -->
     <string name="course">Course:</string>
     <string name="add_course_button_text">Add course</string>
-    <string name="courses">Courses</string>
+    <string name="courses">Selected Courses</string>
     <string name="generate_timetable">Generate timetable</string>
     <string name="add_programme">Add programme</string>
 
@@ -77,4 +77,7 @@
     <string name="add_course">Add course</string>
     <string name="add_timetable">Add timetable</string>
     <string name="delete_course">Delete course</string>
+    <string name="timetable_name">Timetable Name:</string>
+    <string name="timetable_name_placeholder">My main timetable</string>
+    <string name="enter_course_name">Enter course name</string>
 </resources>
