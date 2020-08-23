@@ -15,7 +15,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
         <activity android:name=".AddCourseActivity"
-                  android:windowSoftInputMode="adjustNothing">
+                  android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
                 android:name=".settings.SettingsActivity"
