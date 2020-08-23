@@ -97,6 +97,7 @@ class Updater(
     }
 
     private suspend fun updateProgramme(savedTimetable: Timetable, updated: MutableCollection<Timetable.Info>) {
+        programmeScraper.setup()
         val newTimetable = getTimetable(savedTimetable.info, programmeScraper, programmeParser)
 
         if (isUpdated(savedTimetable, newTimetable)) {
