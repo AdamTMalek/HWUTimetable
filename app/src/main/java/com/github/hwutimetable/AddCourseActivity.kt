@@ -175,7 +175,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         }
 
         val dateTimeStamp = currentDateProvider.getCurrentDateTime().toString("ddMMYYYYHHmm")
-        val info = Timetable.Info("GEN$dateTimeStamp", "App-Generated", semester!!, true)
+        val info = Timetable.Info("GEN$dateTimeStamp", timetable_name.text.toString(), semester!!, true)
         val timetable = Timetable.fromTimetables(info, timetableDays)
 
         if (isSaveTimetableChecked()) {
