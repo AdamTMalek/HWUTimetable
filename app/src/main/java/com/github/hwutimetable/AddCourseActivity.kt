@@ -149,7 +149,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
             return@map timetable
         }
 
-        val info = Timetable.Info("GEN", "App-Generated", semester!!)
+        val info = Timetable.Info("GEN", "App-Generated", semester!!, true)
         val timetable = Timetable.fromTimetables(info, timetableDays)
 
         changeProgressBarVisibility(false)

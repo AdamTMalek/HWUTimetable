@@ -149,7 +149,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         val semesterStartDate = parser.getSemesterStartDate()
 
         val semester = Semester(semesterStartDate, semesterNumber)
-        val info = Timetable.Info(code, name, semester)
+        val info = Timetable.Info(code, name, semester, false)
         val timetable = Timetable(timetableDays, info)
 
         if (isSaveTimetableChecked()) {
