@@ -86,6 +86,21 @@ class TimetableTest {
         assertEquals(timetable1, timetable2)
     }
 
+    @Test
+    fun testGetCourseCodes() {
+        val timetableFile = File(parsedTimetablesDirectory, "../tt1.html")
+        val timetable = timetableHandler.getHtmlTimetable(
+            timetableFile, Timetable.Info(
+                "xxx", "xxx", Semester(LocalDate.now(), 1), false
+            )
+        )
+
+        val expectedListOfCodes = listOf("B39SA-S1", "B39AX-S1", "F29AI-S1", "F29SO-S1")
+        val actualListOfCodes = timetable.getCourseCodes()
+
+        assertEquals(expectedListOfCodes, actualListOfCodes)
+    }
+
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
         return TimetableDay(day, createTimetableItems(itemsInDay))
     }

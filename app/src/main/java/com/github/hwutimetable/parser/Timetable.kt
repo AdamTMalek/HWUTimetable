@@ -59,6 +59,16 @@ data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable
         return Timetable(days.toTypedArray(), info)
     }
 
+    /**
+     * Returns a list of all courses that are part of the timetable.
+     * @return Course codes
+     */
+    fun getCourseCodes(): List<String> {
+        return days.flatMap { day ->
+            day.classes.map { it.code }
+        }.distinct()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
