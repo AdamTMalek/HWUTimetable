@@ -433,6 +433,7 @@
     "semester": {
       "startDate": "2019-09-16",
       "number": 1
-    }
+    },
+    "isAppGenerated": false
   }
 }
