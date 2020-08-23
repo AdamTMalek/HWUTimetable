@@ -55,7 +55,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     }
 
     private fun setGroupsInputChangeListener() {
-        groups_input.setOnItemClickListener { parent, view, position, id ->
+        groups_input.setOnItemClickListener { _, _, _, _ ->
             add_course_button.isEnabled = true
         }
 
@@ -100,9 +100,6 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val selectedDepartment = departmentsOptions.find { it.text == departmentsSpinner.selectedItem.toString() }
             ?: return
-
-        if (selectedDepartment.text == "(Any Department)")
-            return
 
         val filter = Scraper.FilterBuilder()
             .withDepartment(selectedDepartment.optionValue)
