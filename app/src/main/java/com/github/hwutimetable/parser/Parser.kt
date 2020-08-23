@@ -198,6 +198,7 @@ abstract class Parser(
 
     override fun setDocument(document: Document): TimetableParser {
         this.document = document
+        initTimetableDays()
         return this
     }
 
