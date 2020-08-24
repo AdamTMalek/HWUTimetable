@@ -164,6 +164,98 @@ class TimetableTest {
         assertTrue(expectedClasses.contentEquals(actualClasses))
     }
 
+    @Test
+    fun testFromTimetables() {
+        val timetableHandler = SampleTimetableHandler(typeBackgroundProvider)
+        val linearControlDoc = timetableHandler.getDocument(
+            File(resourcesDir, "sampleTimetables/linear_control.html")
+        )
+        val courseParser = CourseTimetableParser("B30EJ-S1", "Linear Control", linearControlDoc, typeBackgroundProvider)
+        val linearControlTimetable = courseParser.getTimetable()
+
+        val projectDoc = timetableHandler.getDocument(
+            File(resourcesDir, "sampleTimetables/project.html")
+        )!!
+        courseParser.apply {
+            courseCode = "B30UB-S1"
+            courseName = "4th Year Project 1"
+            setDocument(projectDoc)
+        }
+        val projectTimetable = courseParser.getTimetable()
+
+        val linearControlCode = "B30EJ-S1"
+        val linearControlName = "Linear Control"
+
+        val projectCode = "B30UB-S1"
+        val projectName = "4th Year Project 1"
+
+        val timetableDays = arrayOf(
+            TimetableDay(
+                Day.MONDAY, arrayListOf(
+                    TimetableClass(
+                        linearControlCode,
+                        linearControlName,
+                        "MBG44",
+                        "",
+                        TimetableClass.Type("Workshop", whiteColor),
+                        LocalTime.parse("13:15"),
+                        LocalTime.parse("16:15"),
+                        WeeksBuilder().setRange(1, 11).getWeeks()
+                    )
+                )
+            ),
+            TimetableDay(
+                Day.TUESDAY, arrayListOf(
+                    TimetableClass(
+                        linearControlCode,
+                        linearControlName,
+                        "LT2",
+                        "Dr M. Dunnigan",
+                        TimetableClass.Type("All Students", whiteColor),
+                        LocalTime.parse("12:15"),
+                        LocalTime.parse("13:15"),
+                        WeeksBuilder().setRange(1, 11).getWeeks()
+                    ),
+                )
+            ),
+            TimetableDay(Day.WEDNESDAY, arrayListOf()),
+            TimetableDay(
+                Day.THURSDAY, arrayListOf(
+                    TimetableClass(
+                        linearControlCode,
+                        linearControlName,
+                        "Online-Live",
+                        "Dr M. Dunnigan",
+                        TimetableClass.Type("All Students", whiteColor),
+                        LocalTime.parse("12:15"),
+                        LocalTime.parse("13:15"),
+                        WeeksBuilder().setRange(1, 11).getWeeks()
+                    ),
+                )
+            ),
+            TimetableDay(
+                Day.FRIDAY, arrayListOf(
+                    TimetableClass(
+                        projectCode,
+                        projectName,
+                        "JW1",
+                        "Dr J. Hong",
+                        TimetableClass.Type("All Students", whiteColor),
+                        LocalTime.parse("10:15"),
+                        LocalTime.parse("11:15"),
+                        WeeksBuilder().setRange(1, 12).getWeeks()
+                    ),
+                )
+            )
+        )
+
+        val timetableInfo = Timetable.Info("X", "X", Semester(LocalDate.now(), 1), true)
+        val expectedTimetable = Timetable(timetableDays, timetableInfo)
+        val actualTimetable = Timetable.fromTimetables(timetableInfo, listOf(linearControlTimetable, projectTimetable))
+
+        assertEquals(expectedTimetable, actualTimetable)
+    }
+
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
         return TimetableDay(day, createTimetableItems(itemsInDay))
     }
