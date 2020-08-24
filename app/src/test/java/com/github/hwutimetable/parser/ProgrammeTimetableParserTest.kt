@@ -9,7 +9,7 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class ParserTest {
+class ProgrammeTimetableParserTest {
     private val document: Document = org.jsoup.Jsoup.parse(
         File("src/test/resources/sampleTimetables/tt1.html"), "UTF-8"
     )
