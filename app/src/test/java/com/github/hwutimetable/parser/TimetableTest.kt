@@ -166,7 +166,6 @@ class TimetableTest {
 
     @Test
     fun testFromTimetables() {
-        val timetableHandler = SampleTimetableHandler(typeBackgroundProvider)
         val linearControlDoc = timetableHandler.getDocument(
             File(resourcesDir, "sampleTimetables/linear_control.html")
         )
@@ -254,6 +253,41 @@ class TimetableTest {
         val actualTimetable = Timetable.fromTimetables(timetableInfo, listOf(linearControlTimetable, projectTimetable))
 
         assertEquals(expectedTimetable, actualTimetable)
+    }
+
+    @Test
+    fun testReplaceClassesOfCourse() {
+        val signalsCode = "B39SA-S1"
+
+        fun getSignalsClass(from: LocalTime, to: LocalTime) = TimetableClass(
+            signalsCode,
+            "Signals and Systems",
+            "EM336",
+            "Prof. Y Wiaux",
+            TimetableClass.Type("Lec", whiteColor),
+            from,
+            to,
+            WeeksBuilder().setRange(1, 12).getWeeks()
+        )
+
+        val timetable = timetableHandler.getHtmlTimetable(
+            File(resourcesDir, "sampleTimetables/tt1.html"),
+            Timetable.Info("X", "X", Semester(LocalDate.now(), 1), false)
+        )
+        val tuesdayClass = getSignalsClass(LocalTime.parse("10:15"), LocalTime.parse("11:15"))
+        val signalsClasses = arrayOf(
+            TimetableDay(Day.MONDAY, arrayListOf()),
+            TimetableDay(Day.TUESDAY, arrayListOf(tuesdayClass)),
+            TimetableDay(Day.WEDNESDAY, arrayListOf()),
+            TimetableDay(Day.THURSDAY, arrayListOf()),
+            TimetableDay(Day.FRIDAY, arrayListOf()),
+        )
+
+        timetable.replaceClassesOfCourse(signalsCode, signalsClasses)
+        val actualSignalsClasses = timetable.getClassesOfCourse(signalsCode).flatMap { it.classes }
+
+        assertEquals(1, actualSignalsClasses.size)
+        assertEquals(tuesdayClass, actualSignalsClasses.first())
     }
 
     private fun createTimetableDay(day: Day, itemsInDay: Int): TimetableDay {
