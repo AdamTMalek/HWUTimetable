@@ -111,7 +111,12 @@ class AddCourseActivityTest {
 
     @Test
     fun testGroupsGetPopulated() {
+        // Set semester filter to any
         launchActivity().onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.semester_spinner).setSelection(2, false)
+        }
+
+        scenario.onActivity { activity ->
             runBlocking {
                 val expectedDepartments = scraper.getGroups(emptyMap()).map { it.text }
                 val groupsInput = activity.findViewById<AutoCompleteTextView>(R.id.groups_input)
