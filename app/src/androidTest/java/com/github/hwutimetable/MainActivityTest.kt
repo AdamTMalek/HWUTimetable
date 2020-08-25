@@ -21,6 +21,7 @@ import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.settings.SettingsActivity
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.Binds
 import dagger.Module
@@ -202,7 +203,7 @@ class MainActivityTest {
         launchActivity()
         scenario.onActivity { activity ->
             activity.onConnectionLost()
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
+            val addButton = activity.findViewById<ExtendedFloatingActionButton>(R.id.add_timetable)
             assertFalse(addButton.isEnabled)
         }
     }

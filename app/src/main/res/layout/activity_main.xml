@@ -46,6 +46,7 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:icon="@drawable/ic_arrow_drop_up"
+            app:backgroundTint="@color/fab_color"
             android:text="@string/add_timetable"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
