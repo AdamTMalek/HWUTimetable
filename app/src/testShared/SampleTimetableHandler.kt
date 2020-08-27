@@ -1,6 +1,5 @@
 package com.github.hwutimetable
 
-import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
@@ -26,10 +25,5 @@ class SampleTimetableHandler(private val backgroundProvider: TimetableClass.Type
         val days = parser.getTimetable()
 
         return Timetable(days, info)
-    }
-
-    fun getJsonTimetable(file: File): Timetable? {
-        val gson = TimetableFileHandler.getGson()
-        return gson.fromJson(file.readText(), Timetable::class.java)
     }
 }

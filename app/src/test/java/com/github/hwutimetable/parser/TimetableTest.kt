@@ -8,8 +8,7 @@ import org.junit.Test
 import java.io.File
 
 class TimetableTest {
-    private val resourcesDir = File("src/test/resources")
-    private val parsedTimetablesDirectory = File(resourcesDir, "sampleTimetables/parsed/")
+    private val sampleTimetablesDir = File("src/test/resources/sampleTimetables")
     private val whiteColor = "#FFFFFF"
     private val typeBackgroundProvider = object : TimetableClass.Type.BackgroundProvider {
         override suspend fun getBackgroundColor(type: String) = whiteColor
@@ -55,17 +54,12 @@ class TimetableTest {
      */
     @Test
     fun testDifferentTimes() {
-        val timetable1File = File(parsedTimetablesDirectory, "#SPLUS4F80E0.json")
-        val timetable2File = File(parsedTimetablesDirectory, "#SPLUS4F80E0-MOD_TIME.json")
-        val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
-        val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
+        val timetable1File = File(sampleTimetablesDir, "test-timetable-org.html")
+        val timetable2File = File(sampleTimetablesDir, "test-timetable-time-mod.html")
+        val timetable1 = timetableHandler.getHtmlTimetable(timetable1File, getTimetableInfo())
+        val timetable2 = timetableHandler.getHtmlTimetable(timetable2File, getTimetableInfo())
 
-        if (timetable1 == null || timetable2 == null) {
-            fail("No timetable resources. Check file paths.")
-            return
-        }
-
-        assertEquals(timetable1, timetable2)
+        assertNotEquals(timetable1, timetable2)
     }
 
     /**
@@ -74,22 +68,17 @@ class TimetableTest {
      */
     @Test
     fun testDifferentRooms() {
-        val timetable1File = File(parsedTimetablesDirectory, "#SPLUS4F80E0.json")
-        val timetable2File = File(parsedTimetablesDirectory, "#SPLUS4F80E0-MOD_ROOM.json")
-        val timetable1 = timetableHandler.getJsonTimetable(timetable1File)
-        val timetable2 = timetableHandler.getJsonTimetable(timetable2File)
+        val timetable1File = File(sampleTimetablesDir, "test-timetable-org.html")
+        val timetable2File = File(sampleTimetablesDir, "test-timetable-room-mod.html")
+        val timetable1 = timetableHandler.getHtmlTimetable(timetable1File, getTimetableInfo())
+        val timetable2 = timetableHandler.getHtmlTimetable(timetable2File, getTimetableInfo())
 
-        if (timetable1 == null || timetable2 == null) {
-            fail("No timetable resources. Check file paths.")
-            return
-        }
-
-        assertEquals(timetable1, timetable2)
+        assertNotEquals(timetable1, timetable2)
     }
 
     @Test
     fun testGetCourse() {
-        val timetableFile = File(parsedTimetablesDirectory, "../tt1.html")
+        val timetableFile = File(sampleTimetablesDir, "test-timetable-org.html")
         val timetable = timetableHandler.getHtmlTimetable(
             timetableFile, Timetable.Info(
                 "xxx", "xxx", Semester(LocalDate.now(), 1), false
@@ -109,7 +98,7 @@ class TimetableTest {
 
     @Test
     fun testGetClassesOfCourse() {
-        val timetableFile = File(parsedTimetablesDirectory, "../tt1.html")
+        val timetableFile = File(sampleTimetablesDir, "test-timetable-org.html")
         val timetable = timetableHandler.getHtmlTimetable(
             timetableFile, Timetable.Info(
                 "xxx", "xxx", Semester(LocalDate.now(), 1), false
@@ -167,13 +156,13 @@ class TimetableTest {
     @Test
     fun testFromTimetables() {
         val linearControlDoc = timetableHandler.getDocument(
-            File(resourcesDir, "sampleTimetables/linear_control.html")
+            File(sampleTimetablesDir, "linear_control.html")
         )
         val courseParser = CourseTimetableParser("B30EJ-S1", "Linear Control", linearControlDoc, typeBackgroundProvider)
         val linearControlTimetable = courseParser.getTimetable()
 
         val projectDoc = timetableHandler.getDocument(
-            File(resourcesDir, "sampleTimetables/project.html")
+            File(sampleTimetablesDir, "project.html")
         )!!
         courseParser.apply {
             courseCode = "B30UB-S1"
@@ -271,7 +260,7 @@ class TimetableTest {
         )
 
         val timetable = timetableHandler.getHtmlTimetable(
-            File(resourcesDir, "sampleTimetables/tt1.html"),
+            File(sampleTimetablesDir, "test-timetable-org.html"),
             Timetable.Info("X", "X", Semester(LocalDate.now(), 1), false)
         )
         val tuesdayClass = getSignalsClass(LocalTime.parse("10:15"), LocalTime.parse("11:15"))
@@ -314,4 +303,6 @@ class TimetableTest {
             LocalTime.MIDNIGHT, LocalTime.MIDNIGHT, weeks
         )
     }
+
+    private fun getTimetableInfo() = Timetable.Info("T0", "Test Timetable", Semester(LocalDate.now(), 1), false)
 }
