@@ -1,8 +1,8 @@
 package com.github.hwutimetable.parser
 
 import com.github.hwutimetable.SampleTimetableHandler
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import org.joda.time.LocalTime
 import org.junit.Test
 import java.io.File

@@ -163,7 +163,7 @@ class TimetableTest {
 
         val projectDoc = timetableHandler.getDocument(
             File(sampleTimetablesDir, "project.html")
-        )!!
+        )
         courseParser.apply {
             courseCode = "B30UB-S1"
             courseName = "4th Year Project 1"

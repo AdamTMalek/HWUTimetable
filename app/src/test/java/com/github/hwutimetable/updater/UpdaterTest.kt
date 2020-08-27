@@ -2,7 +2,9 @@ package com.github.hwutimetable.updater
 
 import com.github.hwutimetable.SampleTimetableHandler
 import com.github.hwutimetable.filehandler.TimetableFileHandler
-import com.github.hwutimetable.parser.*
+import com.github.hwutimetable.parser.Semester
+import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
@@ -53,7 +55,7 @@ class UpdaterTest {
     @Test
     fun testReceiverAttached() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
-        getUpdater(timetableHandler.getDocument(getOriginalTimetable())!!).apply {
+        getUpdater(timetableHandler.getDocument(getOriginalTimetable())).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()
@@ -70,7 +72,7 @@ class UpdaterTest {
     fun testUpdateStartedNotificationSent() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
 
-        getUpdater(timetableHandler.getDocument(getOriginalTimetable())!!).apply {
+        getUpdater(timetableHandler.getDocument(getOriginalTimetable())).apply {
             addInProgressListener(receiver)
             addFinishedListener(receiver)
             update()
@@ -82,7 +84,7 @@ class UpdaterTest {
     @Test
     fun testNothingUpdated() {
         val file = getOriginalTimetable()
-        val savedDocument = timetableHandler.getDocument(file)!!
+        val savedDocument = timetableHandler.getDocument(file)
 
         val receiver = Mockito.mock(NotificationReceiver::class.java)
 
@@ -136,20 +138,6 @@ class UpdaterTest {
 
         override fun onUpdateFinished(updated: Collection<Timetable.Info>) {
             return
-        }
-    }
-
-    private class ParserForTest(private val timetable: Timetable) : TimetableParser {
-        override fun setDocument(document: Document): TimetableParser {
-            return this
-        }
-
-        override fun getSemesterStartDate(): LocalDate {
-            return timetable.info.semester.startDate
-        }
-
-        override fun getTimetable(): Array<TimetableDay> {
-            return timetable.days
         }
     }
 
