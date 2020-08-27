@@ -16,7 +16,7 @@
             app:layout_constraintRight_toRightOf="parent"
             android:layout_marginTop="30dp"
             android:layout_marginLeft="@dimen/edge_margin"
-            android:layout_marginRight="15dp"
+            android:layout_marginRight="25dp"
             android:rowCount="8"
             android:columnCount="2">
         <TextView
