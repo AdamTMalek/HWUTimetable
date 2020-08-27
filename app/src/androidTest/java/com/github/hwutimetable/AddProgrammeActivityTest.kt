@@ -10,8 +10,6 @@ import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.filehandler.TimetableFileHandler
-import com.github.hwutimetable.parser.TimetableClass
-import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
@@ -24,18 +22,14 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.*
 import org.joda.time.LocalDate
-import org.joda.time.LocalDateTime
-import org.jsoup.nodes.Document
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
-import java.net.URL
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@UninstallModules(value = [ProgrammeScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
+@UninstallModules(value = [FileModule::class, ProgrammeScraperModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
 class AddProgrammeActivityTest {
     @Module
@@ -57,60 +51,8 @@ class AddProgrammeActivityTest {
     @Module
     @InstallIn(ApplicationComponent::class)
     abstract class TestDateProviderModule {
-        @Singleton
         @Binds
         abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
-    }
-
-    class TestDateProvider @Inject constructor() : CurrentDateProvider {
-        var date: LocalDate = LocalDate.now()
-        var dateTime: LocalDateTime = LocalDateTime.now()
-        override fun getCurrentDate(): LocalDate {
-            return date
-        }
-
-        override fun getCurrentDateTime(): LocalDateTime {
-            return dateTime
-        }
-    }
-
-    @Singleton
-    class TestScraper @Inject constructor() : ProgrammeTimetableScraper {
-        private val backgroundCss = URL("file:///android_res/raw/activitytype.css")
-        private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
-
-        val semesterOneGroup = "grp1 (Semester 1)"
-        val semesterTwoGroup = "grp2 (Semester 2)"
-
-        override suspend fun setup() {
-            // We don't need to do anything
-        }
-
-        override fun getLevels(): List<Option> {
-            return listOf(
-                Option("dval0", "Semester 1"),
-                Option("dval1", "Semester 2"),
-                Option("dval2", "dep2")
-            )
-        }
-
-        override fun getDepartments(): List<Option> {
-            return listOf(
-                Option("dval0", "(Any Department)"),
-                Option("dval1", "dep1"),
-                Option("dval2", "dep2")
-            )
-        }
-
-        override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
-            return listOf(Option("gval0", semesterOneGroup), Option("gval1", semesterTwoGroup))
-        }
-
-        override suspend fun getTimetable(filters: Map<String, Any>): Document {
-            val context = InstrumentationRegistry.getInstrumentation().context
-            val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-            return SampleTimetableHandler(typeBackgroundProvider).getDocument(input)!!
-        }
     }
 
     @Inject
@@ -139,7 +81,7 @@ class AddProgrammeActivityTest {
     }
 
     private fun setDate(date: LocalDate) {
-        (testDate as TestDateProvider).date = date
+        (testDate as TestDateProvider).setDate(date)
     }
 
     private fun getContext() = InstrumentationRegistry.getInstrumentation().targetContext

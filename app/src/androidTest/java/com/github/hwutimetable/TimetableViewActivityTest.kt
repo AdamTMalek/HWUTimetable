@@ -14,10 +14,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
+import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
+import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,13 +31,12 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
-import org.joda.time.LocalDateTime
 import org.junit.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltAndroidTest
-@UninstallModules(CurrentDateProviderModule::class)
+@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class])
 class TimetableViewActivityTest {
     private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
         override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
@@ -49,15 +50,11 @@ class TimetableViewActivityTest {
         abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
     }
 
-    class TestDateProvider @Inject constructor() : CurrentDateProvider {
-        lateinit var date: LocalDate
-        override fun getCurrentDate(): LocalDate {
-            return date
-        }
-
-        override fun getCurrentDateTime(): LocalDateTime {
-            return LocalDateTime.now()
-        }
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    abstract class TestProgrammeScraper {
+        @Binds
+        abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     private val context = InstrumentationRegistry.getInstrumentation().context
@@ -112,7 +109,7 @@ class TimetableViewActivityTest {
     }
 
     private fun setDate(date: LocalDate = LocalDate.now()) {
-        (dateProvider as TestDateProvider).date = date
+        (dateProvider as TestDateProvider).setDate(date)
     }
 
     @Test

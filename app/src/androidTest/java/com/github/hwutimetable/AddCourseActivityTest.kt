@@ -4,11 +4,8 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Spinner
 import androidx.test.core.app.ActivityScenario
-import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CourseScraperModule
-import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
-import com.github.hwutimetable.scraper.Option
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -19,15 +16,13 @@ import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import kotlinx.coroutines.runBlocking
-import org.jsoup.nodes.Document
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import javax.inject.Inject
-import javax.inject.Singleton
 
 @HiltAndroidTest
-@UninstallModules(CourseScraperModule::class)
+@UninstallModules(value = [CourseScraperModule::class])
 class AddCourseActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -38,42 +33,7 @@ class AddCourseActivityTest {
     @InstallIn(ApplicationComponent::class)
     abstract class TestScraperModule {
         @Binds
-        abstract fun bindScraper(scraper: TestScraper): CourseTimetableScraper
-    }
-
-    @Singleton
-    class TestScraper @Inject constructor() : CourseTimetableScraper {
-        private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
-            override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
-        }
-        private val context = InstrumentationRegistry.getInstrumentation().context
-        private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-        private val timetableDocument: Document by lazy {
-            val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-            SampleTimetableHandler(backgroundProvider).getDocument(input)!!
-        }
-
-        override suspend fun setup() {
-            // There's nothing we have to do in here
-        }
-
-        override fun getDepartments(): List<Option> {
-            return listOf(
-                Option("val0", "Department 0"),
-                Option("val1", "Department 1")
-            )
-        }
-
-        override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
-            return listOf(
-                Option("val0", "C00AA-S1"),
-                Option("val1", "C00AA-S2")
-            )
-        }
-
-        override suspend fun getTimetable(filters: Map<String, Any>): Document {
-            return timetableDocument
-        }
+        abstract fun bindScraper(scraper: TestCourseScraper): CourseTimetableScraper
     }
 
     private fun launchActivity(): ActivityScenario<AddCourseActivity> {

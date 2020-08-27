@@ -16,13 +16,14 @@ import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.NetworkUtilitiesModule
+import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
+import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.settings.SettingsActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -49,7 +50,7 @@ import javax.inject.Singleton
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 
-@UninstallModules(value = [FileModule::class, NetworkUtilitiesModule::class])
+@UninstallModules(value = [FileModule::class, NetworkUtilitiesModule::class, ProgrammeScraperModule::class])
 @HiltAndroidTest
 class MainActivityTest {
     @InstallIn(ApplicationComponent::class)
@@ -85,6 +86,13 @@ class MainActivityTest {
         @Singleton
         @Binds
         abstract fun bindNetworkUtilities(networkUtilities: TestNetworkUtilities): NetworkUtils
+    }
+
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    abstract class TestProgrammeScraper {
+        @Binds
+        abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @get:Rule
@@ -174,7 +182,7 @@ class MainActivityTest {
 
         launchActivity()
         scenario.onActivity { activity ->
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
+            val addButton = activity.findViewById<ExtendedFloatingActionButton>(R.id.add_timetable)
             assertFalse(addButton.isEnabled)
         }
     }
@@ -188,7 +196,7 @@ class MainActivityTest {
 
         launchActivity()
         scenario.onActivity { activity ->
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
+            val addButton = activity.findViewById<ExtendedFloatingActionButton>(R.id.add_timetable)
             assertTrue(addButton.isEnabled)
         }
     }
@@ -218,13 +226,13 @@ class MainActivityTest {
         launchActivity()
         scenario.onActivity { activity ->
             activity.onConnectionAvailable()
-            val addButton = activity.findViewById<FloatingActionButton>(R.id.add_timetable)
+            val addButton = activity.findViewById<ExtendedFloatingActionButton>(R.id.add_timetable)
             assertTrue(addButton.isEnabled)
         }
     }
 
     @Test
-    fun testAddButtonStartsActivity() {
+    fun testAddProgrammeStartsActivity() {
         with(networkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities) {
             wifiOn = true
         }
@@ -233,10 +241,17 @@ class MainActivityTest {
         launchActivity()
         Espresso.onView(withId(R.id.add_timetable))
             .perform(click())
+        Espresso.onView(withId(R.id.add_programme))
+            .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(AddProgrammeTimetableActivity::class.java.name))
 
         Intents.release()
+    }
+
+    @Test
+    fun testAddCourseStartsActivity() {
+        // TODO
     }
 
     @Test
