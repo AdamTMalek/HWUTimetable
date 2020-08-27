@@ -6,12 +6,13 @@ import com.github.hwutimetable.parser.TimetableClass
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 
 class SampleTimetableHandler(private val backgroundProvider: TimetableClass.Type.BackgroundProvider) {
-    fun getDocument(file: File): Document? {
+    fun getDocument(file: File): Document {
         if (!file.exists())
-            return null
+            throw FileNotFoundException("File $file was not found")
         return Jsoup.parse(file, "UTF-8")
     }
 

@@ -4,10 +4,7 @@ import android.content.Context
 import com.github.hwutimetable.R
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.*
-import com.github.hwutimetable.scraper.CourseScraper
-import com.github.hwutimetable.scraper.ProgrammeScraper
-import com.github.hwutimetable.scraper.Scraper
-import com.github.hwutimetable.scraper.TimetableScraper
+import com.github.hwutimetable.scraper.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,19 +18,29 @@ import java.io.File
  */
 class Updater(
     filesDir: File,
-    private val context: Context?
+    private val context: Context?,
+    private val programmeScraper: ProgrammeTimetableScraper,
+    private val courseScraper: CourseTimetableScraper,
+    backgroundProvider: TimetableClass.Type.BackgroundProvider
 ) : UpdatePerformer {
-    private val programmeScraper = ProgrammeScraper()
-    private val courseScraper = CourseScraper()
-
-    private val programmeParser = ProgrammeTimetableParser(null, TimetableClass.Type.OnlineBackgroundProvider())
-    private val courseParser = CourseTimetableParser("", "", null, TimetableClass.Type.OnlineBackgroundProvider())
+    private val programmeParser = ProgrammeTimetableParser(null, backgroundProvider)
+    private val courseParser = CourseTimetableParser("", "", null, backgroundProvider)
 
     private val fileHandler = TimetableFileHandler(filesDir)
     private val inProgressListeners = mutableListOf<OnUpdateInProgressListener>()
     private val finishedListeners = mutableListOf<OnUpdateFinishedListener>()
 
-    constructor(filesDir: File) : this(filesDir, null)
+    constructor(
+        filesDir: File,
+        programmeScraper: ProgrammeTimetableScraper,
+        courseScraper: CourseTimetableScraper,
+        backgroundProvider: TimetableClass.Type.BackgroundProvider
+    ) : this(filesDir, null, programmeScraper, courseScraper, backgroundProvider)
+
+    constructor(
+        filesDir: File,
+        context: Context?
+    ) : this(filesDir, context, ProgrammeScraper(), CourseScraper(), TimetableClass.Type.OnlineBackgroundProvider())
 
     /**
      * Update all timetables stored on the device. This method will not return anything,
