@@ -11,22 +11,6 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-            app:title="Next class notifications">
-        <SwitchPreference
-                app:title="Receive notifications about next class"
-                app:key="receive_class_notification"
-                app:defaultValue="true"/>
-        <com.github.hwutimetable.settings.NumberPreference
-                app:key="class_notification_start"
-                app:title="When to send the reminder"
-                app:summary="Choose how many minutes before the class start should the reminder be sent."
-                app:defaultValue="5"
-                app:minValue="5"
-                app:maxValue="30"
-                app:step="5"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory
             app:title="Update checks">
 
         <SwitchPreferenceCompat
