@@ -3,9 +3,8 @@ package com.github.hwutimetable.updater
 import android.content.Context
 import com.github.hwutimetable.R
 import com.github.hwutimetable.filehandler.TimetableFileHandler
-import com.github.hwutimetable.parser.Timetable
-import com.github.hwutimetable.parser.TimetableParser
-import com.github.hwutimetable.scraper.TimetableScraper
+import com.github.hwutimetable.parser.*
+import com.github.hwutimetable.scraper.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -19,20 +18,29 @@ import java.io.File
  */
 class Updater(
     filesDir: File,
-    private val parser: TimetableParser,
-    private val scraper: TimetableScraper,
-    private val context: Context?
+    private val context: Context?,
+    private val programmeScraper: ProgrammeTimetableScraper,
+    private val courseScraper: CourseTimetableScraper,
+    backgroundProvider: TimetableClass.Type.BackgroundProvider
 ) : UpdatePerformer {
+    private val programmeParser = ProgrammeTimetableParser(null, backgroundProvider)
+    private val courseParser = CourseTimetableParser("", "", null, backgroundProvider)
+
     private val fileHandler = TimetableFileHandler(filesDir)
     private val inProgressListeners = mutableListOf<OnUpdateInProgressListener>()
     private val finishedListeners = mutableListOf<OnUpdateFinishedListener>()
 
-    constructor(filesDir: File, parser: TimetableParser, scraper: TimetableScraper) : this(
-        filesDir,
-        parser,
-        scraper,
-        null
-    )
+    constructor(
+        filesDir: File,
+        programmeScraper: ProgrammeTimetableScraper,
+        courseScraper: CourseTimetableScraper,
+        backgroundProvider: TimetableClass.Type.BackgroundProvider
+    ) : this(filesDir, null, programmeScraper, courseScraper, backgroundProvider)
+
+    constructor(
+        filesDir: File,
+        context: Context?
+    ) : this(filesDir, context, ProgrammeScraper(), CourseScraper(), TimetableClass.Type.OnlineBackgroundProvider())
 
     /**
      * Update all timetables stored on the device. This method will not return anything,
@@ -47,17 +55,15 @@ class Updater(
         // the update process is finished, the method will notify the registered notification
         // about the result.
         GlobalScope.launch {
-            scraper.setup()
-
             val savedTimetablesInfoList = getStoredTimetables()
-            val updated = mutableListOf<Timetable.Info>()
+            val updated = mutableSetOf<Timetable.Info>()
             savedTimetablesInfoList.forEach { savedInfo ->
                 val savedTimetable = fileHandler.getTimetable(savedInfo)
-                val newTimetable = getTimetable(savedInfo)
 
-                if (isUpdated(savedTimetable, newTimetable)) {
-                    saveTimetable(newTimetable)
-                    updated.add(savedInfo)
+                if (savedTimetable.info.isAppGenerated) {
+                    updateCourses(savedTimetable, updated)
+                } else {
+                    updateProgramme(savedTimetable, updated)
                 }
             }
 
@@ -68,8 +74,56 @@ class Updater(
         }
     }
 
-    private suspend fun getTimetable(info: Timetable.Info): Timetable {
-        val doc = scraper.getTimetable(info.code, info.semester.number)
+    private suspend fun updateCourses(savedTimetable: Timetable, updatedList: MutableCollection<Timetable.Info>) {
+        var updated = false
+        val semester = savedTimetable.info.semester.number
+        courseScraper.setup()
+
+        savedTimetable.getCourses().forEach { (courseCode, courseName) ->
+            courseParser.courseCode = courseCode
+            courseParser.courseName = courseName
+
+            val filter = Scraper.FilterBuilder()
+                .withSemester(semester)
+                .withGroup(courseCode)
+                .getFilter()
+
+            val savedClasses = savedTimetable.getClassesOfCourse(courseCode)
+            val scrapedTimetable = courseParser.setDocument(courseScraper.getTimetable(filter)).getTimetable()
+
+            if (!savedClasses.contentEquals(scrapedTimetable)) {
+                savedTimetable.replaceClassesOfCourse(courseCode, scrapedTimetable)
+                updated = true
+            }
+        }
+
+        if (updated) {
+            updatedList.add(savedTimetable.info)
+            saveTimetable(savedTimetable)
+        }
+    }
+
+    private suspend fun updateProgramme(savedTimetable: Timetable, updated: MutableCollection<Timetable.Info>) {
+        programmeScraper.setup()
+        val newTimetable = getTimetable(savedTimetable.info, programmeScraper, programmeParser)
+
+        if (isUpdated(savedTimetable, newTimetable)) {
+            saveTimetable(newTimetable)
+            updated.add(savedTimetable.info)
+        }
+    }
+
+    private suspend fun getTimetable(
+        info: Timetable.Info,
+        scraper: TimetableScraper,
+        parser: TimetableParser
+    ): Timetable {
+        val filter = Scraper.FilterBuilder()
+            .withGroup(info.code)
+            .withSemester(info.semester.number)
+            .getFilter()
+
+        val doc = scraper.getTimetable(filter)
         return Timetable(parser.setDocument(doc).getTimetable(), info)
     }
 

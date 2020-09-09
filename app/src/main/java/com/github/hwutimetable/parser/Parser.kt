@@ -10,6 +10,7 @@ import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.util.*
 
 
@@ -19,7 +20,7 @@ import java.util.*
  * To get the semester start day (for constructing [Timetable.Info]
  * use [getSemesterStartDate].
  */
-class Parser(
+abstract class Parser(
     private var document: Document?,
     private val typeBackgroundProvider: TimetableClass.Type.BackgroundProvider
 ) : TimetableParser {
@@ -94,19 +95,20 @@ class Parser(
      * @return Colspan width of the item
      */
     private fun addLecture(td: Element, tdCounter: Int, dayIndex: Int): Int {
-        val colspan = td.attr("colspan").toInt()  // Colspan tells us the duration of the lecture
+        val colspan = td.attr("colspan").toInt() // Colspan tells us the duration of the lecture
+        val tdClass = td.attr("class")
         val startTime = getTime(tdCounter)
         val endTime = getTime(tdCounter + colspan)
 
         val tables = td.select("table")  // There are 3 tables for each item cell
 
         val orgInfo = tables[0]  // First table has the code, weeks and room
-        val code = orgInfo.selectFirst("td[align=left]").text()
+        val code = getCode(tables)
         val weeks = orgInfo.selectFirst("td[align=center]").text()
         val room = orgInfo.selectFirst("td[align=right]").text()
 
         // Currently, we are only interested in the item name
-        val name = tables[1].selectFirst("td[align=center]").text()
+        val name = getName(tables)
 
         // The last table has the lecturer(s) name(s) and the type
         val lecInfo = tables[2]
@@ -120,7 +122,7 @@ class Parser(
                     code = code,
                     room = room,
                     lecturer = lecturer,
-                    type = TimetableClass.Type(type, getBackgroundColorForType(type)),
+                    type = TimetableClass.Type(type, getBackgroundColorForType(tdClass)),
                     start = startTime,
                     end = endTime,
                     weeks = WeeksBuilder()
@@ -131,6 +133,10 @@ class Parser(
         }
         return colspan
     }
+
+    protected abstract fun getCode(classInfoTables: Elements): String
+
+    protected abstract fun getName(classInfoTables: Elements): String
 
     private suspend fun getBackgroundColorForType(type: String) =
         withContext(Dispatchers.IO) {
@@ -192,6 +198,7 @@ class Parser(
 
     override fun setDocument(document: Document): TimetableParser {
         this.document = document
+        initTimetableDays()
         return this
     }
 

@@ -2,7 +2,8 @@
     <string name="app_name">HWU Timetable</string>
     <!-- Activities titles -->
     <string name="main_activity_title">Timetables</string>
-    <string name="add_activity_title">Add Timetable</string>
+    <string name="add_programme_activity_title">Add Programme</string>
+    <string name="add_course_activity_title">Add Course(s)</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_view_timetable">View Timetable</string>
 
@@ -11,9 +12,9 @@
     <string name="delete_all">Delete all</string>
     <string name="delete_all_confirmation">Are you sure?</string>
 
-    <!-- Add Activity -->
-    <string name="departments">Departments:</string>
-    <string name="levels">Levels:</string>
+    <!-- Add Programme Timetable Activity -->
+    <string name="departments">Department:</string>
+    <string name="levels">Level:</string>
     <string name="semester">Semester:</string>
     <string name="semester_1">Semester 1</string>
     <string name="semester_2">Semester 2</string>
@@ -21,6 +22,13 @@
     <string name="groups">Groups</string>
     <string name="submit">Get Timetable</string>
     <string name="follow">Save on the device</string>
+
+    <!-- Add Course(s) Timetable Activity -->
+    <string name="course">Course:</string>
+    <string name="add_course_button_text">Add course</string>
+    <string name="courses">Selected Courses</string>
+    <string name="generate_timetable">Generate timetable</string>
+    <string name="add_programme">Add programme</string>
 
     <!-- Timetable View Activity -->
     <string name="viewing_week">Select Week:</string>
@@ -66,4 +74,10 @@
     <string name="start_time_label">Start time:</string>
     <string name="end_time_label">End time:</string>
     <string name="weeks">Weeks:</string>
+    <string name="add_course">Add course</string>
+    <string name="add_timetable">Add timetable</string>
+    <string name="delete_course">Delete course</string>
+    <string name="timetable_name">Timetable Name:</string>
+    <string name="timetable_name_placeholder">My main timetable</string>
+    <string name="enter_course_name">Enter course name</string>
 </resources>

@@ -7,10 +7,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.github.hwutimetable.network.NetworkUtilities
-import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
-import com.github.hwutimetable.parser.TimetableClass
-import com.github.hwutimetable.scraper.Scraper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -22,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 class UpdateService : Service(), OnUpdateFinishedListener {
     private val logTag = "UpdateService"
-    private lateinit var updater: UpdatePerformer
+    private val updater by lazy { Updater(this.filesDir, this) }
 
     override fun onCreate() {
     }
@@ -36,7 +33,6 @@ class UpdateService : Service(), OnUpdateFinishedListener {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         GlobalScope.launch {
-            configurePerformer(intent)
             configureNotifier(intent)
             registerSelfAsReceiver()
 
@@ -50,14 +46,6 @@ class UpdateService : Service(), OnUpdateFinishedListener {
         return START_STICKY
     }
 
-    private fun configurePerformer(intent: Intent?) {
-        updater = getDefaultUpdater()
-        if (intent == null || intent.extras == null)
-            return
-
-        updater = intent.extras!!.get("performer") as UpdatePerformer? ?: getDefaultUpdater()
-    }
-
     private fun configureNotifier(intent: Intent?) {
         if (intent == null || intent.extras == null) {
             updater.addFinishedListener(getDefaultNotifier())
@@ -68,13 +56,6 @@ class UpdateService : Service(), OnUpdateFinishedListener {
         updater.addInProgressListener(notifier as OnUpdateInProgressListener)
         updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
-
-    private fun getDefaultUpdater() = Updater(
-        this.filesDir,
-        Parser(null, TimetableClass.Type.OnlineBackgroundProvider()),
-        Scraper(),
-        this
-    )
 
     private fun getDefaultNotifier() = UpdateNotifier(this)
 

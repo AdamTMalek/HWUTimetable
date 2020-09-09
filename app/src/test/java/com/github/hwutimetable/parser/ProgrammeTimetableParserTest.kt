@@ -1,5 +1,6 @@
 package com.github.hwutimetable.parser
 
+import com.github.hwutimetable.SampleTimetableHandler
 import com.github.hwutimetable.parser.exceptions.ParserException
 import org.joda.time.LocalDate
 import org.jsoup.nodes.Document
@@ -9,13 +10,14 @@ import org.junit.Before
 import org.junit.Test
 import java.io.File
 
-class ParserTest {
-    private val document: Document = org.jsoup.Jsoup.parse(
-        File("src/test/resources/sampleTimetables/tt1.html"), "UTF-8"
-    )
+class ProgrammeTimetableParserTest {
     private val backgroundCss = javaClass.classLoader!!.getResource("activitytype.css")
     private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
-    private val parser: Parser = Parser(document, typeBackgroundProvider)
+    private val document: Document = SampleTimetableHandler(typeBackgroundProvider).getDocument(
+        File("src/test/resources/sampleTimetables/test-timetable-org.html")
+    )
+
+    private val parser: ProgrammeTimetableParser = ProgrammeTimetableParser(document, typeBackgroundProvider)
 
     private lateinit var days: Array<TimetableDay>
 
@@ -29,7 +31,10 @@ class ParserTest {
      */
     @Test(expected = ParserException::class)
     fun parseNoDocParser() {
-        Parser(Document("src/test/sampleTimetables/tt1.html"), typeBackgroundProvider).getTimetable()
+        ProgrammeTimetableParser(
+            Document("src/test/sampleTimetables/test-timetable-org.html"),
+            typeBackgroundProvider
+        ).getTimetable()
     }
 
     @Test

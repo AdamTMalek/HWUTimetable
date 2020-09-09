@@ -8,10 +8,9 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
 import com.github.hwutimetable.di.FileModule
-import com.github.hwutimetable.di.TimetableScraperModule
+import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.filehandler.TimetableFileHandler
-import com.github.hwutimetable.scraper.Option
-import com.github.hwutimetable.scraper.TimetableScraper
+import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -23,18 +22,16 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.*
 import org.joda.time.LocalDate
-import org.jsoup.nodes.Document
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import javax.inject.Inject
-import javax.inject.Singleton
 
-@UninstallModules(value = [TimetableScraperModule::class, FileModule::class, CurrentDateProviderModule::class])
+@UninstallModules(value = [FileModule::class, ProgrammeScraperModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
-class AddActivityTest {
+class AddProgrammeActivityTest {
     @Module
     @InstallIn(ApplicationComponent::class)
     object TestTimetableFileHandlerModule {
@@ -46,59 +43,16 @@ class AddActivityTest {
 
     @Module
     @InstallIn(ApplicationComponent::class)
-    abstract class TimetableScraperTestModule {
+    abstract class TestProgrammeScraper {
         @Binds
-        abstract fun bindScraper(scraperForTest: ScraperForTest): TimetableScraper
+        abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @Module
     @InstallIn(ApplicationComponent::class)
     abstract class TestDateProviderModule {
-        @Singleton
         @Binds
         abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
-    }
-
-    class TestDateProvider @Inject constructor() : CurrentDateProvider {
-        var date: LocalDate = LocalDate.now()
-        override fun getCurrentDate(): LocalDate {
-            return date
-        }
-    }
-
-    @Singleton
-    class ScraperForTest @Inject constructor() : TimetableScraper {
-        val semesterOneGroup = "grp1 (Semester 1)"
-        val semesterTwoGroup = "grp2 (Semester 2)"
-        override suspend fun setup() {
-            // We don't need to do anything
-        }
-
-        override fun getDepartments(): List<Option> {
-            return listOf(
-                Option("dval0", "(Any Department)"),
-                Option("dval1", "dep1"),
-                Option("dval2", "dep2")
-            )
-        }
-
-        override fun getLevels(): List<Option> {
-            return listOf(
-                Option("lval0", "(Any Level)"),
-                Option("lval1", "lev1"),
-                Option("lval2", "lev2")
-            )
-        }
-
-        override suspend fun getGroups(department: String, level: String): List<Option> {
-            return listOf(Option("gval0", semesterOneGroup), Option("gval1", semesterTwoGroup))
-        }
-
-        override suspend fun getTimetable(group: String, semester: Int): Document {
-            val context = InstrumentationRegistry.getInstrumentation().context
-            val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-            return SampleTimetableHandler().getDocument(input)!!
-        }
     }
 
     @Inject
@@ -108,12 +62,12 @@ class AddActivityTest {
     lateinit var testDate: CurrentDateProvider
 
     @Inject
-    lateinit var scraper: TimetableScraper
+    lateinit var scraper: ProgrammeTimetableScraper
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private lateinit var scenario: ActivityScenario<AddActivity>
+    private lateinit var scenario: ActivityScenario<AddProgrammeTimetableActivity>
     private val semester1Date = LocalDate.parse("2020-09-01")
     private val semester2Date = LocalDate.parse("2020-01-01")
 
@@ -123,11 +77,11 @@ class AddActivityTest {
     }
 
     private fun launchActivity() {
-        scenario = ActivityScenario.launch(AddActivity::class.java)
+        scenario = ActivityScenario.launch(AddProgrammeTimetableActivity::class.java)
     }
 
     private fun setDate(date: LocalDate) {
-        (testDate as TestDateProvider).date = date
+        (testDate as TestDateProvider).setDate(date)
     }
 
     private fun getContext() = InstrumentationRegistry.getInstrumentation().targetContext
@@ -190,8 +144,8 @@ class AddActivityTest {
             val groupsSpinner = activity.findViewById<Spinner>(R.id.groups_spinner)
             groupsSpinner.setSelection(0)
             name = groupsSpinner.selectedItem as String
-            activity.findViewById<CheckBox>(R.id.follow_checkbox).isChecked = false
-            activity.findViewById<Button>(R.id.submit_button).performClick()
+            activity.findViewById<CheckBox>(R.id.save_checkbox).isChecked = false
+            activity.findViewById<Button>(R.id.get_timetable).performClick()
         }
 
         assertNull(fileHandler.getStoredTimetables().find { it.name == name })
@@ -210,8 +164,8 @@ class AddActivityTest {
             val groupsSpinner = activity.findViewById<Spinner>(R.id.groups_spinner)
             groupsSpinner.setSelection(0)
             name = groupsSpinner.selectedItem as String
-            activity.findViewById<CheckBox>(R.id.follow_checkbox).isChecked = true
-            activity.findViewById<Button>(R.id.submit_button).performClick()
+            activity.findViewById<CheckBox>(R.id.save_checkbox).isChecked = true
+            activity.findViewById<Button>(R.id.get_timetable).performClick()
         }
 
         assertNull(fileHandler.getStoredTimetables().find { it.name == name })
@@ -250,7 +204,7 @@ class AddActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val expected = listOf((scraper as ScraperForTest).semesterOneGroup)
+            val expected = listOf((scraper as TestScraper).semesterOneGroup)
             assertEquals(expected, groups)
         }
     }
@@ -268,7 +222,7 @@ class AddActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val expected = listOf((scraper as ScraperForTest).semesterTwoGroup)
+            val expected = listOf((scraper as TestScraper).semesterTwoGroup)
             assertEquals(expected, groups)
         }
     }
@@ -286,7 +240,7 @@ class AddActivityTest {
         scenario.onActivity { activity ->
             val spinnerAdapter = activity.findViewById<Spinner>(R.id.groups_spinner).adapter
             val groups = (0 until spinnerAdapter.count).map { spinnerAdapter.getItem(it) }
-            val testScraper = (scraper as ScraperForTest)
+            val testScraper = (scraper as TestScraper)
             val expected = listOf(testScraper.semesterOneGroup, testScraper.semesterTwoGroup)
             assertEquals(expected, groups)
         }

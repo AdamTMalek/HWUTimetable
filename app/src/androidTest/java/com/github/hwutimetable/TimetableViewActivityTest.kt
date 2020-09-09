@@ -14,10 +14,12 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
-import com.github.hwutimetable.parser.Parser
+import com.github.hwutimetable.di.ProgrammeScraperModule
+import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableClass
+import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -34,7 +36,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltAndroidTest
-@UninstallModules(CurrentDateProviderModule::class)
+@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class])
 class TimetableViewActivityTest {
     private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
         override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
@@ -48,21 +50,21 @@ class TimetableViewActivityTest {
         abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
     }
 
-    class TestDateProvider @Inject constructor() : CurrentDateProvider {
-        lateinit var date: LocalDate
-        override fun getCurrentDate(): LocalDate {
-            return date
-        }
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    abstract class TestProgrammeScraper {
+        @Binds
+        abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
     private val timetable: Timetable by lazy {
         val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-        val document = SampleTimetableHandler().getDocument(input)!!
-        val parser = Parser(document, backgroundProvider)
+        val document = SampleTimetableHandler(backgroundProvider).getDocument(input)!!
+        val parser = ProgrammeTimetableParser(document, backgroundProvider)
         val days = parser.getTimetable()
-        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1)))
+        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), false))
     }
 
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
@@ -107,7 +109,7 @@ class TimetableViewActivityTest {
     }
 
     private fun setDate(date: LocalDate = LocalDate.now()) {
-        (dateProvider as TestDateProvider).date = date
+        (dateProvider as TestDateProvider).setDate(date)
     }
 
     @Test
