@@ -35,7 +35,7 @@ class CourseScraper @Inject constructor() : Scraper(), CourseTimetableScraper {
     }
 
     override suspend fun getGroups(filters: Map<String, Any>): List<Option> {
-        val department = filters.getValue("department") as String
+        val department = filters["department"] as? String ?: ""
 
         // Apply the filter
         filterByDepartment(department, false)
