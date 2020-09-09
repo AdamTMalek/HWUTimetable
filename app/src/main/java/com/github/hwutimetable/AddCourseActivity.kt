@@ -128,6 +128,8 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         var semester: Semester? = null
         var startTime = LocalTime.MIDNIGHT  // Will be changed when parser is set
 
+        resetFilter()
+
         val timetableDays = selectedCourses.map { course ->
             val code = getCourseCode(course)
             val name = getCourseName(course)
@@ -164,6 +166,11 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
 
         changeProgressBarVisibility(false)
         startViewTimetableActivity(timetable)
+    }
+
+    private suspend fun resetFilter() {
+        val filter = Scraper.FilterBuilder().getFilter()
+        scraper.getGroups(filter)
     }
 
     private fun getSemesterFromCode(courseCode: String): Int {
