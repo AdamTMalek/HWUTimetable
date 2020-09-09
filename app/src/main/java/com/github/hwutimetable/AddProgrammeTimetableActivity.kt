@@ -47,6 +47,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     private fun setProgrammeNameChangeListener() {
         groups_input.setOnItemClickListener { _, _, _, _ ->
             get_timetable.isEnabled = true
+            KeyboardManager.hideKeyboard(this)
         }
 
         groups_input.addTextChangedListener(object : TextWatcher {

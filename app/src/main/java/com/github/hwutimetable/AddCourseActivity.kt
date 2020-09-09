@@ -80,6 +80,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     private fun setGroupsInputChangeListener() {
         groups_input.setOnItemClickListener { _, _, _, _ ->
             add_course_button.isEnabled = true
+            KeyboardManager.hideKeyboard(this)
         }
 
         groups_input.addTextChangedListener(object : TextWatcher {
