@@ -90,8 +90,8 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
             }
 
             override fun afterTextChanged(s: Editable?) {
-                if (groupOptions.none { it.text == s?.toString() })
-                    add_course_button.isEnabled = false
+                val inputString = s?.toString() ?: return
+                add_course_button.isEnabled = groupOptions.any { it.text == inputString }
             }
         })
     }
