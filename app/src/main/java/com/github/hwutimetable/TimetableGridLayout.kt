@@ -27,8 +27,10 @@ import org.joda.time.Period
  * To use it, first populate the timetable into the grid layout by using
  * [addTimetableDay] passing [TimetableDay] as an argument.
  */
-class TimetableGridLayout(context: Context) : GridLayout(context) {
+class TimetableGridLayout(context: Context, private val startTime: LocalTime) : GridLayout(context) {
     private val emptyRows: MutableList<Int>
+
+    constructor(context: Context) : this(context, LocalTime.parse("9:00"))
 
     init {
         id = R.id.timetable_grid
@@ -144,7 +146,7 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * @return: Row index
      */
     private fun getRowIndexByTime(localTime: LocalTime): Int {
-        val dayStart = Period(9, 15, 0, 0)
+        val dayStart = Period(startTime.hourOfDay, startTime.minuteOfHour, 0, 0)
         val itemStart = Period(localTime.hourOfDay, localTime.minuteOfHour, 0, 0)
         val differenceMinutes = itemStart.minus(dayStart).toStandardMinutes().minutes
         return differenceMinutes / 15
@@ -177,8 +179,8 @@ class TimetableGridLayout(context: Context) : GridLayout(context) {
      * @return Time that the label should display as [String]
      */
     private fun getHourLabelText(index: Int): String {
-        var hours = 9
-        var minutes = 15
+        var hours = startTime.hourOfDay
+        var minutes = startTime.minuteOfHour
 
         for (i in 1..index) {
             minutes += 15

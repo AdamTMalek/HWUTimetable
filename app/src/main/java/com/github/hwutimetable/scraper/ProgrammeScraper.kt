@@ -80,7 +80,7 @@ class ProgrammeScraper @Inject constructor() : Scraper(), ProgrammeTimetableScra
         if (departmentFilterStatusCode != 200)
             return departmentFilterStatusCode
 
-        val levelFilterStatusCode = filterByLevel(department, level)
+        filterByLevel(department, level)
 
         state = ScraperState.Filtered
         return departmentFilterStatusCode

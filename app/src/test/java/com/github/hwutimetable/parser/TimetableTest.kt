@@ -20,7 +20,7 @@ class TimetableTest {
         val timetable = Timetable(
             arrayOf(),
             Timetable.Info(
-                "C01", "Test Timetable", Semester(LocalDate.now(), 1), false
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false
             )
         )
 
@@ -40,7 +40,7 @@ class TimetableTest {
                 createTimetableDay(Day.FRIDAY, 5)
             ),
             Timetable.Info(
-                "C01", "Test Timetable", Semester(LocalDate.now(), 1), false
+                "C01", "Test Timetable", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false
             )
         )
 
@@ -81,7 +81,7 @@ class TimetableTest {
         val timetableFile = File(sampleTimetablesDir, "test-timetable-org.html")
         val timetable = timetableHandler.getHtmlTimetable(
             timetableFile, Timetable.Info(
-                "xxx", "xxx", Semester(LocalDate.now(), 1), false
+                "xxx", "xxx", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false
             )
         )
 
@@ -101,7 +101,7 @@ class TimetableTest {
         val timetableFile = File(sampleTimetablesDir, "test-timetable-org.html")
         val timetable = timetableHandler.getHtmlTimetable(
             timetableFile, Timetable.Info(
-                "xxx", "xxx", Semester(LocalDate.now(), 1), false
+                "xxx", "xxx", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false
             )
         )
 
@@ -186,8 +186,8 @@ class TimetableTest {
                         "MBG44",
                         "",
                         TimetableClass.Type("Workshop", whiteColor),
-                        LocalTime.parse("13:15"),
-                        LocalTime.parse("16:15"),
+                        LocalTime.parse("13:00"),
+                        LocalTime.parse("16:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     )
                 )
@@ -200,8 +200,8 @@ class TimetableTest {
                         "LT2",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     ),
                 )
@@ -215,8 +215,8 @@ class TimetableTest {
                         "Online-Live",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     ),
                 )
@@ -229,15 +229,15 @@ class TimetableTest {
                         "JW1",
                         "Dr J. Hong",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("10:15"),
-                        LocalTime.parse("11:15"),
+                        LocalTime.parse("10:00"),
+                        LocalTime.parse("11:00"),
                         WeeksBuilder().setRange(1, 12).getWeeks()
                     ),
                 )
             )
         )
 
-        val timetableInfo = Timetable.Info("X", "X", Semester(LocalDate.now(), 1), true)
+        val timetableInfo = Timetable.Info("X", "X", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), true)
         val expectedTimetable = Timetable(timetableDays, timetableInfo)
         val actualTimetable = Timetable.fromTimetables(timetableInfo, listOf(linearControlTimetable, projectTimetable))
 
@@ -261,7 +261,7 @@ class TimetableTest {
 
         val timetable = timetableHandler.getHtmlTimetable(
             File(sampleTimetablesDir, "test-timetable-org.html"),
-            Timetable.Info("X", "X", Semester(LocalDate.now(), 1), false)
+            Timetable.Info("X", "X", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false)
         )
         val tuesdayClass = getSignalsClass(LocalTime.parse("10:15"), LocalTime.parse("11:15"))
         val signalsClasses = arrayOf(
@@ -304,5 +304,6 @@ class TimetableTest {
         )
     }
 
-    private fun getTimetableInfo() = Timetable.Info("T0", "Test Timetable", Semester(LocalDate.now(), 1), false)
+    private fun getTimetableInfo() =
+        Timetable.Info("T0", "Test Timetable", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false)
 }

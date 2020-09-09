@@ -1,5 +1,6 @@
 package com.github.hwutimetable.parser
 
+import org.joda.time.LocalTime
 import org.jsoup.nodes.Document
 import org.jsoup.select.Elements
 
@@ -13,5 +14,9 @@ class CourseTimetableParser(
 
     override fun getName(classInfoTables: Elements): String {
         return courseName
+    }
+
+    override fun getDayStartTime(): LocalTime {
+        return LocalTime.parse("9:00")
     }
 }

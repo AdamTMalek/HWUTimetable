@@ -30,8 +30,8 @@ class CourseTimetableParserTest {
                         "MBG44",
                         "",
                         TimetableClass.Type("Workshop", whiteColour),
-                        LocalTime.parse("13:15"),
-                        LocalTime.parse("16:15"),
+                        LocalTime.parse("13:00"),
+                        LocalTime.parse("16:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     )
                 )
@@ -43,8 +43,8 @@ class CourseTimetableParserTest {
                         "LT2",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColour),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     )
                 )
@@ -60,8 +60,8 @@ class CourseTimetableParserTest {
                         "Online-Live",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColour),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     )
                 )

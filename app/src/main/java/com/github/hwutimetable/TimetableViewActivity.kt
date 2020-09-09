@@ -26,6 +26,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_view_timetable.*
 import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import org.joda.time.DateTimeConstants
+import org.joda.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -46,7 +47,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
     private lateinit var wholeTimetable: Timetable
     private val toolbar: Toolbar by lazy {
-        findViewById<Toolbar>(R.id.toolbar)
+        findViewById(R.id.toolbar)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -144,7 +145,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
     private fun populateSpinner(currentWeek: Int) {
         val weeks = (1..12).toList()
-        val adapter = ArrayAdapter<Int>(this, R.layout.weeks_spinner_item, weeks)
+        val adapter = ArrayAdapter(this, R.layout.weeks_spinner_item, weeks)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         weeks_spinner.adapter = adapter
         weeks_spinner.setSelection(weeks.indexOf(currentWeek))
@@ -197,13 +198,13 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
      * A [FragmentPagerAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    inner class SectionsPagerAdapter(fm: FragmentManager, var timetable: Timetable) :
+    class SectionsPagerAdapter(fm: FragmentManager, var timetable: Timetable) :
         FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
         override fun getItem(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1, timetable.days[position])
+            return PlaceholderFragment.newInstance(position + 1, timetable.days[position], timetable.info.startTime)
         }
 
         override fun getItemPosition(`object`: Any): Int {
@@ -228,10 +229,6 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
      */
     class PlaceholderFragment : Fragment() {
         private lateinit var gridLayout: ViewGroup
-        private val viewGenerator by lazy {
-            TimetableViewGenerator(context!!)
-        }
-
         private lateinit var rootView: View
 
         override fun onCreateView(
@@ -247,6 +244,8 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
                 ?: throw Exception("TimetableClass list must not be null")
 
+            val startTime = arguments!!.getSerializable(ARG_START_TIME) as LocalTime
+            val viewGenerator = TimetableViewGenerator(context!!, startTime)
             val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
 
@@ -325,23 +324,26 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
              * The fragment argument representing the section number for this
              * fragment.
              */
-            private val ARG_SECTION_NUMBER = "section_number"
+            private const val ARG_SECTION_NUMBER = "section_number"
 
             /**
              * The fragment argument representing the timetable timetableClasses for this
              * fragment.
              */
-            private val ARG_SECTION_TIMETABLE = "section_items"
+            private const val ARG_SECTION_TIMETABLE = "section_items"
+
+            private const val ARG_START_TIME = "start_time"
 
             /**
              * Returns a new instance of this fragment for the given section
              * number.
              */
-            fun newInstance(sectionNumber: Int, timetableDay: TimetableDay): PlaceholderFragment {
+            fun newInstance(sectionNumber: Int, timetableDay: TimetableDay, startTime: LocalTime): PlaceholderFragment {
                 val fragment = PlaceholderFragment()
                 val args = Bundle()
                 args.putInt(ARG_SECTION_NUMBER, sectionNumber)
                 args.putParcelable(ARG_SECTION_TIMETABLE, timetableDay)
+                args.putSerializable(ARG_START_TIME, startTime)
                 fragment.arguments = args
                 return fragment
             }

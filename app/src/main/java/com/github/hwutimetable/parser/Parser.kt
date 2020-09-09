@@ -25,9 +25,10 @@ abstract class Parser(
     private val typeBackgroundProvider: TimetableClass.Type.BackgroundProvider
 ) : TimetableParser {
     private lateinit var timetableDays: Array<TimetableDay>
+    private lateinit var startTime: LocalTime  // Time of the first lecture
 
     init {
-        initTimetableDays()
+        init()
     }
 
     /**
@@ -82,10 +83,16 @@ abstract class Parser(
      * @param colIndex: Column index
      */
     private fun getTime(colIndex: Int): LocalTime {
-        var time = LocalTime(9, 15)
-        // colIndex 0 is the day column, 1 corresponds to 9:15.
+        var time = startTime
+        // colIndex 0 is the day column, 1 corresponds to the start time of the first lecture.
         colIndex.downTo(2).forEach { _ -> time = time.plusMinutes(15) }
         return time
+    }
+
+    private fun setStartTime() {
+        val timesRow = getTable().selectFirst("tbody").children().first()
+        val startTimeTableCell = timesRow.children()[1]
+        startTime = LocalTime.parse(startTimeTableCell.text())
     }
 
     /**
@@ -198,8 +205,19 @@ abstract class Parser(
 
     override fun setDocument(document: Document): TimetableParser {
         this.document = document
-        initTimetableDays()
+        init()
         return this
+    }
+
+    private fun init() {
+        if (document == null)
+            return
+
+        if (!documentHasParser())
+            throw ParserException("Document must have a Jsoup parser")
+
+        initTimetableDays()
+        setStartTime()
     }
 
     private fun initTimetableDays() {
@@ -218,10 +236,7 @@ abstract class Parser(
      */
     @Throws(ParserException::class)
     override fun getTimetable(): Array<TimetableDay> {
-        if (!documentHasParser())
-            throw ParserException("Document must have a Jsoup parser")
-
-        val daysTable = Jsoup.parse(document!!.selectFirst("table.grid-border-args").outerHtml())
+        val daysTable = getTable()
         for (day in 0..4) {
             val rows = findRowsOfDay(daysTable, day)
             addLecturesFromRows(rows, day)
@@ -229,4 +244,10 @@ abstract class Parser(
 
         return timetableDays
     }
+
+    override fun getDayStartTime(): LocalTime {
+        return startTime
+    }
+
+    private fun getTable() = Jsoup.parse(document!!.selectFirst("table.grid-border-args").outerHtml())
 }

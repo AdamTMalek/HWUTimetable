@@ -3,15 +3,19 @@ package com.github.hwutimetable.parser
 import com.github.hwutimetable.SampleTimetableHandler
 import com.github.hwutimetable.parser.exceptions.ParserException
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
+import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.File
+import java.io.FileNotFoundException
 
 class ProgrammeTimetableParserTest {
-    private val backgroundCss = javaClass.classLoader!!.getResource("activitytype.css")
+    private val classLoader = javaClass.classLoader!!
+    private val backgroundCss = classLoader.getResource("activitytype.css")
     private val typeBackgroundProvider = TimetableClass.Type.OnlineBackgroundProvider(backgroundCss)
     private val document: Document = SampleTimetableHandler(typeBackgroundProvider).getDocument(
         File("src/test/resources/sampleTimetables/test-timetable-org.html")
@@ -75,5 +79,31 @@ class ProgrammeTimetableParserTest {
         val actualStartDate = parser.getSemesterStartDate()
 
         assertEquals(expectedStartDate, actualStartDate)
+    }
+
+    @Test
+    fun testStartTime() {
+        fun getSampleTimetable(name: String): File {
+            return File(classLoader.getResource("sampleTimetables/$name").toURI())
+        }
+
+        fun getTimetableDays(file: File): Array<TimetableDay> {
+            if (!file.exists())
+                throw FileNotFoundException("File $file was not found")
+            val doc = Jsoup.parse(file, "UTF-8")
+            return ProgrammeTimetableParser(doc, typeBackgroundProvider).getTimetable()
+        }
+
+        // Old start times (9:15)
+        val oldTimetable = getTimetableDays(getSampleTimetable("test-timetable-org.html"))
+        // There is a Signals lecture at 9:15 on Tuesday
+        val signalsClass = oldTimetable[1].classes.first()
+        assertEquals(LocalTime.parse("9:15"), signalsClass.start)
+
+        // New start times (9:00)
+        val newTimetable = getTimetableDays(getSampleTimetable("new-times-timetable.html"))
+        // There is a Elect. Energy systems lecture at 9:00 on Monday
+        val systemsClass = newTimetable[0].classes.first()
+        assertEquals(LocalTime.parse("9:00"), systemsClass.start)
     }
 }
