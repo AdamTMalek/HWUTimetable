@@ -13,6 +13,7 @@ import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
 import kotlinx.coroutines.launch
+import org.joda.time.LocalTime
 
 /**
  * The [AddProgrammeTimetableActivity] is the activity for adding a programme timetable.
@@ -145,7 +146,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         val semesterStartDate = parser.getSemesterStartDate()
 
         val semester = Semester(semesterStartDate, semesterNumber)
-        val info = Timetable.Info(code, name, semester, false)
+        val info = Timetable.Info(code, name, semester, LocalTime.parse("9:00"), false)
         val timetable = Timetable(timetableDays, info)
 
         if (isSaveTimetableChecked()) {

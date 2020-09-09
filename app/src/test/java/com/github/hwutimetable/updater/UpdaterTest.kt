@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.jsoup.nodes.Document
 import org.junit.After
 import org.junit.Before
@@ -42,7 +43,8 @@ class UpdaterTest {
         TimetableFileHandler(testDir).save(timetable)
     }
 
-    private fun getTimetableInfo() = Timetable.Info("T0", "Test Timetable", Semester(LocalDate.now(), 1), false)
+    private fun getTimetableInfo() =
+        Timetable.Info("T0", "Test Timetable", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false)
 
     @After
     fun replaceWithCopy() {

@@ -38,6 +38,7 @@ import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -130,7 +131,7 @@ class MainActivityTest {
     private fun populateInfoList() {
         fun getInfo(): Timetable.Info {
             val semester = Semester(LocalDate.now(), 1)
-            return Timetable.Info("C01", "Test", semester, false)
+            return Timetable.Info("C01", "Test", semester, LocalTime.parse("9:00"), false)
         }
 
         listOf(

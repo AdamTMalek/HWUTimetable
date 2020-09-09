@@ -7,6 +7,7 @@ import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import com.github.hwutimetable.parser.TimetableDay
+import org.joda.time.LocalTime
 
 
 /**
@@ -28,13 +29,13 @@ import com.github.hwutimetable.parser.TimetableDay
  * holding all TextViews that contain information regarding the item
  * (type, lecturer, room etc.).
  */
-class TimetableViewGenerator(private val context: Context) {
+class TimetableViewGenerator(private val context: Context, private val startTime: LocalTime) {
     /**
      * Constructs the [ScrollView] with all the [timetable] information inserted
      * @return [ScrollView] with the timetable timetableClasses
      */
     fun getTimetableItemView(timetable: TimetableDay): ViewGroup {
-        return TimetableGridLayout(context).apply {
+        return TimetableGridLayout(context, startTime).apply {
             addTimetableDay(timetable)
         }
     }

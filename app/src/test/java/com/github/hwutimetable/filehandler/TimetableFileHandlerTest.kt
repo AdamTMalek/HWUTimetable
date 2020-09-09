@@ -98,7 +98,7 @@ class TimetableFileHandlerTest {
         return Timetable(
             generateTimetableDays(),
             Timetable.Info(
-                code, "Test Timetable", Semester(LocalDate.now(), 1), false
+                code, "Test Timetable", Semester(LocalDate.now(), 1), LocalTime.parse("9:00"), false
             )
         )
     }

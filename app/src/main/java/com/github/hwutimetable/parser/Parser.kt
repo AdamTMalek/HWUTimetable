@@ -25,7 +25,7 @@ abstract class Parser(
     private val typeBackgroundProvider: TimetableClass.Type.BackgroundProvider
 ) : TimetableParser {
     private lateinit var timetableDays: Array<TimetableDay>
-    private lateinit var dayStartTime: LocalTime  // Time of the first lecture
+    private lateinit var startTime: LocalTime  // Time of the first lecture
 
     init {
         init()
@@ -83,7 +83,7 @@ abstract class Parser(
      * @param colIndex: Column index
      */
     private fun getTime(colIndex: Int): LocalTime {
-        var time = dayStartTime
+        var time = startTime
         // colIndex 0 is the day column, 1 corresponds to the start time of the first lecture.
         colIndex.downTo(2).forEach { _ -> time = time.plusMinutes(15) }
         return time
@@ -92,7 +92,7 @@ abstract class Parser(
     private fun setStartTime() {
         val timesRow = getTable().selectFirst("tbody").children().first()
         val startTimeTableCell = timesRow.children()[1]
-        dayStartTime = LocalTime.parse(startTimeTableCell.text())
+        startTime = LocalTime.parse(startTimeTableCell.text())
     }
 
     /**
@@ -243,6 +243,10 @@ abstract class Parser(
         }
 
         return timetableDays
+    }
+
+    override fun getDayStartTime(): LocalTime {
+        return startTime
     }
 
     private fun getTable() = Jsoup.parse(document!!.selectFirst("table.grid-border-args").outerHtml())

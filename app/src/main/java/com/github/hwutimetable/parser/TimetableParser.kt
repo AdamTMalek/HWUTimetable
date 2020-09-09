@@ -1,6 +1,7 @@
 package com.github.hwutimetable.parser
 
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.jsoup.nodes.Document
 
 interface TimetableParser {
@@ -19,4 +20,9 @@ interface TimetableParser {
      * Get the timetable days from the set document
      */
     fun getTimetable(): Array<TimetableDay>
+
+    /**
+     * Get the start time of the day
+     */
+    fun getDayStartTime(): LocalTime
 }

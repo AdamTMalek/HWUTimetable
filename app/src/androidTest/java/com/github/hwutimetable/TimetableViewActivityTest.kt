@@ -31,6 +31,7 @@ import junit.framework.TestCase.assertEquals
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
+import org.joda.time.LocalTime
 import org.junit.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -64,7 +65,10 @@ class TimetableViewActivityTest {
         val document = SampleTimetableHandler(backgroundProvider).getDocument(input)!!
         val parser = ProgrammeTimetableParser(document, backgroundProvider)
         val days = parser.getTimetable()
-        Timetable(days, Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), false))
+        Timetable(
+            days,
+            Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), LocalTime.parse("9:00"), false)
+        )
     }
 
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
@@ -336,5 +340,15 @@ class TimetableViewActivityTest {
         ).perform(longClick())
         Espresso.onView(withId(R.id.close_class_info)).perform(click())
         Espresso.onView(withId(R.id.item_info_grid)).check(doesNotExist())
+    }
+
+    @Test
+    fun testOldTimetableStartTime() {
+        // TODO
+    }
+
+    @Test
+    fun testNewTimetableStartTime() {
+        // TODO
     }
 }
