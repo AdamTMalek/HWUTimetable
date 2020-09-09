@@ -80,7 +80,7 @@
                 android:id="@+id/groups_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/enter_course_name"
+                android:hint="@string/enter_programme_name"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:inputType="textNoSuggestions"
