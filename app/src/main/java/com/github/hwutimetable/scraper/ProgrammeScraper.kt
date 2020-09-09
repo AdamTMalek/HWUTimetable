@@ -96,8 +96,8 @@ class ProgrammeScraper @Inject constructor() : Scraper(), ProgrammeTimetableScra
             "Illegal state for getGroups. Must be OnTimetablesSite or Filter."
         }
 
-        val department = filters.getValue("department") as String
-        val level = filters.getValue("level") as String
+        val department = filters["department"] as? String ?: ""
+        val level = filters["level"] as? String ?: ""
 
         // Apply the filter
         filter(department, level)

@@ -3,6 +3,8 @@ package com.github.hwutimetable
 import android.app.ActivityOptions
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
@@ -13,6 +15,12 @@ import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
 import kotlinx.android.synthetic.main.activity_add_course_timetable.*
+import kotlinx.android.synthetic.main.activity_add_course_timetable.departments_spinner
+import kotlinx.android.synthetic.main.activity_add_course_timetable.get_timetable
+import kotlinx.android.synthetic.main.activity_add_course_timetable.groups_input
+import kotlinx.android.synthetic.main.activity_add_course_timetable.save_checkbox
+import kotlinx.android.synthetic.main.activity_add_course_timetable.semester_spinner
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -70,6 +78,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
         setSpinnerSelectionListener()
         setClosestSemester()
         setGetTimetableButtonClickHandler()
+        setGroupInputChangeListener()
 
         mainScope.launch {
             populateSpinners()
@@ -79,6 +88,28 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
     private fun setGetTimetableButtonClickHandler() {
         getTimetableButton.setOnClickListener { onGetTimetableButtonClick() }
     }
+
+    private fun setGroupInputChangeListener() {
+        groups_input.setOnItemClickListener { _, _, _, _ ->
+            get_timetable.isEnabled = true
+            KeyboardManager.hideKeyboard(this)
+        }
+
+        groups_input.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val inputString = s?.toString() ?: return
+                onGroupValidated(groupOptions.any { it.text == inputString })
+            }
+        })
+    }
+
+    protected abstract fun onGroupValidated(valid: Boolean)
 
     protected abstract fun onGetTimetableButtonClick()
 
@@ -147,7 +178,14 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
     /**
      * Populates a view with the elements in [groupOptions]
      */
-    protected abstract fun populateGroupsInput()
+    private fun populateGroupsInput() {
+        groups_input.setAdapter(
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                groupOptions.map { it.text })
+        )
+    }
 
     /**
      * Changes the visibility of the [progress_bar] depending on the passed value.

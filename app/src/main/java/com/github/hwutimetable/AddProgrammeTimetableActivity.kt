@@ -11,7 +11,12 @@ import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_add_course_timetable.*
 import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.departments_spinner
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.get_timetable
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.groups_input
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.semester_spinner
 import kotlinx.coroutines.launch
 
 /**
@@ -35,6 +40,10 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         setTitle(R.string.add_programme_activity_title)
     }
 
+    override fun onGroupValidated(valid: Boolean) {
+        get_timetable.isEnabled = valid
+    }
+
     /**
      * Sets the selection listener on all the spinners of the activity.
      */
@@ -46,7 +55,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     override fun onGetTimetableButtonClick() {
         get_timetable.setOnClickListener {
             val groupOption = groupOptions.find {
-                it.text == groups_spinner.selectedItem.toString()
+                it.text == groups_input.text.toString()
             }!!
 
             val semester = getSemesterFromName((groupOption.text))
@@ -93,14 +102,6 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     }
 
     /**
-     * Populates the [groups_spinner] with the groups and enables the [get_timetable] button.
-     */
-    override fun populateGroupsInput() {
-        populateSpinner(findViewById(R.id.groups_spinner), groupOptions.map { it.text })
-        get_timetable.isEnabled = true
-    }
-
-    /**
      * Callback for all Spinners
      */
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -110,13 +111,15 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         if (selectedDepartment == null || selectedLevel == null)
             return
 
-        if (selectedDepartment.text == "(Any Department)" || selectedLevel.text == "(Any Level)")
-            return // We require both filters
+        val filterBuilder = Scraper.FilterBuilder()
 
-        val filter = Scraper.FilterBuilder()
-            .withDepartment(selectedDepartment.optionValue)
-            .withLevel(selectedLevel.optionValue)
-            .getFilter()
+        if (selectedDepartment.text != "(Any Department)")
+            filterBuilder.withDepartment(selectedDepartment.optionValue)
+
+        if (selectedDepartment.text != "(Any Level)")
+            filterBuilder.withLevel(selectedLevel.optionValue)
+
+        val filter = filterBuilder.getFilter()
 
         mainScope.launch {
             changeProgressBarVisibility(true)
