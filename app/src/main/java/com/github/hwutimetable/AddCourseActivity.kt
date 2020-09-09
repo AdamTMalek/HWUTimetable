@@ -4,7 +4,6 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.CourseTimetableParser
@@ -32,7 +31,6 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         add_course_button.isEnabled = false
         get_timetable.isEnabled = false
 
-        setGroupsInputChangeListener()
         addAddCourseClickHandler()
     }
 
@@ -77,33 +75,8 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         })
     }
 
-    private fun setGroupsInputChangeListener() {
-        groups_input.setOnItemClickListener { _, _, _, _ ->
-            add_course_button.isEnabled = true
-            KeyboardManager.hideKeyboard(this)
-        }
-
-        groups_input.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                val inputString = s?.toString() ?: return
-                add_course_button.isEnabled = groupOptions.any { it.text == inputString }
-            }
-        })
-    }
-
-    override fun populateGroupsInput() {
-        groups_input.setAdapter(
-            ArrayAdapter<String>(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                groupOptions.map { it.text })
-        )
+    override fun onGroupValidated(valid: Boolean) {
+        add_course_button.isEnabled = valid
     }
 
     override fun filterGroupsBySemester() {

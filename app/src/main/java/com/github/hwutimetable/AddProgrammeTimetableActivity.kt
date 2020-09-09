@@ -1,10 +1,7 @@
 package com.github.hwutimetable
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
@@ -41,27 +38,10 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     override fun setupView() {
         setContentView(R.layout.activity_add_programme_timetable)
         setTitle(R.string.add_programme_activity_title)
-        setProgrammeNameChangeListener()
     }
 
-    private fun setProgrammeNameChangeListener() {
-        groups_input.setOnItemClickListener { _, _, _, _ ->
-            get_timetable.isEnabled = true
-            KeyboardManager.hideKeyboard(this)
-        }
-
-        groups_input.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                val inputString = s?.toString() ?: return
-                get_timetable.isEnabled = groupOptions.any { it.text == inputString }
-            }
-        })
+    override fun onGroupValidated(valid: Boolean) {
+        get_timetable.isEnabled = valid
     }
 
     /**
@@ -119,18 +99,6 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     override fun filterGroupsBySemester() {
         val selectedSemester = semester_spinner.selectedItem as String
         groupOptions.clearAndAddAll(groupOptions.filter { it.text.contains(selectedSemester, ignoreCase = true) })
-    }
-
-    /**
-     * Populates the [groups_spinner] with the groups and enables the [get_timetable] button.
-     */
-    override fun populateGroupsInput() {
-        groups_input.setAdapter(
-            ArrayAdapter(
-                this,
-                android.R.layout.simple_dropdown_item_1line,
-                groupOptions.map { it.text })
-        )
     }
 
     /**
