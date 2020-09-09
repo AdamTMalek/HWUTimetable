@@ -29,10 +29,12 @@ generate timetable by selecting individual courses.
 ![hwut-main-empty-add-expanded](https://user-images.githubusercontent.com/23484014/92588334-bf7bde80-f290-11ea-9ee2-5eb618ed4327.png)
 
 ### Adding a programme timetable
-Clicking "Add Programme" will take you to another screen where you need to choose the department, the level and the group.
+Clicking "Add Programme" will take you to another screen where you can either choose the department, the level and then
+type in the name of the programme, or you can type the name straight away.
+
 There is no need to choose the semester like on the website - this will be done automatically by the app.
 
-![adding](https://user-images.githubusercontent.com/23484014/88577279-aac7ec00-d03e-11ea-9f67-3eed41750213.png)
+![hwut-add-programme](https://user-images.githubusercontent.com/23484014/92616310-f9131080-f2b5-11ea-963a-e63413b39c02.png)
 
 ### Adding a timetable by selecting individual courses
 
