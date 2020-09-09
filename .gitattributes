@@ -1,2 +1,3 @@
-# Exclude HTML files from language stats
+# Exclude HTML and CSS files from language stats
 *.html linguist-vendored
+*.css linguist-vendored
