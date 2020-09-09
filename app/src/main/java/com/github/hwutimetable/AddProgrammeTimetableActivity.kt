@@ -1,7 +1,10 @@
 package com.github.hwutimetable
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
@@ -11,7 +14,12 @@ import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.activity_add_course_timetable.*
 import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.departments_spinner
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.get_timetable
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.groups_input
+import kotlinx.android.synthetic.main.activity_add_programme_timetable.semester_spinner
 import kotlinx.coroutines.launch
 
 /**
@@ -33,6 +41,26 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     override fun setupView() {
         setContentView(R.layout.activity_add_programme_timetable)
         setTitle(R.string.add_programme_activity_title)
+        setProgrammeNameChangeListener()
+    }
+
+    private fun setProgrammeNameChangeListener() {
+        groups_input.setOnItemClickListener { _, _, _, _ ->
+            get_timetable.isEnabled = true
+        }
+
+        groups_input.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                val inputString = s?.toString() ?: return
+                get_timetable.isEnabled = groupOptions.any { it.text == inputString }
+            }
+        })
     }
 
     /**
@@ -46,7 +74,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
     override fun onGetTimetableButtonClick() {
         get_timetable.setOnClickListener {
             val groupOption = groupOptions.find {
-                it.text == groups_spinner.selectedItem.toString()
+                it.text == groups_input.text.toString()
             }!!
 
             val semester = getSemesterFromName((groupOption.text))
@@ -96,8 +124,12 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
      * Populates the [groups_spinner] with the groups and enables the [get_timetable] button.
      */
     override fun populateGroupsInput() {
-        populateSpinner(findViewById(R.id.groups_spinner), groupOptions.map { it.text })
-        get_timetable.isEnabled = true
+        groups_input.setAdapter(
+            ArrayAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                groupOptions.map { it.text })
+        )
     }
 
     /**
@@ -110,13 +142,15 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
         if (selectedDepartment == null || selectedLevel == null)
             return
 
-        if (selectedDepartment.text == "(Any Department)" || selectedLevel.text == "(Any Level)")
-            return // We require both filters
+        val filterBuilder = Scraper.FilterBuilder()
 
-        val filter = Scraper.FilterBuilder()
-            .withDepartment(selectedDepartment.optionValue)
-            .withLevel(selectedLevel.optionValue)
-            .getFilter()
+        if (selectedDepartment.text != "(Any Department)")
+            filterBuilder.withDepartment(selectedDepartment.optionValue)
+
+        if (selectedDepartment.text != "(Any Level)")
+            filterBuilder.withLevel(selectedLevel.optionValue)
+
+        val filter = filterBuilder.getFilter()
 
         mainScope.launch {
             changeProgressBarVisibility(true)
