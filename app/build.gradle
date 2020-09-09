@@ -17,7 +17,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 29
         versionCode 1
-        versionName "0.91"
+        versionName "0.92"
         testInstrumentationRunner "com.github.hwutimetable.HiltTestRunner"
     }
     buildTypes {
