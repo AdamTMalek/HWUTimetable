@@ -186,8 +186,8 @@ class TimetableTest {
                         "MBG44",
                         "",
                         TimetableClass.Type("Workshop", whiteColor),
-                        LocalTime.parse("13:15"),
-                        LocalTime.parse("16:15"),
+                        LocalTime.parse("13:00"),
+                        LocalTime.parse("16:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     )
                 )
@@ -200,8 +200,8 @@ class TimetableTest {
                         "LT2",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     ),
                 )
@@ -215,8 +215,8 @@ class TimetableTest {
                         "Online-Live",
                         "Dr M. Dunnigan",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("12:15"),
-                        LocalTime.parse("13:15"),
+                        LocalTime.parse("12:00"),
+                        LocalTime.parse("13:00"),
                         WeeksBuilder().setRange(1, 11).getWeeks()
                     ),
                 )
@@ -229,8 +229,8 @@ class TimetableTest {
                         "JW1",
                         "Dr J. Hong",
                         TimetableClass.Type("All Students", whiteColor),
-                        LocalTime.parse("10:15"),
-                        LocalTime.parse("11:15"),
+                        LocalTime.parse("10:00"),
+                        LocalTime.parse("11:00"),
                         WeeksBuilder().setRange(1, 12).getWeeks()
                     ),
                 )
