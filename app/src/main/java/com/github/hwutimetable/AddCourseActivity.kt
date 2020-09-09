@@ -152,6 +152,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
 
     private suspend fun getTimetable() {
         var semester: Semester? = null
+        var startTime = LocalTime.MIDNIGHT  // Will be changed when parser is set
 
         val timetableDays = selectedCourses.map { course ->
             val code = getCourseCode(course)
@@ -167,6 +168,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
             val parser = CourseTimetableParser(code, name, document, TimetableClass.Type.OnlineBackgroundProvider())
 
             val timetable = parser.getTimetable()
+            startTime = parser.getDayStartTime()
 
             if (semester == null)
                 semester = Semester(parser.getSemesterStartDate(), semesterNumber)
@@ -178,7 +180,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
         val dateTimeStamp = currentDateProvider.getCurrentDateTime().toString("ddMMYYYYHHmm")
         val info = Timetable.Info(
             "GEN$dateTimeStamp", timetable_name.text.toString(), semester!!,
-            LocalTime.parse("9:00"), true
+            startTime, true
         )
         val timetable = Timetable.fromTimetables(info, timetableDays)
 
