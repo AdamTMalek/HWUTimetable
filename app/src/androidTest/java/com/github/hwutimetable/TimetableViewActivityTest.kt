@@ -61,14 +61,7 @@ class TimetableViewActivityTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
     private val timetable: Timetable by lazy {
-        val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
-        val document = SampleTimetableHandler(backgroundProvider).getDocument(input)!!
-        val parser = ProgrammeTimetableParser(document, backgroundProvider)
-        val days = parser.getTimetable()
-        Timetable(
-            days,
-            Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), LocalTime.parse("9:00"), false)
-        )
+        getTimetable()
     }
 
     private val aiLectureCode = "F29AI-S1"  // First lecture on Friday, weeks 2-11
@@ -107,6 +100,10 @@ class TimetableViewActivityTest {
     }
 
     private fun startActivity() {
+        startActivity(timetable)
+    }
+
+    private fun startActivity(timetable: Timetable) {
         val intent = Intent(targetContext, TimetableViewActivity::class.java)
         intent.putExtra("timetable", timetable)
         scenario = ActivityScenario.launch(intent)
@@ -344,11 +341,31 @@ class TimetableViewActivityTest {
 
     @Test
     fun testOldTimetableStartTime() {
-        // TODO
+        val startTime = LocalTime.parse("9:00")
+        val timetable = getTimetable(startTime)
+        startActivity(timetable)
+
+        Espresso.onView(thatMatchesFirst(withText("9:00"))).check(matches(isDisplayed()))
     }
 
     @Test
     fun testNewTimetableStartTime() {
-        // TODO
+        val startTime = LocalTime.parse("9:15")
+        val timetable = getTimetable(startTime)
+        startActivity(timetable)
+
+        Espresso.onView(thatMatchesFirst(withText("9:15"))).check(matches(isDisplayed()))
+    }
+
+
+    private fun getTimetable(startTime: LocalTime = LocalTime.parse("9:00")): Timetable {
+        val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)
+        val document = SampleTimetableHandler(backgroundProvider).getDocument(input)!!
+        val parser = ProgrammeTimetableParser(document, backgroundProvider)
+        val days = parser.getTimetable()
+        return Timetable(
+            days,
+            Timetable.Info("C01", "N01", Semester(parser.getSemesterStartDate(), 1), startTime, false)
+        )
     }
 }
