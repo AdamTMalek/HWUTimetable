@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
  */
 class UpdateService : Service(), OnUpdateFinishedListener {
     private val logTag = "UpdateService"
-    private val updater = Updater(this.filesDir, this)
+    private val updater by lazy { Updater(this.filesDir, this) }
 
     override fun onCreate() {
     }
