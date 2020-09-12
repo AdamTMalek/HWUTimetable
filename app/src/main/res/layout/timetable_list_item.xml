@@ -13,7 +13,7 @@
             android:useDefaultMargins="true">
         <TextView
                 android:id="@+id/timetable_title"
-                android:textColor="@color/textColor"
+                android:textColor="#000"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_gravity="center_vertical"
