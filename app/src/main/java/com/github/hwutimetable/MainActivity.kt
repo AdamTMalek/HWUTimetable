@@ -139,7 +139,16 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
                         onItemClick(position)
                     }
 
-                    override fun onItemLongClick(view: View, position: Int) {}
+                    override fun onItemLongClick(view: View, position: Int) {
+                        val timetableTitle = view.findViewById<TextView>(R.id.timetable_title)
+                        val currentName = timetableTitle.text
+                        RenameTimetableDialog.showDialog(view.context, currentName) { newName ->
+                            val timetableInfo = infoList.find { it.name == currentName }!!
+                            timetableInfo.name = newName
+                            timetableTitle.text = newName
+                            timetableHandler.updateName(timetableInfo)
+                        }
+                    }
                 })
         )
     }
