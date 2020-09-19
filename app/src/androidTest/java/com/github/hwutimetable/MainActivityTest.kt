@@ -119,6 +119,7 @@ class MainActivityTest {
     @Inject
     lateinit var networkUtils: NetworkUtils
 
+    private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
     @Before
@@ -296,7 +297,7 @@ class MainActivityTest {
         launchActivity()
 
         // Open menu
-        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
 
         // Find settings menu entry (withId does not work)
         Espresso.onView(withText(R.string.action_settings))
@@ -312,7 +313,7 @@ class MainActivityTest {
     fun testDeleteAllDisplaysAlertDialog() {
         launchActivity()
         // Open menu
-        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
         // Find delete all menu entry
         Espresso.onView(withText(R.string.delete_all))
             .perform(click())
@@ -328,7 +329,7 @@ class MainActivityTest {
         launchActivity()
 
         // Get the dialog to display, click on the OK button
-        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
         Espresso.onView(withText(R.string.delete_all)).perform(click())
         Espresso.onView(withId(android.R.id.button1)).perform(click())
 
@@ -344,7 +345,7 @@ class MainActivityTest {
         launchActivity()
 
         // Get the dialog to display, click on the OK button
-        Espresso.openActionBarOverflowOrOptionsMenu(getContext())
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
         Espresso.onView(withText(R.string.delete_all)).perform(click())
         Espresso.onView(withId(android.R.id.button2)).perform(click())
 
@@ -396,8 +397,6 @@ class MainActivityTest {
 
         assertNotNull(timetableFileHandler.getStoredTimetables().find { it.name == "Renamed Timetable" })
     }
-
-    private fun getContext() = InstrumentationRegistry.getInstrumentation().context
 
     /**
      * Finish the activity and clean up the device state
