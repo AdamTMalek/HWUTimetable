@@ -20,7 +20,7 @@ object RenameTimetableDialog {
             setText(currentName)
         }
         return with(builder) {
-            setTitle("Rename Timetable")
+            setTitle(activity.getString(R.string.rename_dialog_title))
             setView(editTextView)
             setPositiveButton("Rename") { _, _ -> renameListener.onRenameComplete(editText.text.toString()) }
             setNegativeButton("Cancel") { dialog, _ -> dialog.cancel() }
