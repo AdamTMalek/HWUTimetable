@@ -1,6 +1,7 @@
 package com.github.hwutimetable
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.widget.Spinner
 import android.widget.TextView
@@ -14,6 +15,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
+import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
@@ -22,8 +24,10 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
@@ -33,14 +37,24 @@ import org.hamcrest.Matchers.allOf
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.junit.*
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltAndroidTest
-@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class])
+@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class, FileModule::class])
 class TimetableViewActivityTest {
     private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
         override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
+    }
+
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    object TestTimetableFileHandlerModule {
+        @Provides
+        fun provideDirectory(@ApplicationContext context: Context): File {
+            return File(context.filesDir, "/test/")
+        }
     }
 
     @Module
