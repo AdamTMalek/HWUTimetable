@@ -119,6 +119,8 @@ class MainActivityTest {
     @Inject
     lateinit var networkUtils: NetworkUtils
 
+    private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+
     @Before
     fun init() {
         hiltRule.inject()
@@ -358,7 +360,7 @@ class MainActivityTest {
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
-        Espresso.onView(withText("Rename Timetable")).check(matches(isDisplayed()))
+        Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(matches(isDisplayed()))
     }
 
     @Test
@@ -368,7 +370,7 @@ class MainActivityTest {
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
         Espresso.onView(withText("Cancel")).perform(click())
-        Espresso.onView(withText("Rename Timetable")).check(doesNotExist())
+        Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(doesNotExist())
     }
 
     @Test
