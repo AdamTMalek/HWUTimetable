@@ -8,7 +8,8 @@ import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
@@ -35,8 +36,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
+import junit.framework.TestCase.*
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.junit.After
@@ -128,17 +128,25 @@ class MainActivityTest {
         scenario = ActivityScenario.launch(MainActivity::class.java)
     }
 
+    /**
+     * Populates the info list with 3 timetables. Each named Timetable [1, 2 or 3]
+     */
     private fun populateInfoList() {
-        fun getInfo(): Timetable.Info {
+        fun getInfo(timetableNumber: Int): Timetable.Info {
             val semester = Semester(LocalDate.now(), 1)
-            return Timetable.Info("C01", "Test", semester, LocalTime.parse("9:00"), false)
+            val code = "C${timetableNumber.toString().padStart(2, '0')}"
+            return Timetable.Info(code, "Timetable $timetableNumber", semester, LocalTime.parse("9:00"), false)
         }
 
-        listOf(
-            Timetable(emptyArray(), getInfo()),
-            Timetable(emptyArray(), getInfo()),
-            Timetable(emptyArray(), getInfo())
-        ).forEach { timetable ->
+        val timetables = sequence {
+            var number = 1
+            while (true) {
+                yield(Timetable(emptyArray(), getInfo(number)))
+                number++
+            }
+        }
+
+        timetables.take(3).forEach { timetable ->
             timetableFileHandler.save(timetable)
         }
     }
@@ -342,6 +350,49 @@ class MainActivityTest {
             view as RecyclerView
             assertTrue(view.isNotEmpty())
         }
+    }
+
+    @Test
+    fun testRenameDialogPopsUp() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText("Rename Timetable")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testRenameDialogCancel() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText("Cancel")).perform(click())
+        Espresso.onView(withText("Rename Timetable")).check(doesNotExist())
+    }
+
+    @Test
+    fun testRenameDialogRenameWorksInActivity() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withId(R.id.edit_timetable_title)).perform(clearText(), typeText("Renamed Timetable"))
+        Espresso.onView(withText("Rename")).perform(click())
+
+        Espresso.onView(withText("Renamed Timetable")).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testRenameUpdatesInfo() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withId(R.id.edit_timetable_title)).perform(clearText(), typeText("Renamed Timetable"))
+        Espresso.onView(withText("Rename")).perform(click())
+
+        assertNotNull(timetableFileHandler.getStoredTimetables().find { it.name == "Renamed Timetable" })
     }
 
     private fun getContext() = InstrumentationRegistry.getInstrumentation().context
