@@ -18,6 +18,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
+import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Clashes
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableDay
@@ -41,6 +42,9 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
     private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+
+    @Inject
+    lateinit var timetableHandler: TimetableFileHandler
 
     @Inject
     lateinit var dateProvider: CurrentDateProvider
@@ -126,6 +130,10 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
+            R.id.rename -> {
+                showRenameTimetableDialog()
+                true
+            }
             R.id.action_settings -> {
                 openSettings()
                 true
@@ -136,6 +144,18 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    private fun showRenameTimetableDialog() {
+        RenameTimetableDialog.showDialog(this, wholeTimetable.info.name) { name ->
+            renameTimetable(name)
+        }
+    }
+
+    private fun renameTimetable(newName: String) {
+        wholeTimetable.info.name = newName
+        toolbar.title = newName
+        timetableHandler.updateName(wholeTimetable.info)
     }
 
     private fun openSettings() {
