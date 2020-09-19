@@ -103,6 +103,15 @@ class TimetableFileHandler @Inject constructor(private val directory: File) {
     }
 
     /**
+     * Updates the name of a stored timetable.
+     */
+    fun updateName(updatedInfo: Timetable.Info) {
+        val timetable = getTimetable(updatedInfo)
+        timetable.info.name = updatedInfo.name
+        save(timetable)
+    }
+
+    /**
      * Deletes the timetable using its info
      * @throws FileNotFoundException when the timetable does not exist
      */

@@ -26,12 +26,11 @@ data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable
     @Parcelize
     data class Info(
         val code: String,
-        val name: String,
+        var name: String,
         val semester: Semester,
         val startTime: LocalTime,
         val isAppGenerated: Boolean
-    ) :
-        Parcelable
+    ) : Parcelable
 
     /**
      * Get total timetableClasses in the timetable (includes clashes - if they exists
