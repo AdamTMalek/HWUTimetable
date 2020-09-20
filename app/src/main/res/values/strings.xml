@@ -81,4 +81,7 @@
     <string name="timetable_name_placeholder">My main timetable</string>
     <string name="enter_course_name">Enter course name</string>
     <string name="enter_programme_name">Enter programme name</string>
+    <string name="edit_timetable">Edit timetable name</string>
+    <string name="rename_dialog_title">Rename timetable</string>
+    <string name="rename">Rename</string>
 </resources>

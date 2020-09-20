@@ -1,20 +1,23 @@
 package com.github.hwutimetable
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.action.ViewActions.longClick
+import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
+import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
+import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
 import com.github.hwutimetable.parser.Timetable
@@ -22,25 +25,39 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertNotNull
 import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.instanceOf
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.junit.*
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @HiltAndroidTest
-@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class])
+@UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class, FileModule::class])
 class TimetableViewActivityTest {
     private val backgroundProvider = object : TimetableClass.Type.BackgroundProvider {
         override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
+    }
+
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    object TestTimetableFileHandlerModule {
+        @Provides
+        fun provideDirectory(@ApplicationContext context: Context): File {
+            return File(context.filesDir, "/test/")
+        }
     }
 
     @Module
@@ -71,6 +88,9 @@ class TimetableViewActivityTest {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var fileHandler: TimetableFileHandler
 
     @Inject
     lateinit var dateProvider: CurrentDateProvider
@@ -357,6 +377,25 @@ class TimetableViewActivityTest {
         Espresso.onView(thatMatchesFirst(withText("9:15"))).check(matches(isDisplayed()))
     }
 
+    @Test
+    fun testRenameOpensDialog() {
+        startActivity()
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
+        Espresso.onView(withText("Rename")).perform(click())
+
+        Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testRenamingWorks() {
+        startActivity()
+        Espresso.openActionBarOverflowOrOptionsMenu(context)
+        Espresso.onView(withText("Rename")).perform(click())
+        Espresso.onView(withId(R.id.edit_timetable_title)).perform(clearText(), typeText("Renamed timetable"))
+        Espresso.onView(allOf(withText("Rename"), instanceOf(Button::class.java))).perform(click())
+
+        assertNotNull(fileHandler.getStoredTimetables().find { it.name == "Renamed timetable" })
+    }
 
     private fun getTimetable(startTime: LocalTime = LocalTime.parse("9:00")): Timetable {
         val input = context.resources.openRawResource(com.github.hwutimetable.test.R.raw.tt1)

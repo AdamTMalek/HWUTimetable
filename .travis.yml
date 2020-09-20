@@ -1,4 +1,6 @@
 language: android
+dist: xenial
+os: linux
 
 android:
   components:
@@ -29,4 +31,4 @@ before_script:
 
 script:
   - ./gradlew build assembleDebug
-  - ./gradlew connectedAndroidTest
+  - travis_wait 20 ./gradlew connectedAndroidTest
