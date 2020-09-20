@@ -31,5 +31,4 @@ before_script:
 
 script:
   - ./gradlew build assembleDebug
-  - travis_wait 20
-  - ./gradlew connectedAndroidTest
+  - travis_wait 20 ./gradlew connectedAndroidTest
