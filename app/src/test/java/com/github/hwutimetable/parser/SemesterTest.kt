@@ -17,8 +17,24 @@ class SemesterTest {
     }
 
     @Test
+    fun testGetFirstWeekBeforeSemesterStarts() {
+        val currentDate = LocalDate(2020, 1, 1)
+        val week = semester.getWeek(currentDate)
+
+        assertEquals(1, week)
+    }
+
+    @Test
     fun testGetLastWeek() {
         val currentDate = LocalDate(2020, 4, 5)
+        val week = semester.getWeek(currentDate)
+
+        assertEquals(12, week)
+    }
+
+    @Test
+    fun testGetLastWeekAfterSemesterEnds() {
+        val currentDate = LocalDate(2020, 5, 1)
         val week = semester.getWeek(currentDate)
 
         assertEquals(12, week)
@@ -30,5 +46,27 @@ class SemesterTest {
         val week = semester.getWeek(currentDate)
 
         assertEquals(5, week)
+    }
+
+    /**
+     * This test will check if during the weekend, the next week will be returned.
+     */
+    @Test
+    fun testReturnsNextWeekOnSaturday() {
+        val saturday = LocalDate(2020, 1, 18)
+        val week = semester.getWeek(saturday)
+
+        assertEquals(2, week)
+    }
+
+    /**
+     * This test will check if during the weekend, the next week will be returned.
+     */
+    @Test
+    fun testReturnsNextWeekOnSunday() {
+        val sunday = LocalDate(2020, 1, 19)
+        val week = semester.getWeek(sunday)
+
+        assertEquals(2, week)
     }
 }
