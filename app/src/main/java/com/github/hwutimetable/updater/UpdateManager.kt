@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.github.hwutimetable.R
-import java.util.*
+import org.joda.time.DateTimeFieldType
+import org.joda.time.DateTimeZone
+import org.joda.time.Instant
 
 
 /**
@@ -56,20 +58,16 @@ internal class UpdateManager(private val context: Context) :
             val hourOfDay = minutesAfterMidnight / 60
             val minuteOfHour = minutesAfterMidnight % 60
 
-            val calendar = Calendar.getInstance().apply { timeInMillis = System.currentTimeMillis() }
+            val now = Instant.now()
+            var date = now.toDateTime()
+                .withField(DateTimeFieldType.hourOfDay(), hourOfDay)
+                .withField(DateTimeFieldType.minuteOfHour(), minuteOfHour)
 
-            val currentTime = calendar.timeInMillis
-            var triggerTime = calendar.apply {
-                set(Calendar.HOUR_OF_DAY, hourOfDay)
-                set(Calendar.MINUTE, minuteOfHour)
-            }.timeInMillis
-
-            val dayInMillis = 86_400_000
-            if (currentTime >= triggerTime) {
-                triggerTime += dayInMillis  // The time is in the past. Add 24 hour "delay".
+            if (date.isBefore(now)) {
+                date = date.plusDays(1)
             }
 
-            return triggerTime
+            return date.toDateTime(DateTimeZone.UTC).millis
         }
     }
 
@@ -79,12 +77,15 @@ internal class UpdateManager(private val context: Context) :
      */
     fun setAlarm() {
         if (settings.isUpdatingEnabled()) {
+            val triggerAt = settings.getUpdateTimeInMillis()
+            val interval = settings.getInterval()
+
             enableBootReceiver()
             Log.d(logTag, "Enabling the alarm")
             alarmManager.setInexactRepeating(
                 AlarmManager.RTC_WAKEUP,
-                settings.getUpdateTimeInMillis(),
-                settings.getInterval(),
+                triggerAt,
+                interval,
                 updaterIntent
             )
         } else {
