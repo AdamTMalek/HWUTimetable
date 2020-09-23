@@ -219,6 +219,7 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onDestroy() {
             connectivityCallback.cleanup()
+            updateManager.setAlarm()
             super.onDestroy()
         }
     }

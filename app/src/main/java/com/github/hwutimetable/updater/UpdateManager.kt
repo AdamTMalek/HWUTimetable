@@ -22,13 +22,12 @@ internal class UpdateManager(private val context: Context) :
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
     private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
     private val updaterIntent: PendingIntent = Intent(context, UpdateService::class.java).let { intent ->
-        PendingIntent.getService(context, 0, intent, 0)
+        PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
     }
     private val settings = Settings()
 
     /**
-     * Storage for alarm settings. Note [interval] and [updateTimeInMillis] are different than the
-     * stored preferences.
+     * Storage for alarm settings.
      */
     private inner class Settings {
         fun isUpdatingEnabled() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), true)
@@ -78,7 +77,7 @@ internal class UpdateManager(private val context: Context) :
      * The alarm will be automatically set whenever the preferences change.
      * This means, there is no need to call this function.
      */
-    private fun setAlarm() {
+    fun setAlarm() {
         if (settings.isUpdatingEnabled()) {
             enableBootReceiver()
             Log.d(logTag, "Enabling the alarm")
