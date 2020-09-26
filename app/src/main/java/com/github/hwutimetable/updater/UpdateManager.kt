@@ -1,9 +1,11 @@
 package com.github.hwutimetable.updater
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.*
-import android.content.pm.PackageManager
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
+import android.content.Context
+import android.content.SharedPreferences
+import android.os.PersistableBundle
 import android.util.Log
 import androidx.preference.PreferenceManager
 import com.github.hwutimetable.R
@@ -17,22 +19,20 @@ import org.joda.time.Instant
  * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
  * therefore it will automatically be informed of any preference change and react appropriately.
  */
-internal class UpdateManager(private val context: Context) :
-    BroadcastReceiver(), SharedPreferences.OnSharedPreferenceChangeListener {
-
+internal class UpdateManager(private val context: Context) {
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private val updaterIntent: PendingIntent = Intent(context, UpdateService::class.java).let { intent ->
-        PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-    }
+    private val jobId = 1
     private val settings = Settings()
+    private val jobScheduler = context.getSystemService(JobScheduler::class.java)!!
 
     /**
      * Storage for alarm settings.
      */
     private inner class Settings {
         fun isUpdatingEnabled() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), true)
+
+        fun canUseMobileData() = sharedPreferences.getBoolean(context.getString(R.string.data_pref_key), false)
 
         fun getInterval(): Long {
             val daysBetweenUpdate = sharedPreferences.getInt(context.getString(R.string.frequency_pref_key), 1)
@@ -71,61 +71,60 @@ internal class UpdateManager(private val context: Context) :
         }
     }
 
+    private fun getRequiredNetworkType() = if (settings.canUseMobileData())
+        JobInfo.NETWORK_TYPE_ANY
+    else
+        JobInfo.NETWORK_TYPE_UNMETERED
+
+    private fun getJobInfoBuilder() = with(JobInfo.Builder(jobId, ComponentName(context, UpdateService::class.java))) {
+        setRequiredNetworkType(getRequiredNetworkType())
+        setPersisted(true)
+    }
+
     /**
      * The alarm will be automatically set whenever the preferences change.
      * This means, there is no need to call this function.
      */
     fun setAlarm() {
         if (settings.isUpdatingEnabled()) {
+            val currentTime = Instant.now().millis
             val triggerAt = settings.getUpdateTimeInMillis()
-            val interval = settings.getInterval()
 
-            enableBootReceiver()
-            Log.d(logTag, "Enabling the alarm")
-            alarmManager.setInexactRepeating(
-                AlarmManager.RTC_WAKEUP,
-                triggerAt,
-                interval,
-                updaterIntent
-            )
+            val jobExtras = PersistableBundle().apply {
+                putBoolean(UpdateService.SCHEDULE_NEXT_EXTRA, true)
+            }
+
+            val jobInfo = with(getJobInfoBuilder()) {
+                setMinimumLatency(triggerAt - currentTime)
+                setExtras(jobExtras)
+                build()
+            }
+
+            scheduleJob(jobInfo)
         } else {
-            disableBootReceiver()
-            Log.d(logTag, "Disabling the alarm")
-            alarmManager.cancel(updaterIntent)
+            jobScheduler.cancel(jobId)
+            Log.d(logTag, "Alarm disabled.")
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        setAlarm()
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "android.intent.action.BOOT_COMPLETED") {
-            setAlarm()
+    fun setPeriodicAlarm() {
+        val jobInfo = with(getJobInfoBuilder()) {
+            setPeriodic(settings.getInterval())
+            build()
         }
+
+        scheduleJob(jobInfo)
     }
 
-    /**
-     * Enables this receiver to receive BOOT_COMPLETED intents which are disabled by default
-     */
-    private fun enableBootReceiver() {
-        val receiver = ComponentName(context, this::class.java)
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
+    private fun scheduleJob(jobInfo: JobInfo) {
+        jobScheduler.schedule(jobInfo)
+        Log.i(logTag, getScheduledLogMessage(jobInfo))
     }
 
-    /**
-     * Disable this BOOT_COMPLETED receiver
-     */
-    private fun disableBootReceiver() {
-        val receiver = ComponentName(context, this::class.java)
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
+    private fun getScheduledLogMessage(jobInfo: JobInfo): String {
+        return if (jobInfo.isPeriodic)
+            "Periodic job scheduled. Will run every ${settings.getInterval()}ms"
+        else
+            "Job scheduled. Will run in ${jobInfo.minLatencyMillis}ms"
     }
 }
