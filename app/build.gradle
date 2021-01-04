@@ -11,7 +11,7 @@ android {
         applicationId "com.github.hwutimetable"
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 1
+        versionCode 2
         versionName "0.9-RC0"
         testInstrumentationRunner "com.github.hwutimetable.HiltTestRunner"
     }
