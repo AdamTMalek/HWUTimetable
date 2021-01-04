@@ -1,7 +1,7 @@
 package com.github.hwutimetable.parser
 
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import org.joda.time.Minutes
 
 enum class Day(val index: Int) {

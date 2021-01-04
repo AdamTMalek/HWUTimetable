@@ -18,14 +18,14 @@ import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.PagerAdapter
+import com.github.hwutimetable.databinding.ActivityViewTimetableBinding
+import com.github.hwutimetable.databinding.FragmentViewTimetableBinding
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Clashes
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.settings.SettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_view_timetable.*
-import kotlinx.android.synthetic.main.fragment_view_timetable.*
 import org.joda.time.DateTimeConstants
 import org.joda.time.LocalTime
 import javax.inject.Inject
@@ -54,9 +54,12 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         findViewById(R.id.toolbar)
     }
 
+    private lateinit var viewBinding: ActivityViewTimetableBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_timetable)
+        viewBinding = ActivityViewTimetableBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
 
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
@@ -94,22 +97,22 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         if (!clashes.isEmpty())
             displayClashesDialog(clashes)
 
-        val currentPage = container.currentItem
+        val currentPage = viewBinding.container.currentItem
 
         if (mSectionsPagerAdapter == null) {
             mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
-            container.adapter = mSectionsPagerAdapter
+            viewBinding.container.adapter = mSectionsPagerAdapter
         }
 
-        with(container.adapter!! as SectionsPagerAdapter) {
+        with(viewBinding.container.adapter!! as SectionsPagerAdapter) {
             this.timetable = timetable
             this.notifyDataSetChanged()
         }
 
         if (showToday)
-            container.currentItem = getCurrentDayIndex()
+            viewBinding.container.currentItem = getCurrentDayIndex()
         else
-            container.currentItem = currentPage
+            viewBinding.container.currentItem = currentPage
     }
 
     private fun getTimetable(intent: Intent): Timetable {
@@ -167,18 +170,20 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         val weeks = (1..12).toList()
         val adapter = ArrayAdapter(this, R.layout.weeks_spinner_item, weeks)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        weeks_spinner.adapter = adapter
-        weeks_spinner.setSelection(weeks.indexOf(currentWeek))
-        weeks_spinner.onItemSelectedListener = this
+        viewBinding.weeksSpinner.let {
+            it.adapter = adapter
+            it.setSelection(weeks.indexOf(currentWeek))
+            it.onItemSelectedListener = this
+        }
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         val containerId = parent?.id ?: return
-        if (containerId != weeks_spinner.id) {
+        if (containerId != viewBinding.weeksSpinner.id) {
             return
         }
 
-        val selectedWeek = weeks_spinner.selectedItem as Int
+        val selectedWeek = viewBinding.weeksSpinner.selectedItem as Int
         displayTimetableForWeek(selectedWeek, false)
     }
 
@@ -237,11 +242,11 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
     }
 
     private fun moveToPreviousDay() {
-        container.setCurrentItem(container.currentItem - 1, true)
+        viewBinding.container.setCurrentItem(viewBinding.container.currentItem - 1, true)
     }
 
     private fun moveToNextDay() {
-        container.setCurrentItem(container.currentItem + 1, true)
+        viewBinding.container.setCurrentItem(viewBinding.container.currentItem + 1, true)
     }
 
     /**
@@ -251,11 +256,13 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         private lateinit var gridLayout: ViewGroup
         private lateinit var rootView: View
 
+        private lateinit var viewBinding: FragmentViewTimetableBinding
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
-        ): View? {
-            rootView = inflater.inflate(R.layout.fragment_view_timetable, container, false)
+        ): View {
+            viewBinding = FragmentViewTimetableBinding.inflate(inflater, container, false)
+            rootView = viewBinding.root
             val sectionNumber = arguments?.getInt(ARG_SECTION_NUMBER) ?: throw Exception("Missing section number")
             setCurrentDayLabelText(sectionNumber)
             setPreviousDayLabelText(sectionNumber)
@@ -276,7 +283,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             setPreviousDayClickListener()
             setNextDayClickListener()
 
-            return rootView
+            return viewBinding.root
         }
 
         private fun setCurrentDayLabelText(currentDay: Int) {
@@ -336,7 +343,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             constraintSet.connect(gridId, ConstraintSet.BOTTOM, R.id.constraintLayout, ConstraintSet.BOTTOM)
             constraintSet.connect(gridId, ConstraintSet.LEFT, R.id.constraintLayout, ConstraintSet.LEFT)
             constraintSet.connect(gridId, ConstraintSet.RIGHT, R.id.constraintLayout, ConstraintSet.RIGHT)
-            constraintSet.applyTo(constraintLayout)
+            constraintSet.applyTo(viewBinding.constraintLayout)
         }
 
         companion object {
