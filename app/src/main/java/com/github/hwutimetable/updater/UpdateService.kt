@@ -1,13 +1,10 @@
 package com.github.hwutimetable.updater
 
-import android.app.job.JobParameters
-import android.app.job.JobService
+import android.content.Context
 import android.util.Log
+import androidx.work.Worker
+import androidx.work.WorkerParameters
 import com.github.hwutimetable.parser.Timetable
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
@@ -15,14 +12,14 @@ import kotlinx.coroutines.launch
  * receiver (i.e. [OnUpdateFinishedListener]) if it is specified in the intent extras. This extra receiver
  * may be used to create Android notifications informing the user about ongoing update or the result of it.
  */
-class UpdateService : JobService(), OnUpdateFinishedListener {
+class UpdateService(appContext: Context, params: WorkerParameters) : Worker(appContext, params),
+    OnUpdateFinishedListener {
     companion object {
         const val LOG_TAG = "UpdateService"
         const val SCHEDULE_NEXT_EXTRA = "ScheduleNext"
     }
 
-    private lateinit var updateJob: Job
-    private val updater by lazy { Updater(this.filesDir, this) }
+    private val updater by lazy { Updater(applicationContext.filesDir, applicationContext) }
 
     /**
      * Register this object as an [OnUpdateFinishedListener] to the [updater]
@@ -31,36 +28,22 @@ class UpdateService : JobService(), OnUpdateFinishedListener {
         updater.addFinishedListener(this)
     }
 
-    override fun onStartJob(params: JobParameters?): Boolean {
+    override fun doWork(): Result {
         Log.i(LOG_TAG, "Update service started.")
-        updateJob = CoroutineScope(Dispatchers.IO).launch {
-            configureNotifier(params)
-            registerSelfAsReceiver()
-            updater.update()
-            jobFinished(params, false)  // Inform the system that the job is finished
-        }
+        configureNotifier()
+        registerSelfAsReceiver()
+        updater.update()
 
-        val shouldScheduleNextJob = params?.extras?.getBoolean(SCHEDULE_NEXT_EXTRA) ?: false
-        if (shouldScheduleNextJob) {
-            val updateManager = UpdateManager(applicationContext)
-            updateManager.setPeriodicAlarm()
-        }
-
-        return true // Indicates to the system that there's another thread running. Job is not finished yet.
+        return Result.success()
     }
 
-    private fun configureNotifier(params: JobParameters?) {
-        if (params == null) {
-            updater.addFinishedListener(getDefaultNotifier())
-            return
-        }
-
-        val notifier = params.extras.get("notifier") ?: getDefaultNotifier()
+    private fun configureNotifier() {
+        val notifier = getDefaultNotifier()
         updater.addInProgressListener(notifier as OnUpdateInProgressListener)
         updater.addFinishedListener(notifier as OnUpdateFinishedListener)
     }
 
-    private fun getDefaultNotifier() = UpdateNotifier(this)
+    private fun getDefaultNotifier() = UpdateNotifier(applicationContext)
 
     /**
      * Post-update callback received from the [updater]
@@ -72,14 +55,5 @@ class UpdateService : JobService(), OnUpdateFinishedListener {
             "Post-Update callback received. Updater updated $updated timetables"
 
         Log.i(LOG_TAG, logMessage)
-        stopSelf()
-    }
-
-    /**
-     * Called by the system if the job is cancelled before it's finished.
-     */
-    override fun onStopJob(params: JobParameters?): Boolean {
-        updateJob.cancel()
-        return true  // We want the system to reschedule the job
     }
 }

@@ -1,17 +1,17 @@
 package com.github.hwutimetable.updater
 
 import android.app.job.JobInfo
-import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.PersistableBundle
 import android.util.Log
 import androidx.preference.PreferenceManager
+import androidx.work.*
 import com.github.hwutimetable.R
 import org.joda.time.DateTimeFieldType
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -19,12 +19,13 @@ import org.joda.time.Instant
  * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
  * therefore it will automatically be informed of any preference change and react appropriately.
  */
+
 internal class UpdateManager(private val context: Context) {
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val jobId = 1
+    private val updateWorkName = "update-work"
     private val settings = Settings()
-    private val jobScheduler = context.getSystemService(JobScheduler::class.java)!!
+    private val workManager = WorkManager.getInstance(context)
 
     /**
      * Storage for alarm settings.
@@ -34,9 +35,8 @@ internal class UpdateManager(private val context: Context) {
 
         fun canUseMobileData() = sharedPreferences.getBoolean(context.getString(R.string.data_pref_key), false)
 
-        fun getInterval(): Long {
-            val daysBetweenUpdate = sharedPreferences.getInt(context.getString(R.string.frequency_pref_key), 1)
-            return daysBetweenUpdate * 24 * 60 * 60 * 1000L
+        fun getIntervalInDays(): Int {
+            return sharedPreferences.getInt(context.getString(R.string.frequency_pref_key), 1)
         }
 
         fun getUpdateTimeInMillis(): Long {
@@ -76,10 +76,11 @@ internal class UpdateManager(private val context: Context) {
     else
         JobInfo.NETWORK_TYPE_UNMETERED
 
-    private fun getJobInfoBuilder() = with(JobInfo.Builder(jobId, ComponentName(context, UpdateService::class.java))) {
-        setRequiredNetworkType(getRequiredNetworkType())
-        setPersisted(true)
-    }
+    private fun getJobInfo(jobId: Int) =
+        with(JobInfo.Builder(jobId, ComponentName(context, UpdateService::class.java))) {
+            setRequiredNetworkType(getRequiredNetworkType())
+            setPersisted(true)
+        }
 
     /**
      * The alarm will be automatically set whenever the preferences change.
@@ -87,44 +88,47 @@ internal class UpdateManager(private val context: Context) {
      */
     fun setAlarm() {
         if (settings.isUpdatingEnabled()) {
-            val currentTime = Instant.now().millis
-            val triggerAt = settings.getUpdateTimeInMillis()
-
-            val jobExtras = PersistableBundle().apply {
-                putBoolean(UpdateService.SCHEDULE_NEXT_EXTRA, true)
-            }
-
-            val jobInfo = with(getJobInfoBuilder()) {
-                setMinimumLatency(triggerAt - currentTime)
-                setExtras(jobExtras)
-                build()
-            }
-
-            scheduleJob(jobInfo)
+            val workRequest = constructWorkRequest()
+            enqueueWork(workRequest)
         } else {
-            jobScheduler.cancel(jobId)
-            Log.d(logTag, "Alarm disabled.")
+            dequeueWork()
         }
     }
 
-    fun setPeriodicAlarm() {
-        val jobInfo = with(getJobInfoBuilder()) {
-            setPeriodic(settings.getInterval())
+    private fun constructWorkRequest(): PeriodicWorkRequest {
+        val interval = settings.getIntervalInDays().toLong()
+        val delay = getInitialWorkDelayInMillis()
+
+        return PeriodicWorkRequestBuilder<UpdateService>(interval, TimeUnit.DAYS)
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setConstraints(getWorkConstraints())
+            .build()
+    }
+
+    private fun getInitialWorkDelayInMillis(): Long {
+        val now = Instant.now().millis
+        val updateTime = settings.getUpdateTimeInMillis()
+        return updateTime - now
+    }
+
+    private fun getWorkConstraints(): Constraints {
+        return with(Constraints.Builder()) {
+            if (settings.canUseMobileData())
+                setRequiredNetworkType(NetworkType.CONNECTED)
+            else
+                setRequiredNetworkType(NetworkType.UNMETERED)
+
             build()
         }
-
-        scheduleJob(jobInfo)
     }
 
-    private fun scheduleJob(jobInfo: JobInfo) {
-        jobScheduler.schedule(jobInfo)
-        Log.i(logTag, getScheduledLogMessage(jobInfo))
+    private fun enqueueWork(workRequest: PeriodicWorkRequest) {
+        workManager.enqueueUniquePeriodicWork(updateWorkName, ExistingPeriodicWorkPolicy.REPLACE, workRequest)
+        Log.i(logTag, "Update work has been enqueued.")
     }
 
-    private fun getScheduledLogMessage(jobInfo: JobInfo): String {
-        return if (jobInfo.isPeriodic)
-            "Periodic job scheduled. Will run every ${settings.getInterval()}ms"
-        else
-            "Job scheduled. Will run in ${jobInfo.minLatencyMillis}ms"
+    private fun dequeueWork() {
+        workManager.cancelUniqueWork(updateWorkName)
+        Log.i(logTag, "Update work has been dequeued.")
     }
 }
