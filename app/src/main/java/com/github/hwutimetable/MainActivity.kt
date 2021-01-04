@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.hwutimetable.databinding.ActivityMainBinding
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.network.NetworkUtils
@@ -21,8 +22,6 @@ import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.settings.SettingsActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.content_main.*
 import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
@@ -43,12 +42,15 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     @Inject
     lateinit var networkUtilities: NetworkUtils
 
+    private lateinit var viewBinding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        viewBinding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
+        setSupportActionBar(viewBinding.toolbar)
 
-        recycler_view.layoutManager = LinearLayoutManager(this)
+        viewBinding.contentMain.recyclerView.layoutManager = LinearLayoutManager(this)
         initializeListAdapter()
         onInfoListChange()
         addTouchCallbacksHandler()
@@ -121,7 +123,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         }
 
         val dragTouchHelper = ItemTouchHelper(dragCallback)
-        dragTouchHelper.attachToRecyclerView(recycler_view)
+        dragTouchHelper.attachToRecyclerView(viewBinding.contentMain.recyclerView)
 
         val swipeToDeleteCallback = object : SwipeToDeleteCallback(applicationContext) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -131,9 +133,10 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         }
 
         val touchHelper = ItemTouchHelper(swipeToDeleteCallback)
-        touchHelper.attachToRecyclerView(recycler_view)
-        recycler_view.addOnItemTouchListener(
-            RecyclerItemClickListener(applicationContext, recycler_view,
+        touchHelper.attachToRecyclerView(viewBinding.contentMain.recyclerView)
+        viewBinding.contentMain.recyclerView.addOnItemTouchListener(
+            RecyclerItemClickListener(
+                applicationContext, viewBinding.contentMain.recyclerView,
                 object : RecyclerItemClickListener.OnItemClickListener {
                     override fun onItemClick(view: View, position: Int) {
                         onItemClick(position)
@@ -174,7 +177,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
             return
 
         listAdapter = InfoListAdapter(infoList)
-        recycler_view.adapter = listAdapter
+        viewBinding.contentMain.recyclerView.adapter = listAdapter
     }
 
     private fun onItemClick(position: Int) {
@@ -212,7 +215,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     private fun getTextFromRecyclerViewItem(position: Int): String {
-        return recycler_view.findViewHolderForAdapterPosition(position)!!
+        return viewBinding.contentMain.recyclerView.findViewHolderForAdapterPosition(position)!!
             .itemView.findViewById<TextView>(R.id.timetable_title).text as String
     }
 
@@ -231,40 +234,40 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     private fun setupAddButtons() {
         setAddButtonsBackground()
         hideAddMenu()
-        add_timetable.setOnClickListener {
+        viewBinding.addTimetable.setOnClickListener {
             if (isAddMenuShowing)
                 hideAddMenu()
             else
                 showAddMenu()
         }
 
-        add_programme.setOnClickListener {
+        viewBinding.addProgramme.setOnClickListener {
             openAddProgrammeTimetable()
         }
 
-        add_course.setOnClickListener {
+        viewBinding.addCourse.setOnClickListener {
             openAddCoursesTimetable()
         }
     }
 
     private fun showAddMenu() {
         isAddMenuShowing = true
-        showAddButton(add_programme, -resources.getDimension(R.dimen.top_fab))
-        showAddButton(add_course, -resources.getDimension(R.dimen.mid_fab))
-        add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_down, applicationContext.theme)
+        showAddButton(viewBinding.addProgramme, -resources.getDimension(R.dimen.top_fab))
+        showAddButton(viewBinding.addCourse, -resources.getDimension(R.dimen.mid_fab))
+        viewBinding.addTimetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_down, applicationContext.theme)
     }
 
     private fun hideAddMenu() {
         isAddMenuShowing = false
-        hideAddButton(add_programme)
-        hideAddButton(add_course)
-        add_timetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_up, applicationContext.theme)
+        hideAddButton(viewBinding.addProgramme)
+        hideAddButton(viewBinding.addCourse)
+        viewBinding.addTimetable.icon = resources.getDrawable(R.drawable.ic_arrow_drop_up, applicationContext.theme)
     }
 
     private fun setAddButtonsBackground() {
         fun getColorStateList() = applicationContext.getColorStateList(R.color.fab_color)
 
-        listOf(add_programme, add_course, add_timetable).forEach { button ->
+        listOf(viewBinding.addProgramme, viewBinding.addCourse, viewBinding.addTimetable).forEach { button ->
             button.backgroundTintList = getColorStateList()
         }
     }
@@ -322,22 +325,22 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     private fun displayNoTimetablesPlaceholder() {
-        no_timetables_text.visibility = View.VISIBLE
+        viewBinding.contentMain.noTimetablesText.visibility = View.VISIBLE
     }
 
     private fun hideNoTimetablesPlaceholder() {
-        no_timetables_text.visibility = View.INVISIBLE
+        viewBinding.contentMain.noTimetablesText.visibility = View.INVISIBLE
     }
 
     override fun onConnectionAvailable() {
         runOnUiThread {
-            add_timetable.isEnabled = true
+            viewBinding.addTimetable.isEnabled = true
         }
     }
 
     override fun onConnectionLost() {
         runOnUiThread {
-            add_timetable.isEnabled = false
+            viewBinding.addTimetable.isEnabled = false
         }
     }
 

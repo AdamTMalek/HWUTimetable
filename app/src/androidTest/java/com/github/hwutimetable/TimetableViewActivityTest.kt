@@ -6,6 +6,7 @@ import android.content.Intent
 import android.widget.Button
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
 import androidx.preference.PreferenceManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
@@ -34,7 +35,6 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
-import kotlinx.android.synthetic.main.activity_main.*
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
 import org.joda.time.LocalDate
@@ -138,7 +138,7 @@ class TimetableViewActivityTest {
         setDate()
         startActivity()
         scenario.onActivity { activity ->
-            val actualTitle = activity.toolbar.title
+            val actualTitle = activity.findViewById<Toolbar>(R.id.toolbar).title
             assertEquals(timetable.info.name, actualTitle)
         }
     }

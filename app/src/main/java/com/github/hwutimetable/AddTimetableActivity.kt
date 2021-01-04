@@ -9,18 +9,12 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewbinding.ViewBinding
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
-import kotlinx.android.synthetic.main.activity_add_course_timetable.*
-import kotlinx.android.synthetic.main.activity_add_course_timetable.departments_spinner
-import kotlinx.android.synthetic.main.activity_add_course_timetable.get_timetable
-import kotlinx.android.synthetic.main.activity_add_course_timetable.groups_input
-import kotlinx.android.synthetic.main.activity_add_course_timetable.save_checkbox
-import kotlinx.android.synthetic.main.activity_add_course_timetable.semester_spinner
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -38,7 +32,8 @@ import javax.inject.Inject
  * classes inheriting from this class, must be annotated with @AndroidEntryPoint annotation
  * for Hilt to work.
  */
-abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatActivity(),
+abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingType : ViewBinding> :
+    AppCompatActivity(),
     AdapterView.OnItemSelectedListener {
     @Inject
     lateinit var scraper: ScraperType
@@ -64,6 +59,11 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      */
     protected val groupOptions = mutableSetOf<Option>()
 
+    /**
+     * View binding
+     */
+    protected lateinit var viewBinding: ViewBindingType
+
     protected val getTimetable: Button by lazy { findViewById<Button>(R.id.get_timetable) }
     protected val departmentsSpinner: Spinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }
     protected val semesterSpinner: Spinner by lazy { findViewById<Spinner>(R.id.semester_spinner) }
@@ -72,6 +72,8 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setViewBinding()
+        setContentView(viewBinding.root)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         setupView()
 
@@ -85,17 +87,24 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
         }
     }
 
+    private fun setViewBinding() {
+        viewBinding = inflateViewBinding()
+        setContentView(viewBinding.root)
+    }
+
+    protected abstract fun inflateViewBinding(): ViewBindingType
+
     private fun setGetTimetableButtonClickHandler() {
         getTimetableButton.setOnClickListener { onGetTimetableButtonClick() }
     }
 
     private fun setGroupInputChangeListener() {
-        groups_input.setOnItemClickListener { _, _, _, _ ->
-            get_timetable.isEnabled = true
+        findViewById<AutoCompleteTextView>(R.id.groups_input).setOnItemClickListener { _, _, _, _ ->
+            findViewById<Button>(R.id.get_timetable).isEnabled = true
             KeyboardManager.hideKeyboard(this)
         }
 
-        groups_input.addTextChangedListener(object : TextWatcher {
+        findViewById<AutoCompleteTextView>(R.id.groups_input).addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
@@ -146,7 +155,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
 
         scraper.setup()
         departmentsOptions.addAll(scraper.getDepartments())
-        populateSpinner(departments_spinner, departmentsOptions.map { it.text })
+        populateSpinner(findViewById(R.id.departments_spinner), departmentsOptions.map { it.text })
 
         changeProgressBarVisibility(false)
     }
@@ -179,7 +188,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      * Populates a view with the elements in [groupOptions]
      */
     private fun populateGroupsInput() {
-        groups_input.setAdapter(
+        findViewById<AutoCompleteTextView>(R.id.groups_input).setAdapter(
             ArrayAdapter(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
@@ -202,7 +211,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      * Uses the current date to automatically set the closest semester in the semester spinner.
      */
     private fun setClosestSemester() {
-        semester_spinner.setSelection(getClosestSemester() - 1)
+        findViewById<Spinner>(R.id.semester_spinner).setSelection(getClosestSemester() - 1)
     }
 
     protected fun getClosestSemester(): Int {
@@ -226,7 +235,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper> : AppCompatA
      *
      * @return `true` if the timetable is to be saved, `false` otherwise.
      */
-    protected fun isSaveTimetableChecked() = save_checkbox.isChecked
+    protected fun isSaveTimetableChecked() = findViewById<CheckBox>(R.id.save_checkbox).isChecked
 
     protected suspend fun saveTimetable(timetable: Timetable) {
         withContext(Dispatchers.IO) {
