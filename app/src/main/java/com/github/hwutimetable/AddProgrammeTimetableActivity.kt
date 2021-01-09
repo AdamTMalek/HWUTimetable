@@ -2,6 +2,7 @@ package com.github.hwutimetable
 
 import android.view.View
 import android.widget.AdapterView
+import com.github.hwutimetable.databinding.ActivityAddProgrammeTimetableBinding
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.ProgrammeTimetableParser
 import com.github.hwutimetable.parser.Semester
@@ -11,12 +12,6 @@ import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_add_course_timetable.*
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.*
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.departments_spinner
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.get_timetable
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.groups_input
-import kotlinx.android.synthetic.main.activity_add_programme_timetable.semester_spinner
 import kotlinx.coroutines.launch
 
 /**
@@ -28,7 +23,8 @@ import kotlinx.coroutines.launch
  * and dependency injection.
  */
 @AndroidEntryPoint
-class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScraper>() {
+class AddProgrammeTimetableActivity :
+    AddTimetableActivity<ProgrammeTimetableScraper, ActivityAddProgrammeTimetableBinding>() {
     private var levelOptions = mutableListOf<Option>()
 
     /**
@@ -36,12 +32,13 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
      * This method will be called by [onCreate] by the base class.
      */
     override fun setupView() {
-        setContentView(R.layout.activity_add_programme_timetable)
         setTitle(R.string.add_programme_activity_title)
     }
 
+    override fun inflateViewBinding() = ActivityAddProgrammeTimetableBinding.inflate(layoutInflater)
+
     override fun onGroupValidated(valid: Boolean) {
-        get_timetable.isEnabled = valid
+        viewBinding.getTimetable.isEnabled = valid
     }
 
     /**
@@ -49,13 +46,13 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
      */
     override fun setSpinnerSelectionListener() {
         super.setSpinnerSelectionListener()
-        levels_spinner.onItemSelectedListener = this
+        viewBinding.levelsSpinner.onItemSelectedListener = this
     }
 
     override fun onGetTimetableButtonClick() {
-        get_timetable.setOnClickListener {
+        viewBinding.getTimetable.setOnClickListener {
             val groupOption = groupOptions.find {
-                it.text == groups_input.text.toString()
+                it.text == viewBinding.groupsInput.text.toString()
             }!!
 
             val semester = getSemesterFromName((groupOption.text))
@@ -97,7 +94,7 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
      * Filters only the groups that are for the selected semester.
      */
     override fun filterGroupsBySemester() {
-        val selectedSemester = semester_spinner.selectedItem as String
+        val selectedSemester = viewBinding.semesterSpinner.selectedItem as String
         groupOptions.clearAndAddAll(groupOptions.filter { it.text.contains(selectedSemester, ignoreCase = true) })
     }
 
@@ -105,8 +102,9 @@ class AddProgrammeTimetableActivity : AddTimetableActivity<ProgrammeTimetableScr
      * Callback for all Spinners
      */
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        val selectedDepartment = departmentsOptions.find { it.text == departments_spinner.selectedItem.toString() }
-        val selectedLevel = levelOptions.find { it.text == levels_spinner.selectedItem.toString() }
+        val selectedDepartment =
+            departmentsOptions.find { it.text == viewBinding.departmentsSpinner.selectedItem.toString() }
+        val selectedLevel = levelOptions.find { it.text == viewBinding.levelsSpinner.selectedItem.toString() }
 
         if (selectedDepartment == null || selectedLevel == null)
             return

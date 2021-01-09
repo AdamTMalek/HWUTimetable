@@ -5,6 +5,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.github.hwutimetable.databinding.ActivityAddCourseTimetableBinding
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.CourseTimetableParser
 import com.github.hwutimetable.parser.Semester
@@ -14,28 +15,28 @@ import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.Scraper
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.activity_add_course_timetable.*
 import kotlinx.coroutines.launch
 import org.joda.time.LocalTime
 
 @AndroidEntryPoint
-class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
+class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityAddCourseTimetableBinding>() {
     private val selectedCourses = mutableSetOf<Option>()
 
     override fun setupView() {
-        setContentView(R.layout.activity_add_course_timetable)
         setTitle(R.string.add_course_activity_title)
         setupCoursesListView()
         setTimetableNameEditListener()
 
-        add_course_button.isEnabled = false
-        get_timetable.isEnabled = false
+        viewBinding.addCourseButton.isEnabled = false
+        viewBinding.getTimetable.isEnabled = false
 
         addAddCourseClickHandler()
     }
 
+    override fun inflateViewBinding() = ActivityAddCourseTimetableBinding.inflate(layoutInflater)
+
     private fun addAddCourseClickHandler() {
-        add_course_button.setOnClickListener {
+        viewBinding.addCourseButton.setOnClickListener {
             addCourseToList()
         }
     }
@@ -48,21 +49,23 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     }
 
     private fun setupCoursesListView() {
-        courses_list.setHasFixedSize(false)
-        courses_list.adapter = CourseListAdapter(selectedCourses)
-        courses_list.adapter!!.notifyDataSetChanged()
-        courses_list.layoutManager = LinearLayoutManager(this)
-        setOnCourseRemovedListener()
+        viewBinding.coursesList.let {
+            it.setHasFixedSize(false)
+            it.adapter = CourseListAdapter(selectedCourses)
+            it.adapter!!.notifyDataSetChanged()
+            it.layoutManager = LinearLayoutManager(this)
+            setOnCourseRemovedListener()
+        }
     }
 
     private fun setOnCourseRemovedListener() {
-        (courses_list.adapter as CourseListAdapter).setOnElementRemovedListener {
+        (viewBinding.coursesList.adapter as CourseListAdapter).setOnElementRemovedListener {
             getTimetable.isEnabled = canTimetableBeGenerated()
         }
     }
 
     private fun setTimetableNameEditListener() {
-        timetable_name.addTextChangedListener(object : TextWatcher {
+        viewBinding.timetableName.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
@@ -76,7 +79,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     }
 
     override fun onGroupValidated(valid: Boolean) {
-        add_course_button.isEnabled = valid
+        viewBinding.addCourseButton.isEnabled = valid
     }
 
     override fun filterGroupsBySemester() {
@@ -110,19 +113,19 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
     }
 
     private fun addCourseToList() {
-        val selectedCourse = groups_input.text.toString()
+        val selectedCourse = viewBinding.groupsInput.text.toString()
         val groupOption = groupOptions.find { it.text == selectedCourse }
             ?: return
         selectedCourses.add(groupOption)
-        courses_list.adapter!!.apply {
+        viewBinding.coursesList.adapter!!.apply {
             notifyDataSetChanged()
         }
 
         if (canTimetableBeGenerated())
-            get_timetable.isEnabled = true
+            viewBinding.getTimetable.isEnabled = true
     }
 
-    private fun canTimetableBeGenerated() = selectedCourses.isNotEmpty() && timetable_name.text.isNotEmpty()
+    private fun canTimetableBeGenerated() = selectedCourses.isNotEmpty() && viewBinding.timetableName.text.isNotEmpty()
 
     private suspend fun getTimetable() {
         var semester: Semester? = null
@@ -155,7 +158,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper>() {
 
         val dateTimeStamp = currentDateProvider.getCurrentDateTime().toString("ddMMYYYYHHmm")
         val info = Timetable.Info(
-            "GEN$dateTimeStamp", timetable_name.text.toString(), semester!!,
+            "GEN$dateTimeStamp", viewBinding.timetableName.text.toString(), semester!!,
             startTime, true
         )
         val timetable = Timetable.fromTimetables(info, timetableDays)
