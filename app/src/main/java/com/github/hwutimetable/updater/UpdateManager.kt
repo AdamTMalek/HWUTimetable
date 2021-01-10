@@ -13,7 +13,6 @@ import org.joda.time.DateTimeZone
 import org.joda.time.Instant
 import java.util.concurrent.TimeUnit
 
-// TODO: This has to have a parameterless constructor
 /**
  * UpdateManager is a class responsible for enabling and disabling the alarm based on the preferences
  * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
