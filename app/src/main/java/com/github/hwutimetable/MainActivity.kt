@@ -63,6 +63,12 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         if (!networkUtilities.hasInternetConnection()) {
             onConnectionLost()
         }
+
+        NoOptimizationRequest(this).run {
+            if (shouldRequestNoOptimization()) {
+                requestNoOptimizations()
+            }
+        }
     }
 
     override fun onResume() {

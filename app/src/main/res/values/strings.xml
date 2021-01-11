@@ -84,4 +84,13 @@
     <string name="edit_timetable">Edit timetable name</string>
     <string name="rename_dialog_title">Rename timetable</string>
     <string name="rename">Rename</string>
+
+    <!-- No Optimization Dialog -->
+    <string name="battery_opt_dialog_text">is known to have functionality-breaking battery optimisations. Please turn
+        off the battery optimizations for this application as otherwise, it will not function properly.
+    </string>
+    <string name="autostart_dialog_text">requires autostart in order for the app to function properly. Please turn it
+        on.
+    </string>
+    <string name="battery_opt_continue">Continue</string>
 </resources>
