@@ -1,146 +1,133 @@
 package com.github.hwutimetable.updater
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.*
-import android.content.pm.PackageManager
+import android.app.job.JobInfo
+import android.content.ComponentName
+import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.preference.PreferenceManager
+import androidx.work.*
 import com.github.hwutimetable.R
-import java.util.*
-
+import org.joda.time.DateTimeFieldType
+import org.joda.time.DateTimeZone
+import org.joda.time.Instant
+import java.util.concurrent.TimeUnit
 
 /**
  * UpdateManager is a class responsible for enabling and disabling the alarm based on the preferences
  * that are set in the settings. The class itself implements [SharedPreferences.OnSharedPreferenceChangeListener]
  * therefore it will automatically be informed of any preference change and react appropriately.
  */
-internal class UpdateManager(private val context: Context) :
-    BroadcastReceiver(), SharedPreferences.OnSharedPreferenceChangeListener {
 
+internal class UpdateManager(private val context: Context) {
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-    private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private val updaterIntent: PendingIntent  // UpdateService intent
+    private val updateWorkName = "update-work"
     private val settings = Settings()
+    private val workManager = WorkManager.getInstance(context)
 
     /**
-     * Storage for alarm settings. Note [interval] and [updateTimeInMillis] are different than the
-     * stored preferences.
+     * Storage for alarm settings.
      */
     private inner class Settings {
-        val enabled: Boolean
-            get() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), false)
+        fun isUpdatingEnabled() = sharedPreferences.getBoolean(context.getString(R.string.updates_pref_key), true)
 
-        var interval: Long = 0L
-        var updateTimeInMillis: Long = 0L
-    }
+        fun canUseMobileData() = sharedPreferences.getBoolean(context.getString(R.string.data_pref_key), false)
 
-    init {
-        updaterIntent = Intent(context, UpdateService::class.java).let { intent ->
-            PendingIntent.getService(context, 0, intent, 0)
+        fun getIntervalInDays(): Int {
+            return sharedPreferences.getInt(context.getString(R.string.frequency_pref_key), 1)
         }
 
-        setTime()
-        setFrequency()
-        setAlarm()
+        fun getUpdateTimeInMillis(): Long {
+            val minutesAfterMidnight = sharedPreferences.getInt(context.getString(R.string.time_pref_key), 0)
+            return getTriggerTimeInMillis(minutesAfterMidnight)
+        }
+
+        /**
+         * This method will return the trigger time of the alarm in milliseconds.
+         * As the documentation of the alarms says, if we specify the trigger time that is in the past
+         * the alarm will be triggered immediately.
+         * Therefore, this method will check if the specified [minutesAfterMidnight] is in the past or not.
+         * If it is in the past, it will return the time for the next day, otherwise the time will be for the
+         * current day.
+         *
+         * **See Also:** [Alarm Documentation](https://developer.android.com/training/scheduling/alarms.html#set)
+         */
+        private fun getTriggerTimeInMillis(minutesAfterMidnight: Int): Long {
+            val hourOfDay = minutesAfterMidnight / 60
+            val minuteOfHour = minutesAfterMidnight % 60
+
+            val now = Instant.now()
+            var date = now.toDateTime()
+                .withField(DateTimeFieldType.hourOfDay(), hourOfDay)
+                .withField(DateTimeFieldType.minuteOfHour(), minuteOfHour)
+
+            if (date.isBefore(now)) {
+                date = date.plusDays(1)
+            }
+
+            return date.toDateTime(DateTimeZone.UTC).millis
+        }
     }
 
-    private fun setAlarm() {
-        if (settings.enabled) {
-            enableBootReceiver()
-            Log.d(logTag, "Enabling the alarm")
-            alarmManager.setInexactRepeating(
-                AlarmManager.RTC_WAKEUP,
-                settings.updateTimeInMillis,
-                settings.interval,
-                updaterIntent
-            )
+    private fun getRequiredNetworkType() = if (settings.canUseMobileData())
+        JobInfo.NETWORK_TYPE_ANY
+    else
+        JobInfo.NETWORK_TYPE_UNMETERED
+
+    private fun getJobInfo(jobId: Int) =
+        with(JobInfo.Builder(jobId, ComponentName(context, UpdateService::class.java))) {
+            setRequiredNetworkType(getRequiredNetworkType())
+            setPersisted(true)
+        }
+
+    /**
+     * The alarm will be automatically set whenever the preferences change.
+     * This means, there is no need to call this function.
+     */
+    fun setAlarm() {
+        if (settings.isUpdatingEnabled()) {
+            val workRequest = constructWorkRequest()
+            enqueueWork(workRequest)
         } else {
-            disableBootReceiver()
-            Log.d(logTag, "Disabling the alarm")
-            alarmManager.cancel(updaterIntent)
+            dequeueWork()
         }
     }
 
-    private fun setTime() {
-        val minutesAfterMidnight = sharedPreferences.getInt(context.getString(R.string.time_pref_key), 0)
-        settings.updateTimeInMillis = getTriggerTimeInMillis(minutesAfterMidnight)
+    private fun constructWorkRequest(): PeriodicWorkRequest {
+        val interval = settings.getIntervalInDays().toLong()
+        val delay = getInitialWorkDelayInMillis()
+
+        return PeriodicWorkRequestBuilder<UpdateService>(interval, TimeUnit.DAYS)
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setConstraints(getWorkConstraints())
+            .build()
     }
 
-    /**
-     * This method will return the trigger time of the alarm in milliseconds.
-     * As the documentation of the alarms says, if we specify the trigger time that is in the past
-     * the alarm will be triggered immediately.
-     * Therefore, this method will check if the specified [minutesAfterMidnight] is in the past or not.
-     * If it is in the past, it will return the time for the next day, otherwise the time will be for the
-     * current day.
-     *
-     * **See Also:** [Alarm Documentation](https://developer.android.com/training/scheduling/alarms.html#set)
-     */
-    private fun getTriggerTimeInMillis(minutesAfterMidnight: Int): Long {
-        val hourOfDay = minutesAfterMidnight / 60
-        val minuteOfHour = minutesAfterMidnight % 60
-
-        val calendar = Calendar.getInstance().apply { timeInMillis = System.currentTimeMillis() }
-
-        val currentTime = calendar.timeInMillis
-        var triggerTime = calendar.apply {
-            set(Calendar.HOUR_OF_DAY, hourOfDay)
-            set(Calendar.MINUTE, minuteOfHour)
-        }.timeInMillis
-
-        val dayInMillis = 86_400_000
-        if (currentTime >= triggerTime) {
-            triggerTime += dayInMillis  // The time is in the past. Add 24 hour "delay".
-        }
-
-        return triggerTime
+    private fun getInitialWorkDelayInMillis(): Long {
+        val now = Instant.now().millis
+        val updateTime = settings.getUpdateTimeInMillis()
+        return updateTime - now
     }
 
-    private fun setFrequency() {
-        val daysBetweenUpdate = sharedPreferences.getInt(context.getString(R.string.frequency_pref_key), 0)
-        settings.interval = daysBetweenUpdate * 24 * 60 * 60 * 1000L
-    }
+    private fun getWorkConstraints(): Constraints {
+        return with(Constraints.Builder()) {
+            if (settings.canUseMobileData())
+                setRequiredNetworkType(NetworkType.CONNECTED)
+            else
+                setRequiredNetworkType(NetworkType.UNMETERED)
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
-        when (key) {
-            context.getString(R.string.time_pref_key) -> setTime()
-            context.getString(R.string.frequency_pref_key) -> setFrequency()
-        }
-
-        setAlarm()
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == "android.intent.action.BOOT_COMPLETED") {
-            setTime()
-            setFrequency()
-            setAlarm()
+            build()
         }
     }
 
-    /**
-     * Enables this receiver to receive BOOT_COMPLETED intents which are disabled by default
-     */
-    private fun enableBootReceiver() {
-        val receiver = ComponentName(context, this::class.java)
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
-            PackageManager.DONT_KILL_APP
-        )
+    private fun enqueueWork(workRequest: PeriodicWorkRequest) {
+        workManager.enqueueUniquePeriodicWork(updateWorkName, ExistingPeriodicWorkPolicy.REPLACE, workRequest)
+        Log.i(logTag, "Update work has been enqueued.")
     }
 
-    /**
-     * Disable this BOOT_COMPLETED receiver
-     */
-    private fun disableBootReceiver() {
-        val receiver = ComponentName(context, this::class.java)
-        context.packageManager.setComponentEnabledSetting(
-            receiver,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
+    private fun dequeueWork() {
+        workManager.cancelUniqueWork(updateWorkName)
+        Log.i(logTag, "Update work has been dequeued.")
     }
 }

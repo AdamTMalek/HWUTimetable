@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.PreferenceManager
 import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
 import com.github.hwutimetable.network.NetworkUtilities
@@ -64,8 +63,6 @@ class SettingsActivity : AppCompatActivity() {
             super.onCreate(savedInstanceState)
 
             updateManager = UpdateManager(context!!)
-            PreferenceManager.getDefaultSharedPreferences(context!!)
-                .registerOnSharedPreferenceChangeListener(updateManager)
 
             setTimePreferenceSummaryProvider()
             setIntervalPreferenceSummaryProvider()
@@ -219,6 +216,7 @@ class SettingsActivity : AppCompatActivity() {
 
         override fun onDestroy() {
             connectivityCallback.cleanup()
+            updateManager.setAlarm()
             super.onDestroy()
         }
     }

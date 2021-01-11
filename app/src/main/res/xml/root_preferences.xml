@@ -21,18 +21,20 @@
         <CheckBoxPreference
                 app:key="allow_wifi"
                 app:title="@string/allow_wifi_title"
+                app:defaultValue="true"
                 app:dependency="enable_updates"/>
 
         <CheckBoxPreference
                 app:key="allow_data"
                 app:title="@string/allow_mobile_data_title"
+                app:defaultValue="true"
                 app:dependency="enable_updates"/>
 
         <com.github.hwutimetable.settings.TimePreference
                 app:key="time_preference"
                 app:title="Update time"
                 app:summary="Click here to change the update time."
-                app:defaultValue="90"
+                app:defaultValue="0"
                 app:dependency="enable_updates"/>
 
         <com.github.hwutimetable.settings.NumberPreference
