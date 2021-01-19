@@ -87,6 +87,11 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        progressBar.visibility = View.INVISIBLE
+    }
+
     private fun setViewBinding() {
         viewBinding = inflateViewBinding()
         setContentView(viewBinding.root)
@@ -246,6 +251,9 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     protected fun startViewTimetableActivity(timetable: Timetable) {
         val intent = Intent(this, TimetableViewActivity::class.java)
         intent.putExtra("timetable", timetable)
+        // Calling finish will remove the activity from the history stack.
+        // This means that a return View Timetable activity will go to the main menu, and not an Add Timetable activity.
+        finish()
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
