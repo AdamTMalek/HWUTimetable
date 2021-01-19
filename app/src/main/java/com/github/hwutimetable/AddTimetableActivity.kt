@@ -87,6 +87,11 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        progressBar.visibility = View.INVISIBLE
+    }
+
     private fun setViewBinding() {
         viewBinding = inflateViewBinding()
         setContentView(viewBinding.root)
