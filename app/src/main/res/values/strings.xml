@@ -54,6 +54,7 @@
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
 
     <!-- Preference keys -->
+    <string name="shared_pref_file_key">com.github.hwutimetable.PREFERENCE_FILE_KEY</string>
     <string name="wifi_pref_key">allow_wifi</string>
     <string name="data_pref_key">allow_data</string>
     <string name="time_pref_key">time_preference</string>
@@ -63,6 +64,7 @@
     <string name="last_update">last_update</string>
     <string name="update_details">update_details</string>
     <string name="use_simplified_view">use_simplified_view</string>
+    <string name="last_ran_version">last_ran_version</string>
     <!-- Tags -->
     <string name="timetable_class_simple">timetable_class_simple</string>
     <string name="timetable_class_original">timetable_class_original</string>
@@ -93,4 +95,8 @@
         on.
     </string>
     <string name="battery_opt_continue">Continue</string>
+
+    <!-- Change Log Dialog -->
+    <string name="changelog_dialog_title">Changes in version:</string>
+    <string name="changelog_dialog_pos_button">Close</string>
 </resources>
