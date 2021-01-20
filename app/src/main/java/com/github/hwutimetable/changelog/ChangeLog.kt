@@ -36,12 +36,16 @@ class ChangeLog(private val context: Context) {
      */
     fun showRecentIfAfterUpdate() {
         if (isAfterUpdate) {
-            val recentLogEntry = ChangeLogXmlParser(context).getRecentChanges().first()
-            showRecent(recentLogEntry)
+            showRecent()
         }
     }
 
-    private fun showRecent(logEntry: ChangeLogXmlParser.ChangeLogEntry) {
+    fun showRecent() {
+        val recentLogEntry = ChangeLogXmlParser(context).getRecentChanges().first()
+        showDialog(recentLogEntry)
+    }
+
+    private fun showDialog(logEntry: ChangeLogXmlParser.ChangeLogEntry) {
         val bullet = "\u2022"
         val changesList = logEntry.changes.joinToString(separator = "\n$bullet ", prefix = "$bullet ", postfix = "")
         val dialog = AlertDialog.Builder(context).run {

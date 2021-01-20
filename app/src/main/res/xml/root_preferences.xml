@@ -56,5 +56,9 @@
                 app:key="version"
                 app:title="Build version"
                 app:summary="1.0"/>
+        <Preference
+                app:key="recent_changes"
+                app:title="Recent changes"
+                app:summary="Click to view"/>
     </PreferenceCategory>
 </PreferenceScreen>
