@@ -10,6 +10,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
+import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
@@ -69,6 +70,7 @@ class SettingsActivity : AppCompatActivity() {
             setUpdateButtonHandler()
             setUpdateSummary()
             setVersionPreferenceSummary()
+            setRecentChangesClickHandler()
 
             connectivityCallback.registerCallbackReceiver(this)
 
@@ -212,6 +214,15 @@ class SettingsActivity : AppCompatActivity() {
             val packageManager = context!!.packageManager!!
             val packageInfo = packageManager.getPackageInfo(context!!.packageName, 0)
             return packageInfo.versionName
+        }
+
+        private fun setRecentChangesClickHandler() {
+            findPreference<Preference>("recent_changes")!!.setOnPreferenceClickListener {
+                ChangeLog(context!!).run {
+                    showRecent()
+                }
+                true
+            }
         }
 
         override fun onDestroy() {

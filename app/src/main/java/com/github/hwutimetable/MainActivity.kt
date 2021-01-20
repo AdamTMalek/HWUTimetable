@@ -2,6 +2,7 @@ package com.github.hwutimetable
 
 import android.app.ActivityOptions
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.databinding.ActivityMainBinding
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtilities
@@ -69,11 +71,25 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
                 requestNoOptimizations()
             }
         }
+
+        ChangeLog(this).run {
+            showRecentIfAfterUpdate()
+        }
+
+        updateLastRanVersion()
     }
 
     override fun onResume() {
         super.onResume()
         reloadInfoList()
+    }
+
+    private fun updateLastRanVersion() {
+        val sharedPref = getSharedPreferences(getString(R.string.shared_pref_file_key), Context.MODE_PRIVATE)
+        with(sharedPref.edit()) {
+            putInt(getString(R.string.last_ran_version), BuildConfig.VERSION_CODE)
+            apply()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
