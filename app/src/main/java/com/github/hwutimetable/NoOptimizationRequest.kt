@@ -83,9 +83,17 @@ class NoOptimizationRequest(private val context: Context) {
     }
 
     private fun takeUserToBatteryOptimizationSettings() {
-        val intent = Intent().apply {
-            action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-            data = Uri.parse("package:" + context.packageName)
+        val intent = if (android.os.Build.MANUFACTURER.equals("xiaomi", ignoreCase = true)) {
+            Intent().apply {
+                component = ComponentName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HiddenAppsConfigActivity")
+                putExtra("package_name", context.packageName)
+                putExtra("package_label", context.getText(R.string.app_name))
+            }
+        } else {
+            Intent().apply {
+                action = Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                data = Uri.parse("package:" + context.packageName)
+            }
         }
         context.startActivity(intent)
     }
