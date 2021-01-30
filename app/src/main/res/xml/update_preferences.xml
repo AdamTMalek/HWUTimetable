@@ -1,0 +1,35 @@
+<PreferenceScreen
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreferenceCompat
+            app:key="enable_updates"
+            app:defaultValue="true"
+            app:title="@string/enable_updates_title"/>
+
+    <CheckBoxPreference
+            app:key="allow_wifi"
+            app:title="@string/allow_wifi_title"
+            app:defaultValue="true"
+            app:dependency="enable_updates"/>
+
+    <CheckBoxPreference
+            app:key="allow_data"
+            app:title="@string/allow_mobile_data_title"
+            app:defaultValue="true"
+            app:dependency="enable_updates"/>
+
+    <com.github.hwutimetable.settings.TimePreference
+            app:key="time_preference"
+            app:title="Update time"
+            app:summary="Click here to change the update time."
+            app:defaultValue="0"
+            app:dependency="enable_updates"/>
+
+    <com.github.hwutimetable.settings.NumberPreference
+            app:key="frequency_preference"
+            app:title="@string/update_frequency_title"
+            app:summary="@string/update_frequency_summary"
+            app:defaultValue="1"
+            app:dependency="enable_updates"
+            app:minValue="1"
+            app:maxValue="14"/>
+</PreferenceScreen>

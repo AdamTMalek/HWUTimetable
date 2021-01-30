@@ -1,14 +1,11 @@
 package com.github.hwutimetable.settings
 
-import android.content.Context
 import android.os.Bundle
-import android.text.format.DateFormat
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
 import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.network.NetworkUtilities
@@ -19,10 +16,9 @@ import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
 import com.github.hwutimetable.updater.UpdateNotifier
 import com.github.hwutimetable.updater.Updater
-import org.joda.time.format.DateTimeFormat
 import java.util.*
 
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +33,25 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
+    override fun onPreferenceStartFragment(caller: PreferenceFragmentCompat, pref: Preference): Boolean {
+        val args = pref.extras
+        val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, pref.fragment).apply {
+            arguments = args
+            setTargetFragment(caller, 0)
+        }
+        supportFragmentManager.beginTransaction()
+            .setCustomAnimations(
+                R.anim.slide_in_right,
+                R.anim.slide_out_left,
+                R.anim.slide_in_left,
+                R.anim.slide_out_right
+            )
+            .replace(R.id.settings, fragment)
+            .addToBackStack(null)
+            .commit()
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
@@ -46,8 +61,8 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
-    class SettingsFragment : PreferenceFragmentCompat(), OnUpdateFinishedListener,
-        NetworkUtilities.ConnectivityCallbackReceiver {
+    class SettingsFragment : PreferenceFragmentCompat(),
+        OnUpdateFinishedListener, NetworkUtilities.ConnectivityCallbackReceiver {
         private lateinit var updateManager: UpdateManager
         private val networkUtilities: NetworkUtilities by lazy {
             NetworkUtilities(this.context!!)
@@ -65,10 +80,7 @@ class SettingsActivity : AppCompatActivity() {
 
             updateManager = UpdateManager(context!!)
 
-            setTimePreferenceSummaryProvider()
-            setIntervalPreferenceSummaryProvider()
             setUpdateButtonHandler()
-            setUpdateSummary()
             setVersionPreferenceSummary()
             setRecentChangesClickHandler()
 
@@ -83,41 +95,6 @@ class SettingsActivity : AppCompatActivity() {
                 is TimePreference -> displayTimePreference(preference)
                 is NumberPreference -> displayNumberPreference(preference)
                 else -> super.onDisplayPreferenceDialog(preference)
-            }
-        }
-
-        /**
-         * Set the summary provider of the update time preference control
-         */
-        private fun setTimePreferenceSummaryProvider() {
-            val timePreference: TimePreference? = findPreference("time_preference")
-
-            timePreference?.summaryProvider = Preference.SummaryProvider<TimePreference> { preference ->
-                val stringFormat = if (DateFormat.is24HourFormat(context)) {
-                    "HH:mm"
-                } else {
-                    "h:mm a"
-                }
-
-                val formatter = DateTimeFormat.forPattern(stringFormat)
-                val timeAsString = preference.time!!.toString(formatter)
-                "The update time is currently set to: $timeAsString. Click here to change it."
-            }
-        }
-
-        /**
-         * Set the summary provider of the interval (frequency) preference control
-         */
-        private fun setIntervalPreferenceSummaryProvider() {
-            val intervalPreference: NumberPreference? = findPreference("frequency_preference")
-
-            intervalPreference?.summaryProvider = Preference.SummaryProvider<NumberPreference> { preference ->
-                "Update checks will be performed every".plus(
-                    when (preference.value) {
-                        1 -> "day"
-                        else -> " ${preference.value} days"
-                    }
-                ).plus(". Click here to change it.")
             }
         }
 
@@ -141,24 +118,6 @@ class SettingsActivity : AppCompatActivity() {
                 startUpdate()
                 return@setOnPreferenceClickListener true
             }
-        }
-
-        private fun setUpdateSummary() {
-            val preference = findPreference<SwitchPreferenceCompat>("enable_updates")!!
-            val preferencesName = context!!.getString(R.string.update_details)
-            val sharedPreferences = activity!!.getSharedPreferences(preferencesName, Context.MODE_PRIVATE) ?: return
-            val lastUpdateTimestamp = sharedPreferences.getInt(getString(R.string.last_update), 0)
-
-            val summary = if (lastUpdateTimestamp != 0) {
-                val date = Date(lastUpdateTimestamp.toLong() * 1000)
-                val dateFormat = DateFormat.getDateFormat(context!!)
-                val timeFormat = DateFormat.getTimeFormat(context!!)
-                "Last checked on ${dateFormat.format(date)} at ${timeFormat.format(date)}"
-            } else {
-                "No update checks have been performed yet"
-            }
-
-            preference.summary = summary
         }
 
         /**
@@ -202,7 +161,6 @@ class SettingsActivity : AppCompatActivity() {
             }
 
             Toast.makeText(this.context, message, Toast.LENGTH_SHORT).show()
-            setUpdateSummary()
         }
 
         private fun setVersionPreferenceSummary() {
