@@ -58,9 +58,14 @@ class SettingsActivityTest {
         launchActivity()
         Intents.init()
 
-        Thread.sleep(2000) // Travis CI issues
-        onView(withText(targetContext.getString(R.string.run_setup_title)))
-            .perform(click())
+        val runSetupTitle = targetContext.getString(R.string.run_setup_title)
+        onView(withId(androidx.preference.R.id.recycler_view))
+            .perform(
+                actionOnItem<RecyclerView.ViewHolder>(
+                    hasDescendant(withText(runSetupTitle)),
+                    click()
+                )
+            )
 
         Intents.intended(IntentMatchers.hasComponent(SetupActivity::class.java.name))
         Intents.release()
