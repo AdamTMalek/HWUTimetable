@@ -19,6 +19,7 @@ import com.github.hwutimetable.di.CourseScraperModule
 import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.NetworkUtilitiesModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
+import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.parser.Semester
@@ -26,6 +27,7 @@ import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.settings.SettingsActivity
+import com.github.hwutimetable.setup.SetupActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.Binds
 import dagger.Module
@@ -125,6 +127,9 @@ class MainActivityTest {
     @Before
     fun init() {
         hiltRule.inject()
+        with(targetContext.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE).edit()) {
+            putBoolean(targetContext.getString(R.string.first_run), false)
+        }
     }
 
     private fun launchActivity() {
@@ -396,6 +401,20 @@ class MainActivityTest {
         Espresso.onView(withText("Rename")).perform(click())
 
         assertNotNull(timetableFileHandler.getStoredTimetables().find { it.name == "Renamed Timetable" })
+    }
+
+    @Test
+    fun testGoesToSetupOnFirstRun() {
+        val sharedPrefs = targetContext.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            remove(targetContext.getString(R.string.first_run))
+            commit()
+        }
+
+        Intents.init()
+        launchActivity()
+        Intents.intended(IntentMatchers.hasComponent(SetupActivity::class.java.name))
+        Intents.release()
     }
 
     /**

@@ -25,7 +25,7 @@
 
     <!-- Add Course(s) Timetable Activity -->
     <string name="course">Course:</string>
-    <string name="add_course_button_text">Add course</string>
+    <string name="add_course_button_text">Add course(s)</string>
     <string name="courses">Selected Courses</string>
     <string name="generate_timetable">Generate timetable</string>
     <string name="add_programme">Add programme</string>
@@ -52,6 +52,28 @@
         view is exactly the same as you see it on the website
     </string>
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
+    <string name="run_setup_summary">Opens the setup procedure that takes you through the initial app setup.</string>
+    <string name="run_setup_title">Run setup</string>
+
+    <!-- AppManager Activity -->
+    <string name="setup_activity_title">Setup</string>
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="setup_step_1">
+        The app can check for timetable updates automatically.\n
+        Please adjust these settings based on your preferences.
+    </string>
+    <string name="setup_step_2">
+        There are two types of views shown below.
+        Please pick the one you\'d like to use.
+    </string>
+    <string name="setup_step_3">
+        Finally, let\'s add your timetable!
+    </string>
+    <string name="setup_step_3_no_internet">
+        You have no Internet connection at the moment.\n
+        Please come back when you will have access to the Internet.
+    </string>
 
     <!-- Preference keys -->
     <string name="shared_pref_file_key">com.github.hwutimetable.PREFERENCE_FILE_KEY</string>
@@ -61,10 +83,12 @@
     <string name="frequency_pref_key">frequency_preference</string>
     <string name="updates_pref_key">enable_updates</string>
     <string name="update_now">update_now</string>
+    <string name="run_setup">run_setup</string>
     <string name="last_update">last_update</string>
     <string name="update_details">update_details</string>
     <string name="use_simplified_view">use_simplified_view</string>
     <string name="last_ran_version">last_ran_version</string>
+    <string name="first_run">first_run</string>
     <!-- Tags -->
     <string name="timetable_class_simple">timetable_class_simple</string>
     <string name="timetable_class_original">timetable_class_original</string>
@@ -99,4 +123,11 @@
     <!-- Change Log Dialog -->
     <string name="changelog_dialog_title">Changes in version:</string>
     <string name="changelog_dialog_pos_button">Close</string>
+    <string name="setup_original_view">Original View</string>
+    <string name="setup_simplified_view">Simplified View</string>
+    <string name="setup_timetable_courses">If you have any optional courses this semester, click the button below and to
+        create your timetable
+    </string>
+    <string name="setup_timetable_programme">Otherwise, to add a timetable for your programme, click the button below
+    </string>
 </resources>

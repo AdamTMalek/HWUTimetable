@@ -17,11 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.databinding.ActivityMainBinding
+import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.settings.SettingsActivity
+import com.github.hwutimetable.setup.SetupActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.FileNotFoundException
@@ -81,11 +83,16 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
 
     override fun onResume() {
         super.onResume()
+        val appManager = AppManager(this)
+        if (appManager.isFirstRun) {
+            appManager.setFirstRunToFalse()
+            openSetup()
+        }
         reloadInfoList()
     }
 
     private fun updateLastRanVersion() {
-        val sharedPref = getSharedPreferences(getString(R.string.shared_pref_file_key), Context.MODE_PRIVATE)
+        val sharedPref = getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE)
         with(sharedPref.edit()) {
             putInt(getString(R.string.last_ran_version), BuildConfig.VERSION_CODE)
             apply()
@@ -96,6 +103,11 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
+    }
+
+    private fun openSetup() {
+        val intent = Intent(this, SetupActivity::class.java)
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import com.github.hwutimetable.BuildConfig
 import com.github.hwutimetable.R
+import com.github.hwutimetable.extensions.getSharedPreferences
 import org.xmlpull.v1.XmlPullParser
 
 
@@ -14,8 +15,7 @@ import org.xmlpull.v1.XmlPullParser
  * @param context: Activity context
  */
 class ChangeLog(private val context: Context) {
-    private val sharedPreferences =
-        context.getSharedPreferences(context.getString(R.string.shared_pref_file_key), Context.MODE_PRIVATE)
+    private val sharedPreferences = context.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE)
 
     private val lastRanVersionKey
         get() = context.getString(R.string.last_ran_version)
