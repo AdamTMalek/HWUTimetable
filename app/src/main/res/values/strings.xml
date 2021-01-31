@@ -68,6 +68,10 @@
     <string name="setup_step_3">
         Finally, let\'s add your timetable!
     </string>
+    <string name="setup_step_3_no_internet">
+        You have no Internet connection at the moment.\n
+        Please come back when you will have access to the Internet.
+    </string>
 
     <!-- Preference keys -->
     <string name="shared_pref_file_key">com.github.hwutimetable.PREFERENCE_FILE_KEY</string>

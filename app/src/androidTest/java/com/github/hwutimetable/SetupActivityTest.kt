@@ -2,6 +2,7 @@ package com.github.hwutimetable
 
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.click
@@ -12,7 +13,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withSubstring
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.viewpager.widget.ViewPager
 import com.github.hwutimetable.di.CourseScraperModule
+import com.github.hwutimetable.di.NetworkUtilitiesModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
+import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.setup.SetupActivity
@@ -23,19 +26,27 @@ import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import javax.inject.Inject
+import javax.inject.Singleton
 
 
 @UninstallModules(
-    value = [ProgrammeScraperModule::class, CourseScraperModule::class]
+    value = [NetworkUtilitiesModule::class, ProgrammeScraperModule::class, CourseScraperModule::class]
 )
 @HiltAndroidTest
 class SetupActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var injectedNetworkUtils: NetworkUtils
+
+    private val networkUtils
+        get() = (injectedNetworkUtils as TestNetworkUtilitiesModule.TestNetworkUtilities)
 
     private lateinit var scenario: ActivityScenario<SetupActivity>
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
@@ -80,9 +91,7 @@ class SetupActivityTest {
     @Test
     fun testNextButtonNotVisibleOnLastFragment() {
         launchActivity().onActivity { activity ->
-            getViewPager(activity).run {
-                currentItem = adapter!!.count - 1
-            }
+            goToLastSetupStep(activity)
 
             val button = activity.findViewById<Button>(R.id.next_button)
             assertEquals(View.INVISIBLE, button.visibility)
@@ -118,12 +127,10 @@ class SetupActivityTest {
     fun testAddCourseButtonWorksOnLastStep() {
         Intents.init()
         launchActivity().onActivity { activity ->
-            getViewPager(activity).run {
-                currentItem = adapter!!.count - 1
-            }
+            goToLastSetupStep(activity)
             activity.findViewById<Button>(R.id.add_course_button).performClick()
-
         }
+
         Intents.intended(IntentMatchers.hasComponent(AddCourseActivity::class.java.name))
         Intents.release()
     }
@@ -132,17 +139,77 @@ class SetupActivityTest {
     fun testAddProgrammeButtonWorksOnLastStep() {
         Intents.init()
         launchActivity().onActivity { activity ->
-            getViewPager(activity).run {
-                currentItem = adapter!!.count - 1
-            }
-
+            goToLastSetupStep(activity)
             activity.findViewById<Button>(R.id.add_programme_button).performClick()
         }
+
         Intents.intended(IntentMatchers.hasComponent(AddProgrammeTimetableActivity::class.java.name))
         Intents.release()
     }
 
+    @Test
+    fun testAddTimetabledIfHasInternet() {
+        networkUtils.wifiOn = true
+
+        launchActivity().onActivity { activity ->
+            goToLastSetupStep(activity)
+            val addCourseButton = activity.findViewById<Button>(R.id.add_course_button)
+            val addProgrammeButton = activity.findViewById<Button>(R.id.add_programme_button)
+
+            assertTrue(addCourseButton.isEnabled)
+            assertTrue(addProgrammeButton.isEnabled)
+        }
+    }
+
+    @Test
+    fun testAddTimetableButtonsDisabledIfNoInternet() {
+        networkUtils.wifiOn = false
+        networkUtils.dataOn = false
+
+        launchActivity().onActivity { activity ->
+            goToLastSetupStep(activity)
+            val addCourseButton = activity.findViewById<Button>(R.id.add_course_button)
+            val addProgrammeButton = activity.findViewById<Button>(R.id.add_programme_button)
+
+            assertFalse(addCourseButton.isEnabled)
+            assertFalse(addProgrammeButton.isEnabled)
+        }
+    }
+
+    @Test
+    fun testAddTimetableDescriptionIfHasInternet() {
+        networkUtils.wifiOn = true
+
+        launchActivity().onActivity { activity ->
+            goToLastSetupStep(activity)
+            val expectedDescription = activity.getString(R.string.setup_step_3)
+            val actualDescription = activity.findViewById<TextView>(R.id.step_description).text
+
+            assertEquals(expectedDescription, actualDescription)
+        }
+    }
+
+    @Test
+    fun testAddTimetableDescriptionIfNoInternet() {
+        networkUtils.wifiOn = false
+        networkUtils.dataOn = false
+
+        launchActivity().onActivity { activity ->
+            goToLastSetupStep(activity)
+            val expectedDescription = activity.getString(R.string.setup_step_3_no_internet)
+            val actualDescription = activity.findViewById<TextView>(R.id.step_description).text
+
+            assertEquals(expectedDescription, actualDescription)
+        }
+    }
+
     private fun getViewPager(activity: SetupActivity) = activity.findViewById<ViewPager>(R.id.view_pager)
+
+    private fun goToLastSetupStep(activity: SetupActivity) {
+        getViewPager(activity).run {
+            currentItem = adapter!!.count - 1
+        }
+    }
 
     @Module
     @InstallIn(ApplicationComponent::class)
@@ -156,5 +223,31 @@ class SetupActivityTest {
     abstract class TestCourseScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: com.github.hwutimetable.TestCourseScraper): CourseTimetableScraper
+    }
+
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    abstract class TestNetworkUtilitiesModule {
+        class TestNetworkUtilities @Inject constructor() : NetworkUtils {
+
+            var wifiOn = false
+            var dataOn = false
+
+            override fun hasInternetConnection(): Boolean {
+                return wifiOn || dataOn
+            }
+
+            override fun isWifiEnabled(): Boolean {
+                return wifiOn
+            }
+
+            override fun isMobileDataEnabled(): Boolean {
+                return dataOn
+            }
+        }
+
+        @Singleton
+        @Binds
+        abstract fun bindNetworkUtilities(networkUtilities: TestNetworkUtilities): NetworkUtils
     }
 }

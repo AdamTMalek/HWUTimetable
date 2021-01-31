@@ -3,6 +3,7 @@ package com.github.hwutimetable.setup
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -10,7 +11,11 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import androidx.viewpager.widget.ViewPager
 import com.github.hwutimetable.R
 import com.github.hwutimetable.databinding.SetupActivityBinding
+import com.github.hwutimetable.network.NetworkUtilities
+import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.settings.UpdatePreferenceFragment
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 /**
@@ -18,9 +23,18 @@ import com.github.hwutimetable.settings.UpdatePreferenceFragment
  * that are used to introduce the user to the application and setup
  * the preferences.
  */
-class SetupActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
     private var pagerAdapter = PagerAdapter(supportFragmentManager)
+    private var currentStep = 1
     private val totalSetupSteps = 3
+
+    private val connectivityCallback: NetworkUtilities.ConnectivityCallback by lazy {
+        NetworkUtilities.ConnectivityCallback(this)
+    }
+
+    @Inject
+    lateinit var networkUtilities: NetworkUtils
 
     private lateinit var viewBinding: SetupActivityBinding
 
@@ -30,10 +44,11 @@ class SetupActivity : AppCompatActivity() {
         setContentView(viewBinding.root)
         viewBinding.viewPager.adapter = pagerAdapter
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        setToolbarTitle(currentStep = 1)
+        setToolbarTitle()
         setOnPageChangeListener()
         setOnNextClickHandler()
         setOnBackClickHandler()
+        connectivityCallback.registerCallbackReceiver(this)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -51,21 +66,26 @@ class SetupActivity : AppCompatActivity() {
             }
 
             override fun onPageSelected(position: Int) {
-                val currentStep = position + 1
-                setToolbarTitle(currentStep)
-                setStepDescription(currentStep)
-                setBackButtonVisibility(currentStep)
-                setNextButtonVisibility(currentStep)
+                currentStep = position + 1
+                setToolbarTitle()
+                setStepDescription()
+                setBackButtonVisibility()
+                setNextButtonVisibility()
+
+                if (currentStep == totalSetupSteps) {
+                    if (!networkUtilities.hasInternetConnection())
+                        setAddTimetableButtonsEnable(false)
+                }
             }
 
-            private fun setBackButtonVisibility(currentStep: Int) {
+            private fun setBackButtonVisibility() {
                 viewBinding.backButton.visibility = if (currentStep == 1)
                     View.INVISIBLE
                 else
                     View.VISIBLE
             }
 
-            private fun setNextButtonVisibility(currentStep: Int) {
+            private fun setNextButtonVisibility() {
                 viewBinding.nextButton.visibility = if (currentStep == totalSetupSteps)
                     View.INVISIBLE
                 else
@@ -94,19 +114,49 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 
-    private fun setToolbarTitle(currentStep: Int) {
+    private fun setToolbarTitle() {
         title = "${getString(R.string.setup_activity_title)} ($currentStep/$totalSetupSteps)"
     }
 
-    private fun setStepDescription(currentStep: Int) {
+    private fun setStepDescription() {
         val textId = when (currentStep) {
             1 -> R.string.setup_step_1
             2 -> R.string.setup_step_2
-            3 -> R.string.setup_step_3
+            3 -> if (networkUtilities.hasInternetConnection()) R.string.setup_step_3 else R.string.setup_step_3_no_internet
             else -> throw IllegalArgumentException("Current step exceeded total steps")
         }
 
         viewBinding.stepDescription.text = getText(textId)
+    }
+
+    override fun onConnectionAvailable() {
+        if (currentStep != totalSetupSteps)
+            return
+
+        runOnUiThread {
+            viewBinding.stepDescription.text = getText(R.string.setup_step_3)
+            setAddTimetableButtonsEnable(true)
+        }
+    }
+
+    override fun onConnectionLost() {
+        if (currentStep != totalSetupSteps)
+            return
+
+        runOnUiThread {
+            viewBinding.stepDescription.text = getText(R.string.setup_step_3_no_internet)
+            setAddTimetableButtonsEnable(false)
+        }
+    }
+
+    private fun setAddTimetableButtonsEnable(enabled: Boolean) {
+        findViewById<Button>(R.id.add_course_button).isEnabled = enabled
+        findViewById<Button>(R.id.add_programme_button).isEnabled = enabled
+    }
+
+    override fun onDestroy() {
+        connectivityCallback.cleanup()
+        super.onDestroy()
     }
 
     inner class PagerAdapter(fm: FragmentManager) :
