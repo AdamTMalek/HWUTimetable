@@ -57,7 +57,8 @@ class SettingsActivityTest {
     fun testRunSetupButtonStartsSetupActivity() {
         launchActivity()
         Intents.init()
-        onView(withSubstring(targetContext.getString(R.string.run_setup_summary)))
+
+        onView(withText(targetContext.getString(R.string.run_setup_title)))
             .perform(click())
 
         Intents.intended(IntentMatchers.hasComponent(SetupActivity::class.java.name))

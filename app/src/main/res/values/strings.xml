@@ -53,6 +53,7 @@
     </string>
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
     <string name="run_setup_summary">Opens the setup procedure that takes you through the initial app setup.</string>
+    <string name="run_setup_title">Run setup</string>
 
     <!-- AppManager Activity -->
     <string name="setup_activity_title">Setup</string>
