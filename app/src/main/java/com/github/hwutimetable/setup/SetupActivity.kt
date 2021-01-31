@@ -1,7 +1,6 @@
 package com.github.hwutimetable.setup
 
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
@@ -43,21 +42,11 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
         viewBinding = SetupActivityBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
         viewBinding.viewPager.adapter = pagerAdapter
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setToolbarTitle()
         setOnPageChangeListener()
         setOnNextClickHandler()
         setOnBackClickHandler()
         connectivityCallback.registerCallbackReceiver(this)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            android.R.id.home -> {
-                onBackPressed(); true
-            }
-            else -> return super.onOptionsItemSelected(item)
-        }
     }
 
     private fun setOnPageChangeListener() {
