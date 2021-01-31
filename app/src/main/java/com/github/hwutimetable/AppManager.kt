@@ -1,7 +1,7 @@
 package com.github.hwutimetable
 
 import android.content.Context
-
+import com.github.hwutimetable.extensions.getSharedPreferences
 
 /**
  * The [AppManager] class contains methods for determining
@@ -9,10 +9,7 @@ import android.content.Context
  * run when the application is freshly installed) should be run.
  */
 class AppManager(context: Context) {
-    private val sharedPreferences = context.getSharedPreferences(
-        context.getString(R.string.shared_pref_file_key),
-        Context.MODE_PRIVATE
-    )
+    private val sharedPreferences = context.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE)
 
     private val firstRunPrefKey = context.getString(R.string.first_run)
 

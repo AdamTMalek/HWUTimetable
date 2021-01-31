@@ -2,6 +2,7 @@ package com.github.hwutimetable.updater
 
 import android.content.Context
 import com.github.hwutimetable.R
+import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.*
 import com.github.hwutimetable.scraper.*
@@ -175,8 +176,7 @@ class Updater(
             return
 
         val timestamp = (DateTime().millis / 1000).toInt()
-        val preferencesName = context.getString(R.string.update_details)
-        val preferences = context.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+        val preferences = context.getSharedPreferences(R.string.update_details, Context.MODE_PRIVATE)
         with(preferences.edit()) {
             putInt(context.getString(R.string.last_update), timestamp)
             commit()

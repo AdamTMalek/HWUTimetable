@@ -12,6 +12,7 @@ import com.github.hwutimetable.di.CourseScraperModule
 import com.github.hwutimetable.di.FileModule
 import com.github.hwutimetable.di.NetworkUtilitiesModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
+import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
@@ -31,6 +32,7 @@ import org.junit.Test
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+
 
 @UninstallModules(
     value = [FileModule::class, NetworkUtilitiesModule::class, ProgrammeScraperModule::class,
@@ -95,9 +97,8 @@ class ChangeLogTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-    private val sharedPrefsKey = targetContext.getString(R.string.shared_pref_file_key)
     private val lastVersionKey = targetContext.getString(R.string.last_ran_version)
-    private val sharedPrefs = targetContext.getSharedPreferences(sharedPrefsKey, Context.MODE_PRIVATE)
+    private val sharedPrefs = targetContext.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE)
 
     @Before
     fun init() {

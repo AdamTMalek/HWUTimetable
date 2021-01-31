@@ -7,6 +7,7 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import com.github.hwutimetable.R
+import com.github.hwutimetable.extensions.getSharedPreferences
 import org.joda.time.format.DateTimeFormat
 import java.util.*
 
@@ -54,8 +55,7 @@ class UpdatePreferenceFragment : PreferenceFragmentCompat() {
 
     private fun setUpdateSummary() {
         val preference = findPreference<SwitchPreferenceCompat>("enable_updates")!!
-        val preferencesName = context!!.getString(R.string.update_details)
-        val sharedPreferences = activity!!.getSharedPreferences(preferencesName, Context.MODE_PRIVATE) ?: return
+        val sharedPreferences = activity!!.getSharedPreferences(R.string.update_details, Context.MODE_PRIVATE) ?: return
         val lastUpdateTimestamp = sharedPreferences.getInt(getString(R.string.last_update), 0)
 
         val summary = if (lastUpdateTimestamp != 0) {
