@@ -127,6 +127,9 @@ class MainActivityTest {
     @Before
     fun init() {
         hiltRule.inject()
+        with(targetContext.getSharedPreferences(R.string.shared_pref_file_key, Context.MODE_PRIVATE).edit()) {
+            putBoolean(targetContext.getString(R.string.first_run), false)
+        }
     }
 
     private fun launchActivity() {
