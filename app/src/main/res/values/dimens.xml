@@ -25,4 +25,7 @@
     <dimen name="mid_fab">65dp</dimen>
     <dimen name="timetable_list_item_side_margin">5dp</dimen>
     <dimen name="timetable_list_item_top_bottom_margin">8dp</dimen>
+
+    <!-- Setup Fragments -->
+    <dimen name="setup_step_text_size">16sp</dimen>
 </resources>
