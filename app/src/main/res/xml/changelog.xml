@@ -2,5 +2,6 @@
     <version versionCode="4" versionName="0.9RC1">
         <change>Fixed an issue with minimising the app in Add Timetable/Add Course.</change>
         <change>Added Change Log</change>
+        <change>Added Setup process</change>
     </version>
 </changelog>
