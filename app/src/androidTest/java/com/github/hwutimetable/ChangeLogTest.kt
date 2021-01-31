@@ -118,6 +118,7 @@ class ChangeLogTest {
     @Test
     fun testChangeLogIsShownAfterUpdate() {
         with(sharedPrefs.edit()) {
+            putBoolean(targetContext.getString(R.string.first_run), false)
             remove(lastVersionKey)
             apply()
         }
