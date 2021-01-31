@@ -55,9 +55,18 @@
 
     <!-- Setup Activity -->
     <string name="setup_activity_title">Setup</string>
-    <string name="setup_activity_update_step_desc">
+    <string name="next">Next</string>
+    <string name="back">Back</string>
+    <string name="setup_step_1">
         The app can check for timetable updates automatically.\n
         Please adjust these settings based on your preferences.
+    </string>
+    <string name="setup_step_2">
+        There are two types of views shown below.
+        Please pick the one you\'d like to use.
+    </string>
+    <string name="setup_step_3">
+        Finally, let\'s add your timetable!
     </string>
 
     <!-- Preference keys -->

@@ -28,4 +28,5 @@
 
     <!-- Setup Fragments -->
     <dimen name="setup_step_text_size">16sp</dimen>
+    <dimen name="setup_buttons_margin">20dp</dimen>
 </resources>
