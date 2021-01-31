@@ -58,6 +58,7 @@ class SettingsActivityTest {
         launchActivity()
         Intents.init()
 
+        Thread.sleep(200) // Travis CI issues
         onView(withText(targetContext.getString(R.string.run_setup_title)))
             .perform(click())
 
