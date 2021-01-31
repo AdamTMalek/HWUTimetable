@@ -25,7 +25,7 @@
 
     <!-- Add Course(s) Timetable Activity -->
     <string name="course">Course:</string>
-    <string name="add_course_button_text">Add course</string>
+    <string name="add_course_button_text">Add course(s)</string>
     <string name="courses">Selected Courses</string>
     <string name="generate_timetable">Generate timetable</string>
     <string name="add_programme">Add programme</string>
@@ -52,6 +52,13 @@
         view is exactly the same as you see it on the website
     </string>
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
+
+    <!-- Setup Activity -->
+    <string name="setup_activity_title">Setup</string>
+    <string name="setup_activity_update_step_desc">
+        The app can check for timetable updates automatically.\n
+        Please adjust these settings based on your preferences.
+    </string>
 
     <!-- Preference keys -->
     <string name="shared_pref_file_key">com.github.hwutimetable.PREFERENCE_FILE_KEY</string>
@@ -99,4 +106,11 @@
     <!-- Change Log Dialog -->
     <string name="changelog_dialog_title">Changes in version:</string>
     <string name="changelog_dialog_pos_button">Close</string>
+    <string name="setup_original_view">Original View</string>
+    <string name="setup_simplified_view">Simplified View</string>
+    <string name="setup_timetable_courses">If you have any optional courses this semester, click the button below and to
+        create your timetable
+    </string>
+    <string name="setup_timetable_programme">Otherwise, to add a timetable for your programme, click the button below
+    </string>
 </resources>
