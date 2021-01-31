@@ -53,7 +53,7 @@
     </string>
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
 
-    <!-- Setup Activity -->
+    <!-- AppManager Activity -->
     <string name="setup_activity_title">Setup</string>
     <string name="next">Next</string>
     <string name="back">Back</string>
@@ -81,6 +81,7 @@
     <string name="update_details">update_details</string>
     <string name="use_simplified_view">use_simplified_view</string>
     <string name="last_ran_version">last_ran_version</string>
+    <string name="first_run">first_run</string>
     <!-- Tags -->
     <string name="timetable_class_simple">timetable_class_simple</string>
     <string name="timetable_class_original">timetable_class_original</string>
