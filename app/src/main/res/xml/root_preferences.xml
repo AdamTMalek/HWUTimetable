@@ -19,6 +19,11 @@
         <Preference app:title="Update settings"
                     app:fragment="com.github.hwutimetable.settings.UpdatePreferenceFragment"/>
     </PreferenceCategory>
+    <PreferenceCategory app:title="Setup">
+        <Preference app:title="Run setup"
+                    app:key="@string/run_setup"
+                    app:summary="@string/run_setup_summary"/>
+    </PreferenceCategory>
     <PreferenceCategory
             app:title="About">
         <Preference

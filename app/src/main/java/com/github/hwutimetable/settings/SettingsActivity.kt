@@ -1,5 +1,7 @@
 package com.github.hwutimetable.settings
 
+import android.app.ActivityOptions
+import android.content.Intent
 import android.os.Bundle
 import android.view.MenuItem
 import android.widget.Toast
@@ -12,6 +14,7 @@ import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.parser.Parser
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Scraper
+import com.github.hwutimetable.setup.SetupActivity
 import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
 import com.github.hwutimetable.updater.UpdateNotifier
@@ -81,6 +84,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             updateManager = UpdateManager(context!!)
 
             setUpdateButtonHandler()
+            setRunSetupButtonHandler()
             setVersionPreferenceSummary()
             setRecentChangesClickHandler()
 
@@ -134,6 +138,19 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             updater.addFinishedListener(notifier)
             updater.addFinishedListener(this)
             updater.update()
+        }
+
+        private fun setRunSetupButtonHandler() {
+            val button = findPreference<Preference>(getString(R.string.run_setup))
+            button!!.setOnPreferenceClickListener {
+                runSetup()
+                return@setOnPreferenceClickListener true
+            }
+        }
+
+        private fun runSetup() {
+            val intent = Intent(this.activity!!, SetupActivity::class.java)
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this.activity!!).toBundle())
         }
 
         override fun onConnectionAvailable() {

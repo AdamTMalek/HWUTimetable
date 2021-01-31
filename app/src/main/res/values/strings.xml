@@ -52,6 +52,7 @@
         view is exactly the same as you see it on the website
     </string>
     <string name="use_simplified_view_title">Use simplified timetable class view</string>
+    <string name="run_setup_summary">Opens the setup procedure that takes you through the initial app setup.</string>
 
     <!-- AppManager Activity -->
     <string name="setup_activity_title">Setup</string>
@@ -81,6 +82,7 @@
     <string name="frequency_pref_key">frequency_preference</string>
     <string name="updates_pref_key">enable_updates</string>
     <string name="update_now">update_now</string>
+    <string name="run_setup">run_setup</string>
     <string name="last_update">last_update</string>
     <string name="update_details">update_details</string>
     <string name="use_simplified_view">use_simplified_view</string>
