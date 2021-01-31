@@ -84,8 +84,10 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     override fun onResume() {
         super.onResume()
         val appManager = AppManager(this)
-        if (appManager.isFirstRun)
+        if (appManager.isFirstRun) {
+            appManager.setFirstRunToFalse()
             openSetup()
+        }
         reloadInfoList()
     }
 
