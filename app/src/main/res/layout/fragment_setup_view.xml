@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:text="@string/setup_original_view"
+              android:textSize="18sp"
+              android:layout_marginTop="15dp"
+              android:textColor="@android:color/black"
+              android:textAlignment="center"/>
+    <include android:id="@+id/original_layout"
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:layout_margin="15dp"
+             layout="@layout/timetable_class_original"/>
+    <TextView android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp"
+              android:text="@string/setup_simplified_view"
+              android:textSize="18sp"
+              android:textColor="@android:color/black"
+              android:textAlignment="center"/>
+    <include android:id="@+id/simplified_layout"
+             android:layout_height="wrap_content"
+             android:layout_width="match_parent"
+             android:layout_margin="15dp"
+             layout="@layout/timetable_class_simple"/>
+    <FrameLayout android:id="@+id/view_preference_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"/>
+</LinearLayout>

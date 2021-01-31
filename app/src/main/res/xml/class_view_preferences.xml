@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+    <SwitchPreference
+            app:title="@string/use_simplified_view_title"
+            app:key="@string/use_simplified_view"
+            app:defaultValue="true"/>
+</PreferenceScreen>
