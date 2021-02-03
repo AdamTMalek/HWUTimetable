@@ -314,6 +314,15 @@ class MainActivityTest {
     }
 
     @Test
+    fun testSwipeToDelete() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 2")).perform(swipeLeft())
+        assertNull(timetableFileHandler.getStoredTimetables().find { it.name == "Timetable 2" })
+    }
+
+    @Test
     fun testDeleteAllDisplaysAlertDialog() {
         launchActivity()
         // Open menu
