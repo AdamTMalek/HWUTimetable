@@ -369,6 +369,38 @@ class MainActivityTest {
     }
 
     @Test
+    fun testContextMenuAppears() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 1")).perform(longClick())
+        Espresso.onView(withText(R.string.item_context_menu_title))
+            .check(matches(isDisplayed()))
+    }
+
+    @Test
+    fun testContextMenuCancel() {
+        populateInfoList()
+        launchActivity()
+
+        Espresso.onView(withText("Timetable 1")).perform(longClick())
+        Espresso.onView(withId(android.R.id.button1)).perform(click())
+        Espresso.onView(withText(R.string.item_context_menu_title)).check(doesNotExist())
+    }
+
+    @Test
+    fun testDeleteByContextMenu() {
+        populateInfoList()
+        launchActivity()
+        val timetableToDelete = "Timetable 2"
+        Espresso.onView(withText(timetableToDelete)).perform(longClick())
+        Espresso.onView(withText(R.string.item_context_menu_delete)).perform(click())
+
+        // Check if deleted
+        assertNull(timetableFileHandler.getStoredTimetables().find { it.name == timetableToDelete })
+    }
+
+    @Test
     fun testRenameDialogPopsUp() {
         populateInfoList()
         launchActivity()
