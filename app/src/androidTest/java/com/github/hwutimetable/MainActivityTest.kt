@@ -313,7 +313,6 @@ class MainActivityTest {
         Intents.release()
     }
 
-
     @Test
     fun testDeleteAllDisplaysAlertDialog() {
         launchActivity()
@@ -366,6 +365,7 @@ class MainActivityTest {
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText(targetContext.getString(R.string.item_context_menu_rename))).perform(click())
         Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(matches(isDisplayed()))
     }
 
@@ -375,6 +375,7 @@ class MainActivityTest {
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText(targetContext.getString(R.string.item_context_menu_rename))).perform(click())
         Espresso.onView(withText("Cancel")).perform(click())
         Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(doesNotExist())
     }
@@ -385,6 +386,7 @@ class MainActivityTest {
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText(targetContext.getString(R.string.item_context_menu_rename))).perform(click())
         Espresso.onView(withId(R.id.edit_timetable_title)).perform(clearText(), typeText("Renamed Timetable"))
         Espresso.onView(withText("Rename")).perform(click())
 
@@ -397,6 +399,7 @@ class MainActivityTest {
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
+        Espresso.onView(withText(targetContext.getString(R.string.item_context_menu_rename))).perform(click())
         Espresso.onView(withId(R.id.edit_timetable_title)).perform(clearText(), typeText("Renamed Timetable"))
         Espresso.onView(withText("Rename")).perform(click())
 
