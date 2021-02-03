@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         val swipeToDeleteCallback = object : SwipeToDeleteCallback(applicationContext) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 viewHolder.setIsRecyclable(false)
-                onItemSwiped(viewHolder.adapterPosition)
+                deleteItemAtPosition(viewHolder.adapterPosition)
             }
         }
 
@@ -177,14 +177,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
                     }
 
                     override fun onItemLongClick(view: View, position: Int) {
-                        val timetableTitle = view.findViewById<TextView>(R.id.timetable_title)
-                        val currentName = timetableTitle.text
-                        RenameTimetableDialog.showDialog(view.context, currentName) { newName ->
-                            val timetableInfo = infoList.find { it.name == currentName }!!
-                            timetableInfo.name = newName
-                            timetableTitle.text = newName
-                            timetableHandler.updateName(timetableInfo)
-                        }
+                        onItemLongClick(position)
                     }
                 })
         )
@@ -215,19 +208,39 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
     }
 
     private fun onItemClick(position: Int) {
-        val string = getTextFromRecyclerViewItem(position)
+        val timetableTitle = getRecyclerViewItemTitleView(position).text
 
         val intent = Intent(this, TimetableViewActivity::class.java)
-        val info = timetableHandler.getStoredTimetables().find { it.name == string }!!
+        val info = timetableHandler.getStoredTimetables().find { it.name == timetableTitle }!!
 
         val timetable = timetableHandler.getTimetable(info)
         intent.putExtra("timetable", timetable)
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this).toBundle())
     }
 
-    private fun onItemSwiped(position: Int) {
-        val string = getTextFromRecyclerViewItem(position)
-        val info = timetableHandler.getStoredTimetables().find { it.name == string }!!
+    private fun onItemLongClick(position: Int) {
+        ItemContextMenu(this).create { action ->
+            when (action) {
+                ItemContextMenu.Action.RENAME -> renameItemAtPosition(position)
+                ItemContextMenu.Action.DELETE -> deleteItemAtPosition(position)
+            }
+        }.show()
+    }
+
+    private fun renameItemAtPosition(position: Int) {
+        val titleView = getRecyclerViewItemTitleView(position)
+        val currentName = titleView.text
+        RenameTimetableDialog.showDialog(this, currentName) { newName ->
+            val timetableInfo = infoList.find { it.name == currentName }!!
+            timetableInfo.name = newName
+            titleView.text = newName
+            timetableHandler.updateName(timetableInfo)
+        }
+    }
+
+    private fun deleteItemAtPosition(position: Int) {
+        val title = getRecyclerViewItemTitleView(position).text
+        val info = timetableHandler.getStoredTimetables().find { it.name == title }!!
 
         var success = true
         try {
@@ -239,7 +252,7 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         val toastMessage = when (success) {
             true -> "Successfully deleted "
             false -> "Failed to delete "
-        }.plus(string)
+        }.plus(title)
 
         infoList.removeAt(position)
 
@@ -248,9 +261,9 @@ class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackR
         Toast.makeText(applicationContext, toastMessage, Toast.LENGTH_SHORT).show()
     }
 
-    private fun getTextFromRecyclerViewItem(position: Int): String {
+    private fun getRecyclerViewItemTitleView(position: Int): TextView {
         return viewBinding.contentMain.recyclerView.findViewHolderForAdapterPosition(position)!!
-            .itemView.findViewById<TextView>(R.id.timetable_title).text as String
+            .itemView.findViewById(R.id.timetable_title)
     }
 
     private fun getTimetablesInfoList(): List<Timetable.Info> {
