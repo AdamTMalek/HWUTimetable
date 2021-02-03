@@ -1,4 +1,7 @@
 <changelog>
+    <version versionCode="5" versionName="0.9RC2">
+        <change>Added context menu on timetable long click.</change>
+    </version>
     <version versionCode="4" versionName="0.9RC1">
         <change>Fixed an issue with minimising the app in Add Timetable/Add Course.</change>
         <change>Added Change Log</change>
