@@ -4,4 +4,9 @@
         <item name="semester_2">@string/semester_2</item>
         <item name="semester_any">@string/semester_any</item>
     </string-array>
+
+    <string-array name="item_actions">
+        <item name="rename">@string/item_context_menu_rename</item>
+        <item name="delete">@string/item_context_menu_delete</item>
+    </string-array>
 </resources>

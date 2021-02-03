@@ -11,6 +11,10 @@
     <string name="no_timetables">No timetables found</string>
     <string name="delete_all">Delete all</string>
     <string name="delete_all_confirmation">Are you sure?</string>
+    <!-- Timetable item context menu dialog -->
+    <string name="item_context_menu_title">Choose action</string>
+    <string name="item_context_menu_rename">Rename</string>
+    <string name="item_context_menu_delete">Delete</string>
 
     <!-- Add Programme Timetable Activity -->
     <string name="departments">Department:</string>
@@ -130,4 +134,7 @@
     </string>
     <string name="setup_timetable_programme">Otherwise, to add a timetable for your programme, click the button below
     </string>
+
+    <!-- Misc -->
+    <string name="cancel">Cancel</string>
 </resources>
