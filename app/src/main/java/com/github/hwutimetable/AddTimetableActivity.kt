@@ -64,11 +64,11 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
      */
     protected lateinit var viewBinding: ViewBindingType
 
-    protected val getTimetable: Button by lazy { findViewById<Button>(R.id.get_timetable) }
-    protected val departmentsSpinner: Spinner by lazy { findViewById<Spinner>(R.id.departments_spinner) }
-    protected val semesterSpinner: Spinner by lazy { findViewById<Spinner>(R.id.semester_spinner) }
-    protected val progressBar: ProgressBar by lazy { findViewById<ProgressBar>(R.id.progress_bar) }
-    private val getTimetableButton: Button by lazy { findViewById<Button>(R.id.get_timetable) }
+    protected val getTimetable: Button by lazy { findViewById(R.id.get_timetable) }
+    protected val departmentsSpinner: Spinner by lazy { findViewById(R.id.departments_spinner) }
+    protected val semesterSpinner: Spinner by lazy { findViewById(R.id.semester_spinner) }
+    private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
+    private val getTimetableButton: Button by lazy { findViewById(R.id.get_timetable) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
