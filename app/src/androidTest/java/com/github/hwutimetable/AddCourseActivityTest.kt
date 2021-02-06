@@ -3,7 +3,6 @@ package com.github.hwutimetable
 import android.content.Context
 import android.widget.AutoCompleteTextView
 import android.widget.Button
-import android.widget.EditText
 import android.widget.Spinner
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
@@ -181,7 +180,7 @@ class AddCourseActivityTest {
             .perform(typeText("1st year"), closeSoftKeyboard())
 
         scenario.onActivity {
-            assertTrue(it.findViewById<EditText>(R.id.timetable_name).isEnabled)
+            assertTrue(it.findViewById<Button>(R.id.get_timetable).isEnabled)
         }
     }
 
@@ -195,7 +194,7 @@ class AddCourseActivityTest {
             .perform(typeText("Timetable 1"), closeSoftKeyboard())
 
         scenario.onActivity {
-            assertFalse(it.findViewById<EditText>(R.id.timetable_name).isEnabled)
+            assertFalse(it.findViewById<Button>(R.id.get_timetable).isEnabled)
         }
     }
 
