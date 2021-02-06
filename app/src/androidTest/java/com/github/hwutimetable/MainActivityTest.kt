@@ -22,8 +22,6 @@ import com.github.hwutimetable.di.ProgrammeScraperModule
 import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.network.NetworkUtils
-import com.github.hwutimetable.parser.Semester
-import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.settings.SettingsActivity
@@ -39,8 +37,6 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import junit.framework.TestCase.*
-import org.joda.time.LocalDate
-import org.joda.time.LocalTime
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -123,6 +119,7 @@ class MainActivityTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+    private val infoListPopulator = InfoListPopulator(timetableFileHandler)
 
     @Before
     fun init() {
@@ -134,29 +131,6 @@ class MainActivityTest {
 
     private fun launchActivity() {
         scenario = ActivityScenario.launch(MainActivity::class.java)
-    }
-
-    /**
-     * Populates the info list with 3 timetables. Each named Timetable [1, 2 or 3]
-     */
-    private fun populateInfoList() {
-        fun getInfo(timetableNumber: Int): Timetable.Info {
-            val semester = Semester(LocalDate.now(), 1)
-            val code = "C${timetableNumber.toString().padStart(2, '0')}"
-            return Timetable.Info(code, "Timetable $timetableNumber", semester, LocalTime.parse("9:00"), false)
-        }
-
-        val timetables = sequence {
-            var number = 1
-            while (true) {
-                yield(Timetable(emptyArray(), getInfo(number)))
-                number++
-            }
-        }
-
-        timetables.take(3).forEach { timetable ->
-            timetableFileHandler.save(timetable)
-        }
     }
 
     @Before
@@ -175,7 +149,7 @@ class MainActivityTest {
 
     @Test
     fun checkTimetablesListed() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
         scenario.onActivity { activity ->
             val list = activity.findViewById<RecyclerView>(R.id.recycler_view)
@@ -194,7 +168,7 @@ class MainActivityTest {
 
     @Test
     fun testHelpTextInvisibleWhenTimetablesArePresent() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
         scenario.onActivity { activity ->
             val textView = activity.findViewById<TextView>(R.id.no_timetables_text)
@@ -315,7 +289,7 @@ class MainActivityTest {
 
     @Test
     fun testSwipeToDelete() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(swipeLeft())
@@ -338,7 +312,7 @@ class MainActivityTest {
 
     @Test
     fun testDeleteAllWhenYesClicked() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         // Get the dialog to display, click on the OK button
@@ -354,7 +328,7 @@ class MainActivityTest {
 
     @Test
     fun testDeleteAllWhenNoClicked() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         // Get the dialog to display, click on the OK button
@@ -370,7 +344,7 @@ class MainActivityTest {
 
     @Test
     fun testContextMenuAppears() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 1")).perform(longClick())
@@ -380,7 +354,7 @@ class MainActivityTest {
 
     @Test
     fun testContextMenuCancel() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 1")).perform(longClick())
@@ -390,7 +364,7 @@ class MainActivityTest {
 
     @Test
     fun testDeleteByContextMenu() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
         val timetableToDelete = "Timetable 2"
         Espresso.onView(withText(timetableToDelete)).perform(longClick())
@@ -402,7 +376,7 @@ class MainActivityTest {
 
     @Test
     fun testRenameDialogPopsUp() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
@@ -412,7 +386,7 @@ class MainActivityTest {
 
     @Test
     fun testRenameDialogCancel() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
@@ -423,7 +397,7 @@ class MainActivityTest {
 
     @Test
     fun testRenameDialogRenameWorksInActivity() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
@@ -436,7 +410,7 @@ class MainActivityTest {
 
     @Test
     fun testRenameUpdatesInfo() {
-        populateInfoList()
+        infoListPopulator.populateInfoList()
         launchActivity()
 
         Espresso.onView(withText("Timetable 2")).perform(longClick())
