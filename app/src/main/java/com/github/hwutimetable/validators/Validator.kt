@@ -8,12 +8,12 @@ import android.view.View
  */
 interface Validator<T : View> {
     /**
+     * A string that will be used to display an error on the [T].
+     */
+    val errorString: String?
+
+    /**
      * Performs validations on the widget [T]. Returns boolean when it is valid.
      */
     fun validate(widget: T): Boolean
-
-    /**
-     * Returns a string that will be used to display an error on the [T].
-     */
-    fun getInvalidInputError(): String
 }
