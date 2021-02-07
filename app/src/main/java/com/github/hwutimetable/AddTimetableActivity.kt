@@ -41,6 +41,10 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
 
+    protected val storedTimetables by lazy {
+        timetableHandler.getStoredTimetables()
+    }
+
     @Inject
     lateinit var currentDateProvider: CurrentDateProvider
 
@@ -68,7 +72,6 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     protected val departmentsSpinner: Spinner by lazy { findViewById(R.id.departments_spinner) }
     protected val semesterSpinner: Spinner by lazy { findViewById(R.id.semester_spinner) }
     private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
-    private val getTimetableButton: Button by lazy { findViewById(R.id.get_timetable) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,12 +103,11 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     protected abstract fun inflateViewBinding(): ViewBindingType
 
     private fun setGetTimetableButtonClickHandler() {
-        getTimetableButton.setOnClickListener { onGetTimetableButtonClick() }
+        getTimetable.setOnClickListener { onGetTimetableButtonClick() }
     }
 
     private fun setGroupInputChangeListener() {
         findViewById<AutoCompleteTextView>(R.id.groups_input).setOnItemClickListener { _, _, _, _ ->
-            findViewById<Button>(R.id.get_timetable).isEnabled = true
             KeyboardManager.hideKeyboard(this)
         }
 
@@ -123,7 +125,9 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
         })
     }
 
-    protected abstract fun onGroupValidated(valid: Boolean)
+    protected open fun onGroupValidated(valid: Boolean) {
+        // Do nothing
+    }
 
     protected abstract fun onGetTimetableButtonClick()
 

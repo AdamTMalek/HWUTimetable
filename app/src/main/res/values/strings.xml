@@ -33,6 +33,7 @@
     <string name="courses">Selected Courses</string>
     <string name="generate_timetable">Generate timetable</string>
     <string name="add_programme">Add programme</string>
+    <string name="name_not_unique_error">This name is already used.</string>
 
     <!-- Timetable View Activity -->
     <string name="viewing_week">Select Week:</string>
