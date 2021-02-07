@@ -24,7 +24,7 @@ class ValidatableEditText(context: Context, attrs: AttributeSet?) :
     init {
         // Because the handler methods (onValid and onInvalid) will be changed,
         // wrapper functions will be passed to the constructor of the TextWatcherValidator.
-        val textWatcher = TextWatcherValidator(validators, this, { onValid() }, { onInvalid })
+        val textWatcher = TextWatcherValidator(validators, this, { onValid() }, { onInvalid() })
         this.addTextChangedListener(textWatcher)
     }
 
