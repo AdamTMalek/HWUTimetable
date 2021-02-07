@@ -119,7 +119,9 @@ class MainActivityTest {
 
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
-    private val infoListPopulator = InfoListPopulator(timetableFileHandler)
+    private val infoListPopulator by lazy {
+        InfoListPopulator(timetableFileHandler)
+    }
 
     @Before
     fun init() {
