@@ -1,10 +1,9 @@
 package com.github.hwutimetable
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
 import android.widget.AdapterView
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.hwutimetable.databinding.ActivityAddCourseTimetableBinding
 import com.github.hwutimetable.extensions.clearAndAddAll
 import com.github.hwutimetable.parser.CourseTimetableParser
@@ -14,6 +13,10 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.Scraper
+import com.github.hwutimetable.validators.EmptyEditTextValidator
+import com.github.hwutimetable.validators.FormValidator
+import com.github.hwutimetable.validators.UniqueTimetableNameValidator
+import com.github.hwutimetable.validators.Validator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import org.joda.time.LocalTime
@@ -25,15 +28,21 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityA
     override fun setupView() {
         setTitle(R.string.add_course_activity_title)
         setupCoursesListView()
-        setTimetableNameEditListener()
 
         viewBinding.addCourseButton.isEnabled = false
-        viewBinding.getTimetable.isEnabled = false
+
+        addValidatorsToViews()
+        FormValidator(viewBinding.root, ::onFormValid, ::onFormInvalid)
 
         addAddCourseClickHandler()
     }
 
     override fun inflateViewBinding() = ActivityAddCourseTimetableBinding.inflate(layoutInflater)
+
+    private fun addValidatorsToViews() {
+        viewBinding.timetableName.addValidator(UniqueTimetableNameValidator(timetableHandler), EmptyEditTextValidator())
+        viewBinding.coursesList.addValidator(CoursesListValidator())
+    }
 
     private fun addAddCourseClickHandler() {
         viewBinding.addCourseButton.setOnClickListener {
@@ -54,28 +63,7 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityA
             it.adapter = CourseListAdapter(selectedCourses)
             it.adapter!!.notifyDataSetChanged()
             it.layoutManager = LinearLayoutManager(this)
-            setOnCourseRemovedListener()
         }
-    }
-
-    private fun setOnCourseRemovedListener() {
-        (viewBinding.coursesList.adapter as CourseListAdapter).setOnElementRemovedListener {
-            getTimetable.isEnabled = canTimetableBeGenerated()
-        }
-    }
-
-    private fun setTimetableNameEditListener() {
-        viewBinding.timetableName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-            }
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-            }
-
-            override fun afterTextChanged(s: Editable?) {
-                getTimetable.isEnabled = canTimetableBeGenerated()
-            }
-        })
     }
 
     override fun onGroupValidated(valid: Boolean) {
@@ -120,12 +108,15 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityA
         viewBinding.coursesList.adapter!!.apply {
             notifyDataSetChanged()
         }
-
-        if (canTimetableBeGenerated())
-            viewBinding.getTimetable.isEnabled = true
     }
 
-    private fun canTimetableBeGenerated() = selectedCourses.isNotEmpty() && viewBinding.timetableName.text.isNotEmpty()
+    private fun onFormValid() {
+        viewBinding.getTimetable.isEnabled = true
+    }
+
+    private fun onFormInvalid() {
+        viewBinding.getTimetable.isEnabled = false
+    }
 
     private suspend fun getTimetable() {
         var semester: Semester? = null
@@ -195,5 +186,15 @@ class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityA
     private fun getCourseName(courseOption: Option): String {
         val code = getCourseCode(courseOption)
         return courseOption.text.removePrefix(code).trim { it.isWhitespace() || it == '-' }
+    }
+
+    private class CoursesListValidator : Validator<RecyclerView> {
+        override val errorString: String
+            get() = "Your timetable needs to have at least one course."
+
+        override fun validate(widget: RecyclerView): Boolean {
+            val itemCount = widget.adapter?.itemCount ?: 0
+            return itemCount > 0
+        }
     }
 }

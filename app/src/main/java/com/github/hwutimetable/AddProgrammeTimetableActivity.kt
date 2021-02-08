@@ -11,6 +11,10 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
 import com.github.hwutimetable.scraper.Scraper
+import com.github.hwutimetable.validators.ConstrainedNameValidator
+import com.github.hwutimetable.validators.EmptyEditTextValidator
+import com.github.hwutimetable.validators.FormValidator
+import com.github.hwutimetable.validators.UniqueTimetableNameValidator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -33,13 +37,20 @@ class AddProgrammeTimetableActivity :
      */
     override fun setupView() {
         setTitle(R.string.add_programme_activity_title)
+        setValidators()
+        FormValidator(viewBinding.root, ::onFormValid, ::onFormInvalid)
+    }
+
+    private fun setValidators() {
+        viewBinding.groupsInput.addValidator(EmptyEditTextValidator(),
+            UniqueTimetableNameValidator(timetableHandler),
+            ConstrainedNameValidator {
+                groupOptions.map { it.text }
+            }
+        )
     }
 
     override fun inflateViewBinding() = ActivityAddProgrammeTimetableBinding.inflate(layoutInflater)
-
-    override fun onGroupValidated(valid: Boolean) {
-        viewBinding.getTimetable.isEnabled = valid
-    }
 
     /**
      * Sets the selection listener on all the spinners of the activity.
@@ -126,8 +137,16 @@ class AddProgrammeTimetableActivity :
         }
     }
 
+    private fun onFormValid() {
+        getTimetable.isEnabled = true
+    }
+
+    private fun onFormInvalid() {
+        getTimetable.isEnabled = false
+    }
+
     /**
-     * Called after clicking [get_timetable] button.
+     * Called after clicking [getTimetable] button.
      * Scraps the timetable for the selected group and starts the [TimetableViewActivity].
      * If [isSaveTimetableChecked] returns `true`, the timetable will be saved on the device.
      */

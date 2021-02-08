@@ -1,52 +1,61 @@
 package com.github.hwutimetable
 
+import android.content.Context
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.Spinner
 import androidx.test.core.app.ActivityScenario
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.action.ViewActions.*
+import androidx.test.espresso.matcher.RootMatchers
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.github.hwutimetable.di.CourseScraperModule
+import com.github.hwutimetable.di.FileModule
+import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import dagger.Binds
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.io.File
 import javax.inject.Inject
 
 @HiltAndroidTest
-@UninstallModules(value = [CourseScraperModule::class])
+@UninstallModules(value = [CourseScraperModule::class, FileModule::class])
 class AddCourseActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<AddCourseActivity>
 
-    @Module
-    @InstallIn(ApplicationComponent::class)
-    abstract class TestScraperModule {
-        @Binds
-        abstract fun bindScraper(scraper: TestCourseScraper): CourseTimetableScraper
+    @Inject
+    lateinit var scraper: CourseTimetableScraper
+
+    @Inject
+    lateinit var timetableFileHandler: TimetableFileHandler
+
+    private val infoListPopulator by lazy {
+        InfoListPopulator(timetableFileHandler)
+    }
+
+    @Before
+    fun setup() {
+        hiltRule.inject()
     }
 
     private fun launchActivity(): ActivityScenario<AddCourseActivity> {
         scenario = ActivityScenario.launch(AddCourseActivity::class.java)
         return scenario
-    }
-
-    @Inject
-    lateinit var scraper: CourseTimetableScraper
-
-    @Before
-    fun setup() {
-        hiltRule.inject()
     }
 
     @Test
@@ -158,6 +167,75 @@ class AddCourseActivityTest {
         launchActivity().onActivity { activity ->
             val isEnabled = activity.findViewById<Button>(R.id.get_timetable).isEnabled
             assertFalse(isEnabled)
+        }
+    }
+
+    @Test
+    fun testGenerateButtonEnabledWhenNameUnique() {
+        infoListPopulator.populateInfoList()
+        launchActivity()
+        selectCourse()
+
+        onView(withId(R.id.timetable_name))
+            .perform(typeText("1st year"), closeSoftKeyboard())
+
+        scenario.onActivity {
+            assertTrue(it.findViewById<Button>(R.id.get_timetable).isEnabled)
+        }
+    }
+
+    @Test
+    fun testGenerateButtonDisabledWhenNameTaken() {
+        infoListPopulator.populateInfoList()
+        launchActivity()
+        selectCourse()
+
+        onView(withId(R.id.timetable_name))
+            .perform(typeText("Timetable 1"), closeSoftKeyboard())
+
+        scenario.onActivity {
+            assertFalse(it.findViewById<Button>(R.id.get_timetable).isEnabled)
+        }
+    }
+
+    private fun selectCourse() {
+        scenario.onActivity { activity ->
+            activity.findViewById<Spinner>(R.id.departments_spinner).setSelection(1, false)
+            activity.findViewById<Spinner>(R.id.semester_spinner).setSelection(2, false)
+        }
+
+        val groupText = runBlocking {
+            return@runBlocking scraper.getGroups(emptyMap()).first().text
+        }
+
+        onView(withId(R.id.groups_input))
+            .perform(click())
+            .perform(typeText(groupText), closeSoftKeyboard())
+            .inRoot(RootMatchers.isPlatformPopup())
+            .perform(click(), closeSoftKeyboard())
+
+        onView(withId(R.id.add_course_button))
+            .perform(click())
+    }
+
+    @Before
+    fun clearInfoFile() {
+        timetableFileHandler.deleteAllTimetables()
+    }
+
+    @Module
+    @InstallIn(ApplicationComponent::class)
+    abstract class TestScraperModule {
+        @Binds
+        abstract fun bindScraper(scraper: TestCourseScraper): CourseTimetableScraper
+    }
+
+    @InstallIn(ApplicationComponent::class)
+    @Module
+    object TestTimetableFileHandlerModule {
+        @Provides
+        fun provideDirectory(@ApplicationContext context: Context): File {
+            return File(context.filesDir, "/test/")
         }
     }
 }
