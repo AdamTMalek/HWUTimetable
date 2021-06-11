@@ -6,13 +6,13 @@ import com.fatboyindustrial.gsonjodatime.PeriodConverter
 import com.github.hwutimetable.parser.Timetable
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import kotlinx.io.IOException
 import org.joda.time.LocalDate
 import org.joda.time.LocalTime
 import org.joda.time.Period
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FilenameFilter
+import java.io.IOException
 import javax.inject.Inject
 
 class TimetableFileHandler @Inject constructor(private val directory: File) {

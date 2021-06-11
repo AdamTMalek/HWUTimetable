@@ -22,10 +22,10 @@ import com.github.hwutimetable.setup.SetupActivity
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
@@ -212,20 +212,20 @@ class SetupActivityTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestProgrammeScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestCourseScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: com.github.hwutimetable.TestCourseScraper): CourseTimetableScraper
     }
 
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     @Module
     abstract class TestNetworkUtilitiesModule {
         class TestNetworkUtilities @Inject constructor() : NetworkUtils {

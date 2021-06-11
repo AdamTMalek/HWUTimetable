@@ -17,11 +17,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.*
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -224,13 +224,13 @@ class AddCourseActivityTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestScraperModule {
         @Binds
         abstract fun bindScraper(scraper: TestCourseScraper): CourseTimetableScraper
     }
 
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     @Module
     object TestTimetableFileHandlerModule {
         @Provides

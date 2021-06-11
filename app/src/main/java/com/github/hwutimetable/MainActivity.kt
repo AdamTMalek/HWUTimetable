@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.github.hwutimetable.BuildConfig
 import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.databinding.ActivityMainBinding
 import com.github.hwutimetable.extensions.getSharedPreferences

@@ -16,11 +16,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.*
 import kotlinx.coroutines.runBlocking
 import org.joda.time.LocalDate
@@ -35,7 +35,7 @@ import javax.inject.Inject
 @HiltAndroidTest
 class AddProgrammeActivityTest {
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     object TestTimetableFileHandlerModule {
         @Provides
         fun provideDirectory(@ApplicationContext context: Context): File {
@@ -44,14 +44,14 @@ class AddProgrammeActivityTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestProgrammeScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestDateProviderModule {
         @Binds
         abstract fun bindDateProvider(testDate: TestDateProvider): CurrentDateProvider
