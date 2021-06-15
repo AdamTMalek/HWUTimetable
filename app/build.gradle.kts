@@ -1,14 +1,13 @@
 plugins {
     id("com.android.application")
     kotlin("android")
-    id("kotlin-parcelize")
     kotlin("kapt")
+    id("kotlin-parcelize")
     id("dagger.hilt.android.plugin")
 }
 
 android {
     compileSdkVersion(30)
-    buildToolsVersion("29.0.2")
     defaultConfig {
         applicationId = "com.github.hwutimetable"
         minSdkVersion(23)
