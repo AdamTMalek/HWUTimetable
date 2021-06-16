@@ -14,10 +14,8 @@ import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.view.children
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentPagerAdapter
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.PagerAdapter
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.github.hwutimetable.databinding.ActivityViewTimetableBinding
 import com.github.hwutimetable.databinding.FragmentViewTimetableBinding
 import com.github.hwutimetable.filehandler.TimetableFileHandler
@@ -100,7 +98,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         val currentPage = viewBinding.container.currentItem
 
         if (mSectionsPagerAdapter == null) {
-            mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager, timetable)
+            mSectionsPagerAdapter = SectionsPagerAdapter(this, timetable)
             viewBinding.container.adapter = mSectionsPagerAdapter
         }
 
@@ -213,30 +211,26 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
         if (day == DateTimeConstants.SATURDAY || day == DateTimeConstants.SUNDAY)
             return 0
 
-        // Monday is defined as 1 in the dayOfWeek in Joda LocalDate
-        // So we have to takeaway 1 for the index
+        // Monday is defined as 1 in the dayOfWeek in Joda LocalDate,
+        // so we have to takeaway 1 for the index
         return day - 1
     }
 
 
     /**
-     * A [FragmentPagerAdapter] that returns a fragment corresponding to
+     * A [FragmentStateAdapter] that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
-    class SectionsPagerAdapter(fm: FragmentManager, var timetable: Timetable) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    class SectionsPagerAdapter(fragmentActivity: FragmentActivity, var timetable: Timetable) :
+        FragmentStateAdapter(fragmentActivity) {
 
-        override fun getItem(position: Int): Fragment {
+        override fun createFragment(position: Int): Fragment {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
             return PlaceholderFragment.newInstance(position + 1, timetable.days[position], timetable.info.startTime)
         }
 
-        override fun getItemPosition(`object`: Any): Int {
-            return PagerAdapter.POSITION_NONE
-        }
-
-        override fun getCount(): Int {
+        override fun getItemCount(): Int {
             return 5
         }
     }
@@ -271,8 +265,8 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             val list = arguments?.getParcelable<TimetableDay>(ARG_SECTION_TIMETABLE)
                 ?: throw Exception("TimetableClass list must not be null")
 
-            val startTime = arguments!!.getSerializable(ARG_START_TIME) as LocalTime
-            val viewGenerator = TimetableViewGenerator(context!!, startTime)
+            val startTime = requireArguments().getSerializable(ARG_START_TIME) as LocalTime
+            val viewGenerator = TimetableViewGenerator(requireContext(), startTime)
             val timetableView = viewGenerator.getTimetableItemView(list)
             gridLayout = timetableView
 
@@ -329,8 +323,8 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             else -> throw IllegalArgumentException("ARG_SECTION_NUMBER must be between 1 and 5")
         }
 
-        override fun onActivityCreated(savedInstanceState: Bundle?) {
-            super.onActivityCreated(savedInstanceState)
+        override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+            super.onViewCreated(view, savedInstanceState)
             addConstraints()
         }
 

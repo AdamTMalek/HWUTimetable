@@ -72,6 +72,7 @@ dependencies {
     implementation("androidx.work:work-runtime:$workManagerVersion")
     implementation("androidx.work:work-runtime-ktx:$workManagerVersion")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
+    implementation("androidx.viewpager2:viewpager2:1.0.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:3.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0")
