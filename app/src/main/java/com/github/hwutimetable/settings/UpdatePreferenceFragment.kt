@@ -55,13 +55,13 @@ class UpdatePreferenceFragment : PreferenceFragmentCompat() {
 
     private fun setUpdateSummary() {
         val preference = findPreference<SwitchPreferenceCompat>("enable_updates")!!
-        val sharedPreferences = activity!!.getSharedPreferences(R.string.update_details, Context.MODE_PRIVATE) ?: return
+        val sharedPreferences = requireActivity().getSharedPreferences(R.string.update_details, Context.MODE_PRIVATE)
         val lastUpdateTimestamp = sharedPreferences.getInt(getString(R.string.last_update), 0)
 
         val summary = if (lastUpdateTimestamp != 0) {
             val date = Date(lastUpdateTimestamp.toLong() * 1000)
-            val dateFormat = DateFormat.getDateFormat(context!!)
-            val timeFormat = DateFormat.getTimeFormat(context!!)
+            val dateFormat = DateFormat.getDateFormat(requireContext())
+            val timeFormat = DateFormat.getTimeFormat(requireContext())
             "Last checked on ${dateFormat.format(date)} at ${timeFormat.format(date)}"
         } else {
             "No update checks have been performed yet"

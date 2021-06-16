@@ -21,7 +21,7 @@ class SampleTimetableHandler(private val backgroundProvider: TimetableClass.Type
     }
 
     fun getHtmlTimetable(file: File, info: Timetable.Info): Timetable {
-        val document = getDocument(file)!!
+        val document = getDocument(file)
         val parser = ProgrammeTimetableParser(document, backgroundProvider)
         val days = parser.getTimetable()
 
