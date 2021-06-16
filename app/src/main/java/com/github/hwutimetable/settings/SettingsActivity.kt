@@ -40,8 +40,8 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         val args = pref.extras
         val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, pref.fragment).apply {
             arguments = args
-            setTargetFragment(caller, 0)
         }
+
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in_right,
@@ -52,6 +52,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
             .commit()
+
         return true
     }
 
