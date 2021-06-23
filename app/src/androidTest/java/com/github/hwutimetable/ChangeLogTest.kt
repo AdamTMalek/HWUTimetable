@@ -25,6 +25,7 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -34,6 +35,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 
+@DelicateCoroutinesApi
 @UninstallModules(
     value = [FileModule::class, NetworkUtilitiesModule::class, ProgrammeScraperModule::class,
         CourseScraperModule::class]

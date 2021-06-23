@@ -15,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.github.hwutimetable.BuildConfig
 import com.github.hwutimetable.changelog.ChangeLog
 import com.github.hwutimetable.databinding.ActivityMainBinding
 import com.github.hwutimetable.extensions.getSharedPreferences
@@ -27,12 +26,10 @@ import com.github.hwutimetable.settings.SettingsActivity
 import com.github.hwutimetable.setup.SetupActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
 
-@DelicateCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
     private val infoList = mutableListOf<Timetable.Info>()

@@ -22,7 +22,6 @@ import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.io.File
 
-@DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
 class UpdaterTest {
     private val updateWaitingTime = 500L
@@ -56,6 +55,7 @@ class UpdaterTest {
         testDir.delete()
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testReceiverAttached() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
@@ -72,6 +72,7 @@ class UpdaterTest {
         Mockito.verify(receiver, times(1)).onUpdateFinished(emptySet())
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testUpdateStartedNotificationSent() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
@@ -85,6 +86,7 @@ class UpdaterTest {
         Mockito.verify(receiver, times(1)).onUpdateInProgress()
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testNothingUpdated() {
         val file = getOriginalTimetable()
@@ -102,6 +104,7 @@ class UpdaterTest {
         Mockito.verify(receiver).onUpdateFinished(emptySet())
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testTimetableUpdated() {
         val newFile = File("src/test/resources/sampleTimetables/test-timetable-time-mod.html")

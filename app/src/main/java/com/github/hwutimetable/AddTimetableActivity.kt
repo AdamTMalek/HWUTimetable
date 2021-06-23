@@ -29,7 +29,6 @@ import javax.inject.Inject
  * classes inheriting from this class, must be annotated with @AndroidEntryPoint annotation
  * for Hilt to work.
  */
-@DelicateCoroutinesApi
 abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingType : ViewBinding> :
     AppCompatActivity(),
     AdapterView.OnItemSelectedListener {
@@ -171,7 +170,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
      * Populates the given [spinner] with the given list of [elements].
      */
     protected fun populateSpinner(spinner: Spinner, elements: List<String>) {
-        spinner.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, elements)
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, elements)
     }
 
     /**

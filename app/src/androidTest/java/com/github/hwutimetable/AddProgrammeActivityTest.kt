@@ -22,6 +22,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.joda.time.LocalDate
 import org.junit.After
@@ -31,6 +32,7 @@ import org.junit.Test
 import java.io.File
 import javax.inject.Inject
 
+@DelicateCoroutinesApi
 @UninstallModules(value = [FileModule::class, ProgrammeScraperModule::class, CurrentDateProviderModule::class])
 @HiltAndroidTest
 class AddProgrammeActivityTest {

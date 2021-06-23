@@ -36,6 +36,7 @@ import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
 import org.joda.time.LocalDate
@@ -45,6 +46,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@DelicateCoroutinesApi
 @HiltAndroidTest
 @UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class, FileModule::class])
 class TimetableViewActivityTest {

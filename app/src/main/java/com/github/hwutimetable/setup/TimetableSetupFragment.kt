@@ -10,9 +10,7 @@ import androidx.fragment.app.Fragment
 import com.github.hwutimetable.AddCourseActivity
 import com.github.hwutimetable.AddProgrammeTimetableActivity
 import com.github.hwutimetable.databinding.FragmentSetupTimetableBinding
-import kotlinx.coroutines.DelicateCoroutinesApi
 
-@DelicateCoroutinesApi
 class TimetableSetupFragment : Fragment() {
     private lateinit var viewBinding: FragmentSetupTimetableBinding
 

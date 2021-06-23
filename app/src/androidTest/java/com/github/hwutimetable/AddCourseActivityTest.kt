@@ -23,6 +23,7 @@ import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -30,6 +31,7 @@ import org.junit.Test
 import java.io.File
 import javax.inject.Inject
 
+@DelicateCoroutinesApi
 @HiltAndroidTest
 @UninstallModules(value = [CourseScraperModule::class, FileModule::class])
 class AddCourseActivityTest {

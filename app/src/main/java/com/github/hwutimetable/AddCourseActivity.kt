@@ -18,11 +18,9 @@ import com.github.hwutimetable.validators.FormValidator
 import com.github.hwutimetable.validators.UniqueTimetableNameValidator
 import com.github.hwutimetable.validators.Validator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 import org.joda.time.LocalTime
 
-@DelicateCoroutinesApi
 @AndroidEntryPoint
 class AddCourseActivity : AddTimetableActivity<CourseTimetableScraper, ActivityAddCourseTimetableBinding>() {
     private val selectedCourses = mutableSetOf<Option>()

@@ -16,7 +16,6 @@ import com.github.hwutimetable.validators.EmptyEditTextValidator
 import com.github.hwutimetable.validators.FormValidator
 import com.github.hwutimetable.validators.UniqueTimetableNameValidator
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 /**
@@ -27,7 +26,7 @@ import kotlinx.coroutines.launch
  * Annotated with @AndroidEntryPoint as the base class, [AddTimetableActivity], uses Hilt
  * and dependency injection.
  */
-@DelicateCoroutinesApi
+
 @AndroidEntryPoint
 class AddProgrammeTimetableActivity :
     AddTimetableActivity<ProgrammeTimetableScraper, ActivityAddProgrammeTimetableBinding>() {
