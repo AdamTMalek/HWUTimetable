@@ -6,10 +6,7 @@ import com.github.hwutimetable.extensions.getSharedPreferences
 import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.*
 import com.github.hwutimetable.scraper.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import org.joda.time.DateTime
 import java.io.File
 
@@ -48,6 +45,7 @@ class Updater(
      * if you need to get a collection of updated timetables, implement [OnUpdateFinishedListener]
      * in your class and use [addFinishedListener] to add the object as a notification receiver.
      */
+    @DelicateCoroutinesApi
     override fun update() {
         notifyUpdateInProgress()
 
