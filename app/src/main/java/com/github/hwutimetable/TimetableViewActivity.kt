@@ -24,10 +24,12 @@ import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.parser.TimetableDay
 import com.github.hwutimetable.settings.SettingsActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.joda.time.DateTimeConstants
 import org.joda.time.LocalTime
 import javax.inject.Inject
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
 

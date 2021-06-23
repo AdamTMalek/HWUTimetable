@@ -27,10 +27,12 @@ import com.github.hwutimetable.settings.SettingsActivity
 import com.github.hwutimetable.setup.SetupActivity
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import java.io.FileNotFoundException
 import java.util.*
 import javax.inject.Inject
 
+@DelicateCoroutinesApi
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
     private val infoList = mutableListOf<Timetable.Info>()

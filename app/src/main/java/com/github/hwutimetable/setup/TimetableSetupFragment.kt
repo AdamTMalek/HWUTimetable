@@ -10,11 +10,13 @@ import androidx.fragment.app.Fragment
 import com.github.hwutimetable.AddCourseActivity
 import com.github.hwutimetable.AddProgrammeTimetableActivity
 import com.github.hwutimetable.databinding.FragmentSetupTimetableBinding
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@DelicateCoroutinesApi
 class TimetableSetupFragment : Fragment() {
     private lateinit var viewBinding: FragmentSetupTimetableBinding
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         viewBinding = FragmentSetupTimetableBinding.inflate(inflater, container, false)
         setOnAddButtonPressed()
         setOnAddProgrammePressed()

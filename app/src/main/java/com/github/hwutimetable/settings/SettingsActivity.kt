@@ -19,7 +19,9 @@ import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
 import com.github.hwutimetable.updater.UpdateNotifier
 import com.github.hwutimetable.updater.Updater
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@DelicateCoroutinesApi
 class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,6 +66,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
     }
 
+    @DelicateCoroutinesApi
     class SettingsFragment : PreferenceFragmentCompat(),
         OnUpdateFinishedListener, NetworkUtilities.ConnectivityCallbackReceiver {
         private lateinit var updateManager: UpdateManager

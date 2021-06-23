@@ -15,10 +15,7 @@ import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
@@ -32,6 +29,7 @@ import javax.inject.Inject
  * classes inheriting from this class, must be annotated with @AndroidEntryPoint annotation
  * for Hilt to work.
  */
+@DelicateCoroutinesApi
 abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingType : ViewBinding> :
     AppCompatActivity(),
     AdapterView.OnItemSelectedListener {
@@ -206,7 +204,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     }
 
     /**
-     * Changes the visibility of the [progress_bar] depending on the passed value.
+     * Changes the visibility of the progress bar depending on the passed value.
      * @param visible If `true`, the progress bar will be visible.
      */
     protected fun changeProgressBarVisibility(visible: Boolean) {
@@ -246,6 +244,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
      */
     protected fun isSaveTimetableChecked() = findViewById<CheckBox>(R.id.save_checkbox).isChecked
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     protected suspend fun saveTimetable(timetable: Timetable) {
         withContext(Dispatchers.IO) {
             timetableHandler.save(timetable)

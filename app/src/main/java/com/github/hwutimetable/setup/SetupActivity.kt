@@ -14,6 +14,7 @@ import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.settings.UpdatePreferenceFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import javax.inject.Inject
 
 
@@ -151,6 +152,7 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
     inner class PagerAdapter(fragmentActivity: FragmentActivity) :
         FragmentStateAdapter(fragmentActivity) {
 
+        @DelicateCoroutinesApi
         override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> UpdatePreferenceFragment()
