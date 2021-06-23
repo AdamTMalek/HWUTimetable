@@ -444,5 +444,7 @@ class MainActivityTest {
     fun cleanup() {
         if (this::scenario.isInitialized)
             scenario.close()
+
+        Intents.release()
     }
 }
