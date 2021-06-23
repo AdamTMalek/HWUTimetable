@@ -8,6 +8,7 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
@@ -21,6 +22,7 @@ import org.mockito.Mockito
 import org.mockito.Mockito.times
 import java.io.File
 
+@DelicateCoroutinesApi
 @ExperimentalCoroutinesApi
 class UpdaterTest {
     private val updateWaitingTime = 500L
