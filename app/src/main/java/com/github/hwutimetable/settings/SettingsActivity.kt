@@ -97,24 +97,6 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
                 onConnectionLost()
         }
 
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
-            when (preference) {
-                is TimePreference -> displayTimePreference(preference)
-                is NumberPreference -> displayNumberPreference(preference)
-                else -> super.onDisplayPreferenceDialog(preference)
-            }
-        }
-
-        private fun displayTimePreference(preference: Preference) {
-            TimePreferenceDialogFragmentCompat.newInstance(preference.key)
-                .show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
-        }
-
-        private fun displayNumberPreference(preference: Preference) {
-            NumberPreferenceDialogFragmentCompat.newInstance(preference.key)
-                .show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
-        }
-
         private fun setUpdateButtonHandler() {
             val button = findPreference<Preference>(getString(R.string.update_now))
             button!!.setOnPreferenceClickListener {
