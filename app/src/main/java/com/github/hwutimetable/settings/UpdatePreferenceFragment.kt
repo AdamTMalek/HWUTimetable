@@ -39,6 +39,7 @@ class UpdatePreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
+    @Suppress("DEPRECATION") // Suppressed setTargetFragment, as PreferenceFragmentCompat still uses it.
     private fun displayTimePreference(preference: Preference) {
         TimePreferenceDialogFragmentCompat.newInstance(preference.key).let {
             it.setTargetFragment(this, 0)
@@ -46,6 +47,7 @@ class UpdatePreferenceFragment : PreferenceFragmentCompat() {
         }
     }
 
+    @Suppress("DEPRECATION") // Suppressed setTargetFragment, as PreferenceFragmentCompat still uses it.
     private fun displayNumberPreference(preference: Preference) {
         NumberPreferenceDialogFragmentCompat.newInstance(preference.key).let {
             it.setTargetFragment(this, 0)
