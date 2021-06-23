@@ -11,7 +11,7 @@ import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withSubstring
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.github.hwutimetable.di.CourseScraperModule
 import com.github.hwutimetable.di.NetworkUtilitiesModule
 import com.github.hwutimetable.di.ProgrammeScraperModule
@@ -203,11 +203,11 @@ class SetupActivityTest {
         }
     }
 
-    private fun getViewPager(activity: SetupActivity) = activity.findViewById<ViewPager>(R.id.view_pager)
+    private fun getViewPager(activity: SetupActivity) = activity.findViewById<ViewPager2>(R.id.view_pager)
 
     private fun goToLastSetupStep(activity: SetupActivity) {
         getViewPager(activity).run {
-            currentItem = adapter!!.count - 1
+            currentItem = adapter!!.itemCount - 1
         }
     }
 
