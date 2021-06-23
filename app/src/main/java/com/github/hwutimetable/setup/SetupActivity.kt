@@ -5,9 +5,9 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
+import androidx.fragment.app.FragmentActivity
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.github.hwutimetable.R
 import com.github.hwutimetable.databinding.SetupActivityBinding
 import com.github.hwutimetable.network.NetworkUtilities
@@ -24,7 +24,7 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
-    private var pagerAdapter = PagerAdapter(supportFragmentManager)
+    private var pagerAdapter = PagerAdapter(this)
     private var currentStep = 1
     private val totalSetupSteps = 3
 
@@ -50,7 +50,7 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
     }
 
     private fun setOnPageChangeListener() {
-        viewBinding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        viewBinding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             }
 
@@ -148,10 +148,10 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
         super.onDestroy()
     }
 
-    inner class PagerAdapter(fm: FragmentManager) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    inner class PagerAdapter(fragmentActivity: FragmentActivity) :
+        FragmentStateAdapter(fragmentActivity) {
 
-        override fun getItem(position: Int): Fragment {
+        override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> UpdatePreferenceFragment()
                 1 -> ViewSetupFragment()
@@ -160,10 +160,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
             }
         }
 
-        override fun getItemPosition(`object`: Any): Int {
-            return POSITION_UNCHANGED
-        }
-
-        override fun getCount() = totalSetupSteps
+        override fun getItemCount() = totalSetupSteps
     }
 }
