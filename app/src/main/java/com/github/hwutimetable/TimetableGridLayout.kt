@@ -3,10 +3,8 @@ package com.github.hwutimetable
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.StateListDrawable
+import android.graphics.drawable.*
+import android.os.Build
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.children
 import androidx.preference.PreferenceManager
 import com.github.hwutimetable.parser.TimetableClass
@@ -103,20 +102,29 @@ class TimetableGridLayout(context: Context, private val startTime: LocalTime) : 
 
     /**
      * Creates linear layout that acts as a container for the grid layout.
-     * @param background: [Drawable] background of the item
+     * @param backgroundColor: Background of the item
      */
     private fun createClassLinearLayout(backgroundColor: String): LinearLayout {
         /**
          * Get the drawable background resource and mutate it - change its colors depending on the activity type.
          */
         fun getBackgroundDrawable(): Drawable {
-            return (resources.getDrawable(R.drawable.class_background, context.theme).mutate() as LayerDrawable).apply {
+            return (ResourcesCompat.getDrawable(resources, R.drawable.class_background, context.theme)!!
+                .mutate() as LayerDrawable).apply {
                 (findDrawableByLayerId(R.id.class_background_rect) as GradientDrawable)
                     .setColor(Color.parseColor(backgroundColor))
 
-                ((findDrawableByLayerId(R.id.class_background_grad) as StateListDrawable)
-                    .getStateDrawable(0) as GradientDrawable)
-                    .colors = intArrayOf(Color.parseColor(backgroundColor), Color.parseColor("#000000"))
+                val backgroundDrawable = findDrawableByLayerId(R.id.class_background_grad) as StateListDrawable
+                val gradientColours = intArrayOf(Color.parseColor(backgroundColor), Color.parseColor("#000000"))
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val gradientDrawable = backgroundDrawable.getStateDrawable(0) as GradientDrawable
+                    gradientDrawable.colors = gradientColours
+                } else {
+                    val containerState = backgroundDrawable.constantState as DrawableContainer.DrawableContainerState
+                    val children = containerState.children
+                    (children[0] as GradientDrawable).colors = gradientColours
+                }
             }
         }
 
@@ -201,7 +209,7 @@ class TimetableGridLayout(context: Context, private val startTime: LocalTime) : 
             it.text = text
             it.width = LayoutParams.WRAP_CONTENT
             it.height = getTimeLabelHeight()
-            it.background = context.resources.getDrawable(R.drawable.top_line, context.theme)
+            it.background = ResourcesCompat.getDrawable(resources, R.drawable.top_line, context.theme)
         }
     }
 
@@ -247,7 +255,7 @@ class TimetableGridLayout(context: Context, private val startTime: LocalTime) : 
             val layoutParams = createLayoutParams(row, 1, columnWeight = 8f, rowSpan = 1)
             addView(
                 createClassLinearLayout(
-                    context.resources.getDrawable(R.drawable.top_line, context.theme)
+                    ResourcesCompat.getDrawable(context.resources, R.drawable.top_line, context.theme)!!
                 ), layoutParams
             )
         }
