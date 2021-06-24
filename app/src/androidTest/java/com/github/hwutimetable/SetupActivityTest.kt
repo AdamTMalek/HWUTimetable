@@ -5,11 +5,12 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso
+import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers
-import androidx.test.espresso.matcher.ViewMatchers.withSubstring
+import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.viewpager2.widget.ViewPager2
 import com.github.hwutimetable.di.CourseScraperModule
@@ -66,12 +67,12 @@ class SetupActivityTest {
     fun testTitleShowsSteps() {
         launchActivity()
         (1..3).forEach { step ->
-            Espresso.onView(withSubstring(targetContext.getString(R.string.setup_activity_title)))
+            onView(withSubstring(targetContext.getString(R.string.setup_activity_title)))
                 .check(matches(withSubstring("($step/3)")))
 
             if (step == 3)  // Last step - next button should be invisible
                 return@forEach
-            Espresso.onView(withSubstring(targetContext.getString(R.string.next)))
+            onView(withSubstring(targetContext.getString(R.string.next)))
                 .perform(click())
         }
     }
@@ -90,9 +91,9 @@ class SetupActivityTest {
 
     @Test
     fun testNextButtonNotVisibleOnLastFragment() {
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
-
+        launchActivity()
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
             val button = activity.findViewById<Button>(R.id.next_button)
             assertEquals(View.INVISIBLE, button.visibility)
         }
@@ -126,8 +127,10 @@ class SetupActivityTest {
     @Test
     fun testAddCourseButtonWorksOnLastStep() {
         Intents.init()
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+
+        launchActivity()
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
             activity.findViewById<Button>(R.id.add_course_button).performClick()
         }
 
@@ -138,8 +141,10 @@ class SetupActivityTest {
     @Test
     fun testAddProgrammeButtonWorksOnLastStep() {
         Intents.init()
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+
+        launchActivity()
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
             activity.findViewById<Button>(R.id.add_programme_button).performClick()
         }
 
@@ -151,8 +156,10 @@ class SetupActivityTest {
     fun testAddTimetabledIfHasInternet() {
         networkUtils.wifiOn = true
 
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+        launchActivity()
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
+
             val addCourseButton = activity.findViewById<Button>(R.id.add_course_button)
             val addProgrammeButton = activity.findViewById<Button>(R.id.add_programme_button)
 
@@ -166,8 +173,10 @@ class SetupActivityTest {
         networkUtils.wifiOn = false
         networkUtils.dataOn = false
 
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+        launchActivity()
+
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
             val addCourseButton = activity.findViewById<Button>(R.id.add_course_button)
             val addProgrammeButton = activity.findViewById<Button>(R.id.add_programme_button)
 
@@ -181,7 +190,7 @@ class SetupActivityTest {
         networkUtils.wifiOn = true
 
         launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+            goToLastSetupStep()
             val expectedDescription = activity.getString(R.string.setup_step_3)
             val actualDescription = activity.findViewById<TextView>(R.id.step_description).text
 
@@ -194,8 +203,10 @@ class SetupActivityTest {
         networkUtils.wifiOn = false
         networkUtils.dataOn = false
 
-        launchActivity().onActivity { activity ->
-            goToLastSetupStep(activity)
+        launchActivity()
+
+        goToLastSetupStep()
+        scenario.onActivity { activity ->
             val expectedDescription = activity.getString(R.string.setup_step_3_no_internet)
             val actualDescription = activity.findViewById<TextView>(R.id.step_description).text
 
@@ -205,9 +216,14 @@ class SetupActivityTest {
 
     private fun getViewPager(activity: SetupActivity) = activity.findViewById<ViewPager2>(R.id.view_pager)
 
-    private fun goToLastSetupStep(activity: SetupActivity) {
-        getViewPager(activity).run {
-            currentItem = adapter!!.itemCount - 1
+    private fun goToLastSetupStep() {
+        scenario.onActivity {
+            // Before, this used to work without having to be wrapped with onActivity.
+            // However, now, it no longer changes the displayed fragment.
+            getViewPager(it).run {
+//                currentItem = adapter!!.itemCount -
+                setCurrentItem(adapter!!.itemCount - 1, false)
+            }
         }
     }
 
