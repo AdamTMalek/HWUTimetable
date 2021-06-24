@@ -2,10 +2,10 @@ package com.github.hwutimetable.setup
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.github.hwutimetable.R
@@ -25,7 +25,7 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
-    private var pagerAdapter = PagerAdapter(this)
+    private var pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
     private var currentStep = 1
     private val totalSetupSteps = 3
 
@@ -61,11 +61,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
                 setStepDescription()
                 setBackButtonVisibility()
                 setNextButtonVisibility()
-
-                if (currentStep == totalSetupSteps) {
-                    if (!networkUtilities.hasInternetConnection())
-                        setAddTimetableButtonsEnable(false)
-                }
             }
 
             private fun setBackButtonVisibility() {
@@ -125,7 +120,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
 
         runOnUiThread {
             viewBinding.stepDescription.text = getText(R.string.setup_step_3)
-            setAddTimetableButtonsEnable(true)
         }
     }
 
@@ -135,22 +129,18 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
 
         runOnUiThread {
             viewBinding.stepDescription.text = getText(R.string.setup_step_3_no_internet)
-            setAddTimetableButtonsEnable(false)
         }
     }
 
-    private fun setAddTimetableButtonsEnable(enabled: Boolean) {
-        findViewById<Button>(R.id.add_course_button).isEnabled = enabled
-        findViewById<Button>(R.id.add_programme_button).isEnabled = enabled
-    }
+
 
     override fun onDestroy() {
         connectivityCallback.cleanup()
         super.onDestroy()
     }
 
-    inner class PagerAdapter(fragmentActivity: FragmentActivity) :
-        FragmentStateAdapter(fragmentActivity) {
+    inner class PagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+        FragmentStateAdapter(fragmentManager, lifecycle) {
 
         @DelicateCoroutinesApi
         override fun createFragment(position: Int): Fragment {
