@@ -39,7 +39,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
      * may be best to switch to a
      * androidx.fragment.app.FragmentStatePagerAdapter.
      */
-    private var mSectionsPagerAdapter: SectionsPagerAdapter? = null
+    private var sectionsPagerAdapter: SectionsPagerAdapter? = null
 
     @Inject
     lateinit var timetableHandler: TimetableFileHandler
@@ -71,7 +71,7 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
     }
 
     override fun onResume() {
-        mSectionsPagerAdapter?.notifyDataSetChanged()
+        sectionsPagerAdapter?.notifyDataSetChanged()
         super.onResume()
     }
 
@@ -97,9 +97,9 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
         val currentPage = viewBinding.container.currentItem
 
-        if (mSectionsPagerAdapter == null) {
-            mSectionsPagerAdapter = SectionsPagerAdapter(this, timetable)
-            viewBinding.container.adapter = mSectionsPagerAdapter
+        if (sectionsPagerAdapter == null) {
+            sectionsPagerAdapter = SectionsPagerAdapter(this, timetable)
+            viewBinding.container.adapter = sectionsPagerAdapter
         }
 
         with(viewBinding.container.adapter!! as SectionsPagerAdapter) {
@@ -232,6 +232,10 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
 
         override fun getItemCount(): Int {
             return 5
+        }
+
+        override fun getItemId(position: Int): Long {
+            return timetable.days[position].hashCode().toLong()
         }
     }
 
