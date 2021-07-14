@@ -107,10 +107,8 @@ class TimetableViewActivity : AppCompatActivity(), AdapterView.OnItemSelectedLis
             this.notifyDataSetChanged()
         }
 
-        if (showToday)
-            viewBinding.container.currentItem = getCurrentDayIndex()
-        else
-            viewBinding.container.currentItem = currentPage
+        val currentItemIndex = if (showToday) getCurrentDayIndex() else currentPage
+        viewBinding.container.setCurrentItem(currentItemIndex, false)
     }
 
     private fun getTimetable(intent: Intent): Timetable {
