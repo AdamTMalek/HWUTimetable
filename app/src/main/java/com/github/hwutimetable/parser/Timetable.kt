@@ -35,7 +35,7 @@ data class Timetable(val days: Array<TimetableDay>, val info: Info) : Parcelable
     /**
      * Get total timetableClasses in the timetable (includes clashes - if they exists
      */
-    fun getClassesCount() = days.sumBy { it.classes.size }
+    fun getClassesCount() = days.sumOf { it.classes.size }
 
     /**
      * For the given week, the algorithm finds if there are any clashes between timetable classes

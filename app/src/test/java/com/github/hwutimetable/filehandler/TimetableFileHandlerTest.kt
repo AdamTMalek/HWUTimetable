@@ -12,7 +12,7 @@ import java.io.File
 
 class TimetableFileHandlerTest {
     companion object {
-        private val dir_path: String = System.getProperty("user.dir") + "/tfh_test_dir"
+        private val dir_path: String = System.getProperty("user.dir")!! + "/tfh_test_dir"
         private val test_dir = File(dir_path)
         private lateinit var fileHandler: TimetableFileHandler
 

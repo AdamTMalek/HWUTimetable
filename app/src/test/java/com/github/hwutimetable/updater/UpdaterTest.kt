@@ -8,6 +8,7 @@ import com.github.hwutimetable.parser.TimetableClass
 import com.github.hwutimetable.scraper.CourseTimetableScraper
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.ProgrammeTimetableScraper
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.setMain
@@ -54,6 +55,7 @@ class UpdaterTest {
         testDir.delete()
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testReceiverAttached() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
@@ -70,6 +72,7 @@ class UpdaterTest {
         Mockito.verify(receiver, times(1)).onUpdateFinished(emptySet())
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testUpdateStartedNotificationSent() {
         val receiver = Mockito.mock(NotificationReceiver::class.java)
@@ -83,6 +86,7 @@ class UpdaterTest {
         Mockito.verify(receiver, times(1)).onUpdateInProgress()
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testNothingUpdated() {
         val file = getOriginalTimetable()
@@ -100,6 +104,7 @@ class UpdaterTest {
         Mockito.verify(receiver).onUpdateFinished(emptySet())
     }
 
+    @DelicateCoroutinesApi
     @Test
     fun testTimetableUpdated() {
         val newFile = File("src/test/resources/sampleTimetables/test-timetable-time-mod.html")

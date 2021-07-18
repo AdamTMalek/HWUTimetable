@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.github.hwutimetable.parser.Timetable
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 /**
  * [UpdateService] is a service that is responsible for starting the update process the timetables stored on the device
@@ -12,6 +13,7 @@ import com.github.hwutimetable.parser.Timetable
  * receiver (i.e. [OnUpdateFinishedListener]) if it is specified in the intent extras. This extra receiver
  * may be used to create Android notifications informing the user about ongoing update or the result of it.
  */
+@DelicateCoroutinesApi
 class UpdateService(appContext: Context, params: WorkerParameters) : Worker(appContext, params),
     OnUpdateFinishedListener {
     companion object {

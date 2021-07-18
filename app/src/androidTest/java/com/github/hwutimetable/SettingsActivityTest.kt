@@ -14,12 +14,14 @@ import com.github.hwutimetable.settings.SettingsActivity
 import com.github.hwutimetable.setup.SetupActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 
+@DelicateCoroutinesApi
 @HiltAndroidTest
 class SettingsActivityTest {
     @get:Rule

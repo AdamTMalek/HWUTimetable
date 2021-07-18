@@ -20,11 +20,12 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -34,13 +35,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 
+@DelicateCoroutinesApi
 @UninstallModules(
     value = [FileModule::class, NetworkUtilitiesModule::class, ProgrammeScraperModule::class,
         CourseScraperModule::class]
 )
 @HiltAndroidTest
 class ChangeLogTest {
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     @Module
     object TestTimetableFileHandlerModule {
         @Provides
@@ -49,7 +51,7 @@ class ChangeLogTest {
         }
     }
 
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     @Module
     abstract class TestNetworkUtilitiesModule {
         class TestNetworkUtilities @Inject constructor() : NetworkUtils {
@@ -76,14 +78,14 @@ class ChangeLogTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestProgrammeScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestCourseScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: com.github.hwutimetable.TestCourseScraper): CourseTimetableScraper

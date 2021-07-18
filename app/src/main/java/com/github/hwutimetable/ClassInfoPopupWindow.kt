@@ -42,12 +42,7 @@ class ClassInfoPopupWindow private constructor(contentView: View?, width: Int, h
                 }
 
         private fun getScreenWidth(context: Context): Int {
-            val displayMetrics = DisplayMetrics()
-            context.getSystemService(WindowManager::class.java)!!
-                .defaultDisplay
-                .getMetrics(displayMetrics)
-
-            return displayMetrics.widthPixels
+            return context.resources.displayMetrics.widthPixels
         }
 
         private fun getWindowDimensions(context: Context, width: Int): Pair<Int, Int> {

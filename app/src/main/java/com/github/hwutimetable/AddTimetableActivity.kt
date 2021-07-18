@@ -15,10 +15,7 @@ import com.github.hwutimetable.filehandler.TimetableFileHandler
 import com.github.hwutimetable.parser.Timetable
 import com.github.hwutimetable.scraper.Option
 import com.github.hwutimetable.scraper.TimetableScraper
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import javax.inject.Inject
 
 /**
@@ -173,7 +170,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
      * Populates the given [spinner] with the given list of [elements].
      */
     protected fun populateSpinner(spinner: Spinner, elements: List<String>) {
-        spinner.adapter = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, elements)
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, elements)
     }
 
     /**
@@ -206,7 +203,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
     }
 
     /**
-     * Changes the visibility of the [progress_bar] depending on the passed value.
+     * Changes the visibility of the progress bar depending on the passed value.
      * @param visible If `true`, the progress bar will be visible.
      */
     protected fun changeProgressBarVisibility(visible: Boolean) {
@@ -246,6 +243,7 @@ abstract class AddTimetableActivity<ScraperType : TimetableScraper, ViewBindingT
      */
     protected fun isSaveTimetableChecked() = findViewById<CheckBox>(R.id.save_checkbox).isChecked
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     protected suspend fun saveTimetable(timetable: Timetable) {
         withContext(Dispatchers.IO) {
             timetableHandler.save(timetable)

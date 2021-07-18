@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
  * Annotated with @AndroidEntryPoint as the base class, [AddTimetableActivity], uses Hilt
  * and dependency injection.
  */
+
 @AndroidEntryPoint
 class AddProgrammeTimetableActivity :
     AddTimetableActivity<ProgrammeTimetableScraper, ActivityAddProgrammeTimetableBinding>() {

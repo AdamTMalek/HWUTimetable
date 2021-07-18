@@ -44,7 +44,7 @@ class NoOptimizationRequest(private val context: Context) {
      * that break the functionality of Android, and as a result
      * background workers will be cancelled as soon as the app is killed.
      */
-    private fun isManufacturerBad() = android.os.Build.MANUFACTURER.toLowerCase(Locale.getDefault()) in listOf(
+    private fun isManufacturerBad() = android.os.Build.MANUFACTURER.lowercase(Locale.getDefault()) in listOf(
         "xiaomi",
         "oneplus",
         "huawei",

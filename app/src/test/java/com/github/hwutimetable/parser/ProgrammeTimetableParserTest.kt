@@ -44,7 +44,7 @@ class ProgrammeTimetableParserTest {
     @Test
     fun testNumberOfItems() {
         // There are 15 timetable timetableClasses in tt1.html
-        assertEquals(15, days.sumBy { day -> day.classes.size })
+        assertEquals(15, days.sumOf { day -> day.classes.size })
     }
 
     @Test

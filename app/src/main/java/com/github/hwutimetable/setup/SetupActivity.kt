@@ -2,18 +2,19 @@ package com.github.hwutimetable.setup
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import androidx.fragment.app.FragmentStatePagerAdapter
-import androidx.viewpager.widget.ViewPager
+import androidx.lifecycle.Lifecycle
+import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.github.hwutimetable.R
 import com.github.hwutimetable.databinding.SetupActivityBinding
 import com.github.hwutimetable.network.NetworkUtilities
 import com.github.hwutimetable.network.NetworkUtils
 import com.github.hwutimetable.settings.UpdatePreferenceFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
 import javax.inject.Inject
 
 
@@ -24,7 +25,7 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallbackReceiver {
-    private var pagerAdapter = PagerAdapter(supportFragmentManager)
+    private var pagerAdapter = PagerAdapter(supportFragmentManager, lifecycle)
     private var currentStep = 1
     private val totalSetupSteps = 3
 
@@ -50,7 +51,7 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
     }
 
     private fun setOnPageChangeListener() {
-        viewBinding.viewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        viewBinding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             }
 
@@ -60,11 +61,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
                 setStepDescription()
                 setBackButtonVisibility()
                 setNextButtonVisibility()
-
-                if (currentStep == totalSetupSteps) {
-                    if (!networkUtilities.hasInternetConnection())
-                        setAddTimetableButtonsEnable(false)
-                }
             }
 
             private fun setBackButtonVisibility() {
@@ -124,7 +120,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
 
         runOnUiThread {
             viewBinding.stepDescription.text = getText(R.string.setup_step_3)
-            setAddTimetableButtonsEnable(true)
         }
     }
 
@@ -134,24 +129,21 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
 
         runOnUiThread {
             viewBinding.stepDescription.text = getText(R.string.setup_step_3_no_internet)
-            setAddTimetableButtonsEnable(false)
         }
     }
 
-    private fun setAddTimetableButtonsEnable(enabled: Boolean) {
-        findViewById<Button>(R.id.add_course_button).isEnabled = enabled
-        findViewById<Button>(R.id.add_programme_button).isEnabled = enabled
-    }
+
 
     override fun onDestroy() {
         connectivityCallback.cleanup()
         super.onDestroy()
     }
 
-    inner class PagerAdapter(fm: FragmentManager) :
-        FragmentStatePagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
+    inner class PagerAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+        FragmentStateAdapter(fragmentManager, lifecycle) {
 
-        override fun getItem(position: Int): Fragment {
+        @DelicateCoroutinesApi
+        override fun createFragment(position: Int): Fragment {
             return when (position) {
                 0 -> UpdatePreferenceFragment()
                 1 -> ViewSetupFragment()
@@ -160,10 +152,6 @@ class SetupActivity : AppCompatActivity(), NetworkUtilities.ConnectivityCallback
             }
         }
 
-        override fun getItemPosition(`object`: Any): Int {
-            return POSITION_UNCHANGED
-        }
-
-        override fun getCount() = totalSetupSteps
+        override fun getItemCount() = totalSetupSteps
     }
 }

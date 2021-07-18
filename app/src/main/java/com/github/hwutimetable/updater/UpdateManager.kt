@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.preference.PreferenceManager
 import androidx.work.*
 import com.github.hwutimetable.R
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.joda.time.DateTimeFieldType
 import org.joda.time.DateTimeZone
 import org.joda.time.Instant
@@ -19,6 +20,7 @@ import java.util.concurrent.TimeUnit
  * therefore it will automatically be informed of any preference change and react appropriately.
  */
 
+@DelicateCoroutinesApi
 internal class UpdateManager(private val context: Context) {
     private val logTag = "UpdateManager"
     private val sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)

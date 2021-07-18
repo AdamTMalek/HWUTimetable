@@ -13,6 +13,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.*
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.platform.app.InstrumentationRegistry
 import com.github.hwutimetable.di.CurrentDateProviderModule
@@ -28,13 +29,14 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ApplicationComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
+import dagger.hilt.components.SingletonComponent
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNotNull
+import kotlinx.coroutines.DelicateCoroutinesApi
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.instanceOf
 import org.joda.time.LocalDate
@@ -44,6 +46,7 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@DelicateCoroutinesApi
 @HiltAndroidTest
 @UninstallModules(value = [CurrentDateProviderModule::class, ProgrammeScraperModule::class, FileModule::class])
 class TimetableViewActivityTest {
@@ -51,7 +54,7 @@ class TimetableViewActivityTest {
         override suspend fun getBackgroundColor(type: String) = "#FFFFFF"
     }
 
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     @Module
     object TestTimetableFileHandlerModule {
         @Provides
@@ -61,7 +64,7 @@ class TimetableViewActivityTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestDateProviderModule {
         @Singleton
         @Binds
@@ -69,7 +72,7 @@ class TimetableViewActivityTest {
     }
 
     @Module
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     abstract class TestProgrammeScraper {
         @Binds
         abstract fun bindScraper(scraperForTest: TestScraper): ProgrammeTimetableScraper
@@ -383,7 +386,7 @@ class TimetableViewActivityTest {
         Espresso.openActionBarOverflowOrOptionsMenu(context)
         Espresso.onView(withText("Rename")).perform(click())
 
-        Espresso.onView(withText(targetContext.getString(R.string.rename_dialog_title))).check(matches(isDisplayed()))
+        Espresso.onView(thatMatchesFirst(withText(targetContext.getString(R.string.rename_dialog_title)))).check(matches(isDisplayed()))
     }
 
     @Test

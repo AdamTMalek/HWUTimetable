@@ -19,10 +19,11 @@ import com.github.hwutimetable.updater.OnUpdateFinishedListener
 import com.github.hwutimetable.updater.UpdateManager
 import com.github.hwutimetable.updater.UpdateNotifier
 import com.github.hwutimetable.updater.Updater
-import java.util.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
 
+    @DelicateCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.settings_activity)
@@ -40,8 +41,8 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         val args = pref.extras
         val fragment = supportFragmentManager.fragmentFactory.instantiate(classLoader, pref.fragment).apply {
             arguments = args
-            setTargetFragment(caller, 0)
         }
+
         supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.slide_in_right,
@@ -52,6 +53,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
             .replace(R.id.settings, fragment)
             .addToBackStack(null)
             .commit()
+
         return true
     }
 
@@ -64,24 +66,25 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
     }
 
+    @DelicateCoroutinesApi
     class SettingsFragment : PreferenceFragmentCompat(),
         OnUpdateFinishedListener, NetworkUtilities.ConnectivityCallbackReceiver {
         private lateinit var updateManager: UpdateManager
         private val networkUtilities: NetworkUtilities by lazy {
-            NetworkUtilities(this.context!!)
+            NetworkUtilities(this.requireContext())
         }
         private val updateNowPreference: Preference by lazy {
-            findPreference<Preference>(getString(R.string.update_now))!!
+            findPreference(getString(R.string.update_now))!!
         }
 
         private val connectivityCallback: NetworkUtilities.ConnectivityCallback by lazy {
-            NetworkUtilities.ConnectivityCallback(context!!)
+            NetworkUtilities.ConnectivityCallback(requireContext())
         }
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
 
-            updateManager = UpdateManager(context!!)
+            updateManager = UpdateManager(requireContext())
 
             setUpdateButtonHandler()
             setRunSetupButtonHandler()
@@ -92,28 +95,6 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
 
             if (!networkUtilities.hasInternetConnection())
                 onConnectionLost()
-        }
-
-        override fun onDisplayPreferenceDialog(preference: Preference?) {
-            when (preference) {
-                is TimePreference -> displayTimePreference(preference)
-                is NumberPreference -> displayNumberPreference(preference)
-                else -> super.onDisplayPreferenceDialog(preference)
-            }
-        }
-
-        private fun displayTimePreference(preference: Preference) {
-            TimePreferenceDialogFragmentCompat.newInstance(preference.key).let {
-                it.setTargetFragment(this, 0)
-                it.show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
-            }
-        }
-
-        private fun displayNumberPreference(preference: Preference) {
-            NumberPreferenceDialogFragmentCompat.newInstance(preference.key).let {
-                it.setTargetFragment(this, 0)
-                it.show(parentFragmentManager, "androidx.support.preference.PreferenceFragment.DIALOG")
-            }
         }
 
         private fun setUpdateButtonHandler() {
@@ -129,7 +110,7 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
          * to show "update in progress" notification.
          */
         private fun startUpdate() {
-            val activity = this.activity!!
+            val activity = this.requireActivity()
             val context = activity.applicationContext
             val updater = Updater(activity.filesDir, activity)
             val notifier = UpdateNotifier(context)
@@ -149,19 +130,19 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
 
         private fun runSetup() {
-            val intent = Intent(this.activity!!, SetupActivity::class.java)
-            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this.activity!!).toBundle())
+            val intent = Intent(this.requireActivity(), SetupActivity::class.java)
+            startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(this.requireActivity()).toBundle())
         }
 
         override fun onConnectionAvailable() {
-            activity!!.runOnUiThread {
+            requireActivity().runOnUiThread {
                 updateNowPreference.isEnabled = true
                 updateNowPreference.summary = getString(R.string.update_now_enabled_summary)
             }
         }
 
         override fun onConnectionLost() {
-            activity!!.runOnUiThread {
+            requireActivity().runOnUiThread {
                 updateNowPreference.isEnabled = false
                 updateNowPreference.summary = getString(R.string.update_now_disabled_summary)
             }
@@ -186,14 +167,14 @@ class SettingsActivity : AppCompatActivity(), PreferenceFragmentCompat.OnPrefere
         }
 
         private fun getVersion(): String {
-            val packageManager = context!!.packageManager!!
-            val packageInfo = packageManager.getPackageInfo(context!!.packageName, 0)
+            val packageManager = requireContext().packageManager!!
+            val packageInfo = packageManager.getPackageInfo(requireContext().packageName, 0)
             return packageInfo.versionName
         }
 
         private fun setRecentChangesClickHandler() {
             findPreference<Preference>("recent_changes")!!.setOnPreferenceClickListener {
-                ChangeLog(context!!).run {
+                ChangeLog(requireContext()).run {
                     showRecent()
                 }
                 true
